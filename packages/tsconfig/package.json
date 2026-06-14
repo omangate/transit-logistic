@@ -1,0 +1,12 @@
+{
+  "name": "@transit-logistic/tsconfig",
+  "version": "0.0.0",
+  "private": true,
+  "license": "UNLICENSED",
+  "files": [
+    "base.json",
+    "nestjs.json",
+    "nextjs.json",
+    "react-library.json"
+  ]
+}

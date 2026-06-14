@@ -1,0 +1,689 @@
+{
+  "common": {
+    "appName": "Transit Logistic",
+    "tagline": "Connecting customers and fleet owners across the region",
+    "language": "Language",
+    "english": "English",
+    "arabic": "Arabic"
+  },
+  "home": {
+    "title": "Logistics made simple",
+    "description": "Create shipments, track deliveries in real time, and manage your fleet — all in one platform.",
+    "getStarted": "Get started",
+    "phase": "Phase 0 — Foundation ready"
+  },
+  "auth": {
+    "loginTitle": "Sign in",
+    "registerTitle": "Create account",
+    "email": "Email",
+    "password": "Password",
+    "confirmPassword": "Confirm password",
+    "name": "Full name",
+    "role": "Account type",
+    "roleCustomer": "Customer",
+    "roleFleetOwner": "Fleet owner",
+    "loginButton": "Sign in",
+    "registerButton": "Create account",
+    "submitting": "Please wait...",
+    "passwordHint": "At least 8 characters with uppercase, lowercase, and a number.",
+    "noAccount": "Don't have an account?",
+    "hasAccount": "Already have an account?",
+    "registerLink": "Register",
+    "loginLink": "Sign in",
+    "backHome": "Back to home",
+    "errors": {
+      "generic": "Something went wrong. Please try again.",
+      "requiredFields": "Please fill in all required fields.",
+      "passwordMismatch": "Passwords do not match.",
+      "passwordMinLength": "Password must be at least 8 characters.",
+      "passwordComplexity": "Password must include uppercase, lowercase, and a number.",
+      "fullNameRequired": "Full name is required for customer accounts."
+    }
+  },
+  "portal": {
+    "brand": "Transit Logistic",
+    "loading": "Loading...",
+    "logout": "Log out",
+    "nav": {
+      "dashboard": "Dashboard",
+      "shipments": "Shipments",
+      "newShipment": "New shipment",
+      "notifications": "Notifications"
+    },
+    "errors": {
+      "generic": "Something went wrong. Please try again."
+    }
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "subtitle": "Overview of your shipments",
+    "loading": "Loading dashboard...",
+    "stats": {
+      "total": "Total shipments",
+      "active": "Active",
+      "draft": "Draft",
+      "completed": "Completed"
+    },
+    "recentTitle": "Recent shipments",
+    "viewAll": "View all",
+    "emptyRecent": "No shipments yet. Create your first shipment to get started.",
+    "createFirst": "Create shipment"
+  },
+  "shipments": {
+    "listTitle": "Shipments",
+    "listSubtitle": "All your shipments in one place",
+    "createTitle": "Create shipment",
+    "createSubtitle": "Enter pickup and delivery details",
+    "detailsTitle": "Shipment details",
+    "detailsLoading": "Loading shipment...",
+    "notFound": "Shipment not found",
+    "createButton": "New shipment",
+    "backToList": "Back to shipments",
+    "emptyList": "You have no shipments yet.",
+    "customerOnly": "Only customer accounts can create shipments.",
+    "submit": "Create shipment",
+    "submitting": "Creating...",
+    "cancel": "Cancel",
+    "sections": {
+      "cargo": "Cargo",
+      "pickup": "Pickup",
+      "delivery": "Delivery",
+      "overview": "Overview",
+      "pricing": "Pricing",
+      "timeline": "Timeline"
+    },
+    "fields": {
+      "cargoType": "Cargo type",
+      "cargoDescription": "Cargo description",
+      "weightKg": "Weight (kg)",
+      "packageCount": "Number of packages",
+      "lengthCm": "Length (cm)",
+      "widthCm": "Width (cm)",
+      "heightCm": "Height (cm)",
+      "shippingMethod": "Shipping method",
+      "isCrossBorder": "Cross-border shipment",
+      "scheduledAt": "Scheduled pickup",
+      "address": "Address",
+      "city": "City",
+      "latitude": "Latitude",
+      "longitude": "Longitude"
+    },
+    "cargoType": {
+      "dry": "Dry goods",
+      "refrigerated": "Refrigerated",
+      "special": "Special cargo"
+    },
+    "shippingMethod": {
+      "standard": "Standard",
+      "express": "Express",
+      "cross_border": "Cross-border"
+    },
+    "yes": "Yes",
+    "no": "No",
+    "placeholders": {
+      "cargoDescription": "e.g. Electronics, furniture, documents"
+    },
+    "table": {
+      "reference": "Reference",
+      "route": "Route",
+      "cargo": "Cargo",
+      "status": "Status",
+      "created": "Created"
+    },
+    "pricing": {
+      "base": "Base amount",
+      "fee": "Platform fee",
+      "total": "Total",
+      "pending": "Pricing will appear after the shipment is created."
+    },
+    "actions": {
+      "confirm": "Confirm & pay",
+      "cancel": "Cancel shipment",
+      "complete": "Confirm receipt",
+      "edit": "Edit draft",
+      "working": "Please wait..."
+    },
+    "editTitle": "Edit shipment",
+    "editLoading": "Loading shipment for edit...",
+    "editNotAllowed": "Only draft shipments can be edited.",
+    "backToDetails": "Back to details",
+    "saveChanges": "Save changes",
+    "commerce": {
+      "contract": "Contract",
+      "invoice": "Invoice",
+      "viewContract": "View contract",
+      "viewInvoice": "View invoice",
+      "downloadContract": "Download contract PDF",
+      "downloadInvoice": "Download invoice PDF",
+      "notAvailable": "Contract or invoice is not available yet."
+    },
+    "documents": {
+      "title": "Customs & shipment documents",
+      "subtitle": "Upload customs clearance or supporting documents.",
+      "upload": "Upload document",
+      "uploading": "Uploading...",
+      "empty": "No documents uploaded yet.",
+      "types": {
+        "customs": "Customs clearance",
+        "billOfLading": "Bill of lading",
+        "commercialInvoice": "Commercial invoice",
+        "packingList": "Packing list",
+        "other": "Other"
+      },
+      "errors": {
+        "generic": "Upload failed. Please try again."
+      }
+    },
+    "rating": {
+      "title": "Rate your carrier",
+      "subtitle": "Help other traders choose reliable fleet owners.",
+      "score": "Score",
+      "comment": "Comment (optional)",
+      "submit": "Submit rating",
+      "submitting": "Submitting...",
+      "submitted": "You rated this carrier {score}/5.",
+      "errors": {
+        "generic": "Could not submit rating."
+      }
+    },
+    "payment": {
+      "payAndConfirmButton": "Pay by card and confirm shipment",
+      "title": "Card payment",
+      "reference": "Shipment number",
+      "amount": "Amount due",
+      "currency": "Currency",
+      "cardNumber": "Card number",
+      "expiryMonth": "MM",
+      "expiryYear": "YY",
+      "cvc": "CVC",
+      "mockHint": "Mock provider: use any card number except one ending in 0000.",
+      "checkoutHint": "You will be redirected to our secure payment provider to complete checkout.",
+      "payAndConfirm": "Continue to checkout",
+      "processing": "Processing payment...",
+      "cancel": "Cancel",
+      "success": "Payment successful. Shipment is now pending assignment.",
+      "errors": {
+        "generic": "Payment failed. Please try again.",
+        "cardRequired": "Card number is required.",
+        "checkoutUnavailable": "Checkout is unavailable. Please try again later."
+      },
+      "status": {
+        "requires_confirmation": "Awaiting card confirmation",
+        "processing": "Processing",
+        "succeeded": "Paid",
+        "failed": "Failed",
+        "cancelled": "Cancelled",
+        "refunded": "Refunded"
+      }
+    },
+    "timeline": {
+      "empty": "No timeline events yet."
+    },
+    "errors": {
+      "requiredStops": "Pickup and delivery addresses are required."
+    },
+    "status": {
+      "draft": "Draft",
+      "pending_assignment": "Pending assignment",
+      "assigned": "Assigned",
+      "picked_up": "Picked up",
+      "in_transit": "In transit",
+      "delivered": "Delivered",
+      "completed": "Completed",
+      "cancelled": "Cancelled"
+    }
+  },
+  "admin": {
+    "brand": "Transit Admin",
+    "loading": "Loading...",
+    "logout": "Log out",
+    "working": "Please wait...",
+    "nav": {
+      "dashboard": "Dashboard",
+      "shipments": "Shipments",
+      "customers": "Customers",
+      "fleetOwners": "Fleet owners",
+      "drivers": "Drivers",
+      "vehicles": "Vehicles",
+      "payments": "Payments",
+      "payouts": "Payouts",
+      "ratings": "Ratings",
+      "settings": "Settings"
+    },
+    "errors": {
+      "generic": "Something went wrong. Please try again."
+    },
+    "metrics": {
+      "total": "Total shipments",
+      "active": "Active shipments",
+      "pending": "Pending assignment",
+      "assigned": "Assigned",
+      "inProgress": "In progress",
+      "completed": "Completed",
+      "cancelled": "Cancelled",
+      "revenue": "Total revenue",
+      "pendingPayments": "Pending payments",
+      "fleetOwners": "Fleet owners",
+      "drivers": "Drivers",
+      "vehicles": "Vehicles",
+      "pendingPayouts": "Pending payouts"
+    },
+    "dashboard": {
+      "title": "Admin dashboard",
+      "subtitle": "Operations overview",
+      "recentTitle": "Recent shipments",
+      "viewAll": "View all shipments",
+      "emptyRecent": "No shipments yet.",
+      "notificationsTitle": "Latest notifications",
+      "viewNotifications": "View all notifications",
+      "emptyNotifications": "No notifications yet."
+    },
+    "shipments": {
+      "title": "Shipments management",
+      "subtitle": "Monitor and assign customer shipments",
+      "detailsTitle": "Shipment details",
+      "notFound": "Shipment not found",
+      "backToList": "Back to shipments",
+      "empty": "No shipments match this filter.",
+      "searchPlaceholder": "Search by reference or cargo",
+      "exportCsv": "Export CSV",
+      "exportPdf": "Export PDF",
+      "pagination": {
+        "prev": "Previous",
+        "next": "Next",
+        "page": "Page {page} of {total}"
+      },
+      "filters": {
+        "all": "All"
+      },
+      "assign": {
+        "title": "Assign to fleet",
+        "fleetOwner": "Fleet owner",
+        "driver": "Driver",
+        "vehicle": "Vehicle",
+        "selectFleetOwner": "Select fleet owner",
+        "selectDriver": "Select driver",
+        "selectVehicle": "Select vehicle",
+        "submit": "Assign shipment",
+        "required": "Fleet owner, driver, and vehicle are required."
+      },
+      "actions": {
+        "setStatus": "Mark as {status}"
+      },
+      "tracking": {
+        "title": "Shipment tracking",
+        "mapTitle": "Tracking map",
+        "publicUrl": "Public tracking URL",
+        "copyLink": "Copy tracking link",
+        "copied": "Link copied",
+        "openPage": "Open public tracking page",
+        "noCoordinates": "No tracking coordinates are available for this shipment yet"
+      }
+    },
+    "customers": {
+      "title": "Customers",
+      "subtitle": "Registered customer accounts",
+      "loading": "Loading customers...",
+      "empty": "No customers yet.",
+      "name": "Name",
+      "email": "Email",
+      "phone": "Phone",
+      "shipments": "Shipments",
+      "status": "Status",
+      "joined": "Joined",
+      "active": "Active",
+      "inactive": "Inactive",
+      "errors": { "generic": "Something went wrong. Please try again." }
+    },
+    "fleetOwners": {
+      "title": "Fleet owners",
+      "subtitle": "Registered fleet companies",
+      "loading": "Loading fleet owners...",
+      "empty": "No fleet owners yet.",
+      "company": "Company",
+      "email": "Email",
+      "phone": "Phone",
+      "drivers": "Drivers",
+      "vehicles": "Vehicles",
+      "kyc": "KYC",
+      "status": "Status",
+      "active": "Active",
+      "inactive": "Inactive",
+      "kycStatus": {
+        "not_submitted": "Not submitted",
+        "pending": "Pending",
+        "approved": "Approved",
+        "rejected": "Rejected"
+      },
+      "errors": { "generic": "Something went wrong. Please try again." }
+    },
+    "drivers": {
+      "title": "Drivers",
+      "subtitle": "All registered drivers across fleets",
+      "loading": "Loading drivers...",
+      "empty": "No drivers yet.",
+      "email": "Email",
+      "phone": "Phone",
+      "license": "License",
+      "available": "Available",
+      "status": "Status",
+      "yes": "Yes",
+      "no": "No",
+      "active": "Active",
+      "inactive": "Inactive",
+      "errors": { "generic": "Something went wrong. Please try again." }
+    },
+    "vehicles": {
+      "title": "Vehicles",
+      "subtitle": "All registered vehicles across fleets",
+      "loading": "Loading vehicles...",
+      "empty": "No vehicles yet.",
+      "plate": "Plate number",
+      "type": "Type",
+      "capacity": "Capacity",
+      "status": "Status",
+      "active": "Active",
+      "inactive": "Inactive",
+      "errors": { "generic": "Something went wrong. Please try again." }
+    },
+    "payments": {
+      "title": "Payments",
+      "subtitle": "All payment transactions",
+      "loading": "Loading payments...",
+      "empty": "No payments yet.",
+      "reference": "Shipment",
+      "amount": "Amount",
+      "provider": "Provider",
+      "status": "Status",
+      "date": "Date",
+      "statuses": {
+        "requires_payment_method": "Requires method",
+        "requires_confirmation": "Requires confirmation",
+        "processing": "Processing",
+        "succeeded": "Succeeded",
+        "failed": "Failed",
+        "cancelled": "Cancelled",
+        "refunded": "Refunded"
+      },
+      "errors": { "generic": "Something went wrong. Please try again." }
+    },
+    "ratings": {
+      "title": "Ratings",
+      "subtitle": "Customer ratings for fleet carriers",
+      "loading": "Loading ratings...",
+      "empty": "No ratings yet.",
+      "shipment": "Shipment",
+      "customer": "Customer",
+      "fleetOwner": "Fleet owner",
+      "score": "Score",
+      "comment": "Comment",
+      "date": "Date",
+      "errors": { "generic": "Something went wrong. Please try again." }
+    },
+    "payouts": {
+      "title": "Payout requests",
+      "subtitle": "Review and process fleet withdrawal requests",
+      "loading": "Loading payouts...",
+      "empty": "No payout requests yet.",
+      "user": "Fleet owner",
+      "amount": "Amount",
+      "status": "Status",
+      "actions": "Actions",
+      "approve": "Approve",
+      "reject": "Reject",
+      "markPaid": "Mark paid",
+      "rejectReason": "Rejection reason",
+      "statuses": {
+        "pending": "Pending",
+        "approved": "Approved",
+        "rejected": "Rejected",
+        "paid": "Paid"
+      },
+      "errors": {
+        "generic": "Something went wrong. Please try again."
+      }
+    }
+  },
+  "fleet": {
+    "loading": "Loading...",
+    "logout": "Log out",
+    "working": "Please wait...",
+    "errors": {
+      "generic": "Something went wrong. Please try again."
+    },
+    "nav": {
+      "dashboard": "Dashboard",
+      "shipments": "Shipments",
+      "drivers": "Drivers",
+      "vehicles": "Vehicles",
+      "wallet": "Wallet",
+      "payouts": "Payouts",
+      "ratings": "Ratings"
+    },
+    "dashboard": {
+      "title": "Fleet dashboard",
+      "subtitle": "Overview of your operations",
+      "earnings": "Wallet balance",
+      "assigned": "Assigned",
+      "inProgress": "In progress",
+      "completed": "Completed",
+      "recentTitle": "Recent shipments",
+      "viewAll": "View all",
+      "emptyRecent": "No assigned shipments yet."
+    },
+    "shipments": {
+      "title": "Shipments",
+      "subtitle": "Available and assigned shipments",
+      "availableTitle": "Available shipments",
+      "assignedTitle": "Assigned shipments",
+      "emptyAvailable": "No shipments available to accept.",
+      "emptyAssigned": "No assigned shipments yet.",
+      "actions": "Actions",
+      "accept": "Accept",
+      "selectDriver": "Select driver",
+      "selectVehicle": "Select vehicle",
+      "acceptRequired": "Driver and vehicle are required to accept a shipment."
+    },
+    "drivers": {
+      "title": "Drivers",
+      "subtitle": "Your fleet drivers",
+      "empty": "No drivers registered yet.",
+      "addTitle": "Add driver",
+      "email": "Email",
+      "password": "Password",
+      "phone": "Phone",
+      "license": "License",
+      "available": "Available",
+      "create": "Add driver",
+      "creating": "Adding...",
+      "yes": "Yes",
+      "no": "No",
+      "actions": "Actions",
+      "toggleAvailable": "Toggle availability",
+      "delete": "Delete",
+      "confirmDelete": "Delete this driver?"
+    },
+    "vehicles": {
+      "title": "Vehicles",
+      "subtitle": "Your fleet vehicles",
+      "empty": "No vehicles registered yet.",
+      "addTitle": "Add vehicle",
+      "plate": "Plate number",
+      "type": "Type",
+      "capacity": "Capacity",
+      "create": "Add vehicle",
+      "creating": "Adding...",
+      "active": "Active",
+      "yes": "Yes",
+      "no": "No",
+      "actions": "Actions",
+      "toggleActive": "Toggle active",
+      "delete": "Delete",
+      "confirmDelete": "Delete this vehicle?"
+    },
+    "wallet": {
+      "title": "Wallet",
+      "subtitle": "Balance and transaction history",
+      "balance": "Available balance",
+      "transactions": "Transactions",
+      "type": "Type",
+      "amount": "Amount",
+      "date": "Date",
+      "empty": "No transactions yet.",
+      "loading": "Loading wallet...",
+      "errors": {
+        "generic": "Something went wrong. Please try again."
+      }
+    },
+    "payouts": {
+      "title": "Payouts",
+      "subtitle": "Request withdrawals from your wallet",
+      "balance": "Wallet balance",
+      "requestTitle": "New payout request",
+      "amount": "Amount (SAR)",
+      "accountName": "Account holder name",
+      "bankName": "Bank name",
+      "iban": "IBAN",
+      "submit": "Submit request",
+      "submitting": "Submitting...",
+      "status": "Status",
+      "created": "Requested",
+      "empty": "No payout requests yet.",
+      "loading": "Loading payouts...",
+      "statuses": {
+        "pending": "Pending",
+        "approved": "Approved",
+        "rejected": "Rejected",
+        "paid": "Paid"
+      },
+      "errors": {
+        "generic": "Something went wrong. Please try again."
+      }
+    },
+    "ratings": {
+      "title": "Carrier ratings",
+      "subtitle": "Feedback from your customers",
+      "overview": "Summary",
+      "average": "Average score",
+      "total": "Total ratings",
+      "recent": "Recent ratings",
+      "noRecent": "No ratings yet.",
+      "empty": "No rating data available.",
+      "loading": "Loading ratings...",
+      "errors": {
+        "generic": "Something went wrong. Please try again."
+      }
+    }
+  },
+  "driver": {
+    "loading": "Loading...",
+    "logout": "Log out",
+    "working": "Please wait...",
+    "errors": {
+      "generic": "Something went wrong. Please try again."
+    },
+    "nav": {
+      "dashboard": "Dashboard"
+    },
+    "dashboard": {
+      "title": "Driver dashboard",
+      "subtitle": "Your active shipment",
+      "noActive": "You have no active shipment right now.",
+      "viewShipment": "Open shipment"
+    },
+    "shipment": {
+      "title": "Shipment",
+      "loading": "Loading shipment...",
+      "notFound": "Shipment not found",
+      "backToDashboard": "Back to dashboard"
+    },
+    "actions": {
+      "pickup": "Confirm pickup",
+      "startTransit": "Start transit",
+      "deliver": "Confirm delivery",
+      "shareLocation": "Share GPS location"
+    }
+  },
+  "tracking": {
+    "title": "Track your shipment",
+    "subtitle": "Enter your tracking number to see delivery status.",
+    "referenceLabel": "Tracking number",
+    "referencePlaceholder": "e.g. TRX-2026-0001",
+    "trackButton": "Track",
+    "backToSearch": "Back to search",
+    "loading": "Loading tracking details...",
+    "liveMap": "Live map",
+    "estimatedDelivery": "Estimated delivery",
+    "notFound": "Tracking number not found.",
+    "errors": {
+      "generic": "Something went wrong. Please try again."
+    }
+  },
+  "notifications": {
+    "title": "Notifications",
+    "subtitle": "Your recent alerts and updates",
+    "loading": "Loading notifications...",
+    "empty": "You have no notifications yet.",
+    "markRead": "Mark as read",
+    "markAllRead": "Mark all as read",
+    "working": "Please wait..."
+  },
+  "settings": {
+    "title": "Platform settings",
+    "subtitle": "Manage company, email, payment, and notification settings",
+    "loading": "Loading settings...",
+    "save": "Save changes",
+    "saving": "Saving...",
+    "saved": "Settings saved successfully.",
+    "sections": {
+      "company": "Company",
+      "email": "Email",
+      "payment": "Payment",
+      "notifications": "Notifications"
+    },
+    "company": {
+      "nameEn": "Company name (English)",
+      "nameAr": "Company name (Arabic)",
+      "email": "Support email",
+      "phone": "Phone",
+      "address": "Address"
+    },
+    "email": {
+      "provider": "Email provider",
+      "fromAddress": "From address",
+      "enabled": "Enable email notifications"
+    },
+    "payment": {
+      "provider": "Payment provider",
+      "currency": "Currency",
+      "successPath": "Success redirect path",
+      "cancelPath": "Cancel redirect path"
+    },
+    "notifications": {
+      "inApp": "In-app notifications",
+      "email": "Email notifications",
+      "push": "Push notifications"
+    },
+    "errors": {
+      "generic": "Something went wrong. Please try again."
+    }
+  },
+  "payment": {
+    "success": {
+      "title": "Payment successful",
+      "subtitle": "Your shipment payment was completed",
+      "message": "Thank you. Your shipment is now pending fleet assignment.",
+      "verifying": "Verifying your payment..."
+    },
+    "errors": {
+      "verifyFailed": "We could not verify your payment yet. Check the shipment page shortly."
+    },
+    "cancel": {
+      "title": "Payment cancelled",
+      "subtitle": "Your payment was not completed",
+      "message": "You can return to the shipment and try again when ready."
+    },
+    "viewShipment": "View shipment",
+    "backToList": "Back to shipments"
+  }
+}

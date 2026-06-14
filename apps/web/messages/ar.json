@@ -1,0 +1,688 @@
+{
+  "common": {
+    "appName": "ترانزيت لوجستيك",
+    "tagline": "ربط العملاء وأصحاب الأساطيل عبر المنطقة",
+    "language": "اللغة",
+    "english": "الإنجليزية",
+    "arabic": "العربية"
+  },
+  "home": {
+    "title": "الخدمات اللوجستية ببساطة",
+    "description": "أنشئ الشحنات، تتبع التسليم في الوقت الفعلي، وأدر أسطولك — كل ذلك في منصة واحدة.",
+    "getStarted": "ابدأ الآن",
+    "phase": "المرحلة 0 — الأساس جاهز"
+  },
+  "auth": {
+    "loginTitle": "تسجيل الدخول",
+    "registerTitle": "إنشاء حساب",
+    "email": "البريد الإلكتروني",
+    "password": "كلمة المرور",
+    "confirmPassword": "تأكيد كلمة المرور",
+    "name": "الاسم الكامل",
+    "role": "نوع الحساب",
+    "roleCustomer": "عميل",
+    "roleFleetOwner": "مالك أسطول",
+    "loginButton": "تسجيل الدخول",
+    "registerButton": "إنشاء حساب",
+    "submitting": "يرجى الانتظار...",
+    "passwordHint": "8 أحرف على الأقل، وتتضمن حرفاً كبيراً وصغيراً ورقماً.",
+    "noAccount": "ليس لديك حساب؟",
+    "hasAccount": "لديك حساب بالفعل؟",
+    "registerLink": "إنشاء حساب",
+    "loginLink": "تسجيل الدخول",
+    "backHome": "العودة للرئيسية",
+    "errors": {
+      "generic": "حدث خطأ ما. يرجى المحاولة مرة أخرى.",
+      "requiredFields": "يرجى تعبئة جميع الحقول المطلوبة.",
+      "passwordMismatch": "كلمتا المرور غير متطابقتين.",
+      "passwordMinLength": "يجب أن تكون كلمة المرور 8 أحرف على الأقل.",
+      "passwordComplexity": "يجب أن تحتوي كلمة المرور على حرف كبير وحرف صغير ورقم.",
+      "fullNameRequired": "الاسم الكامل مطلوب لحسابات العملاء."
+    }
+  },
+  "portal": {
+    "brand": "ترانزيت لوجستيك",
+    "loading": "جارٍ التحميل...",
+    "logout": "تسجيل الخروج",
+    "nav": {
+      "dashboard": "لوحة التحكم",
+      "shipments": "الشحنات",
+      "newShipment": "شحنة جديدة",
+      "notifications": "الإشعارات"
+    },
+    "errors": {
+      "generic": "حدث خطأ ما. يرجى المحاولة مرة أخرى."
+    }
+  },
+  "dashboard": {
+    "title": "لوحة التحكم",
+    "subtitle": "نظرة عامة على شحناتك",
+    "loading": "جارٍ تحميل لوحة التحكم...",
+    "stats": {
+      "total": "إجمالي الشحنات",
+      "active": "نشطة",
+      "draft": "مسودة",
+      "completed": "مكتملة"
+    },
+    "recentTitle": "أحدث الشحنات",
+    "viewAll": "عرض الكل",
+    "emptyRecent": "لا توجد شحنات بعد. أنشئ شحنتك الأولى للبدء.",
+    "createFirst": "إنشاء شحنة"
+  },
+  "shipments": {
+    "listTitle": "الشحنات",
+    "listSubtitle": "جميع شحناتك في مكان واحد",
+    "createTitle": "إنشاء شحنة",
+    "createSubtitle": "أدخل تفاصيل الاستلام والتسليم",
+    "detailsTitle": "تفاصيل الشحنة",
+    "detailsLoading": "جارٍ تحميل الشحنة...",
+    "notFound": "الشحنة غير موجودة",
+    "createButton": "شحنة جديدة",
+    "backToList": "العودة إلى الشحنات",
+    "emptyList": "ليس لديك شحنات بعد.",
+    "customerOnly": "يمكن لحسابات العملاء فقط إنشاء الشحنات.",
+    "submit": "إنشاء شحنة",
+    "submitting": "جارٍ الإنشاء...",
+    "cancel": "إلغاء",
+    "sections": {
+      "cargo": "البضاعة",
+      "pickup": "الاستلام",
+      "delivery": "التسليم",
+      "overview": "نظرة عامة",
+      "pricing": "التسعير",
+      "timeline": "الجدول الزمني"
+    },
+    "fields": {
+      "cargoType": "نوع البضاعة",
+      "cargoDescription": "وصف البضاعة",
+      "weightKg": "الوزن (كجم)",
+      "packageCount": "عدد الطرود",
+      "lengthCm": "الطول (سم)",
+      "widthCm": "العرض (سم)",
+      "heightCm": "الارتفاع (سم)",
+      "shippingMethod": "طريقة الشحن",
+      "isCrossBorder": "شحنة عابرة للحدود",
+      "scheduledAt": "موعد الاستلام",
+      "address": "العنوان",
+      "city": "المدينة",
+      "latitude": "خط العرض",
+      "longitude": "خط الطول"
+    },
+    "cargoType": {
+      "dry": "بضائع جافة",
+      "refrigerated": "مبردة",
+      "special": "بضائع خاصة"
+    },
+    "shippingMethod": {
+      "standard": "عادي",
+      "express": "سريع",
+      "cross_border": "عابر للحدود"
+    },
+    "yes": "نعم",
+    "no": "لا",
+    "placeholders": {
+      "cargoDescription": "مثال: إلكترونيات، أثاث، مستندات"
+    },
+    "table": {
+      "reference": "المرجع",
+      "route": "المسار",
+      "cargo": "البضاعة",
+      "status": "الحالة",
+      "created": "تاريخ الإنشاء"
+    },
+    "pricing": {
+      "base": "المبلغ الأساسي",
+      "fee": "رسوم المنصة",
+      "total": "الإجمالي",
+      "pending": "سيظهر التسعير بعد إنشاء الشحنة."
+    },
+    "actions": {
+      "confirm": "تأكيد والدفع",
+      "cancel": "إلغاء الشحنة",
+      "complete": "تأكيد الاستلام",
+      "edit": "تعديل المسودة",
+      "working": "يرجى الانتظار..."
+    },
+    "editTitle": "تعديل الشحنة",
+    "editLoading": "جارٍ تحميل الشحنة للتعديل...",
+    "editNotAllowed": "يمكن تعديل الشحنات في حالة المسودة فقط.",
+    "backToDetails": "العودة للتفاصيل",
+    "saveChanges": "حفظ التغييرات",
+    "commerce": {
+      "contract": "العقد",
+      "invoice": "الفاتورة",
+      "viewContract": "عرض العقد",
+      "viewInvoice": "عرض الفاتورة",
+      "downloadContract": "تحميل العقد PDF",
+      "downloadInvoice": "تحميل الفاتورة PDF",
+      "notAvailable": "العقد أو الفاتورة غير متاحين بعد."
+    },
+    "documents": {
+      "title": "مستندات الجمارك والشحنة",
+      "subtitle": "ارفع مستندات التخليص الجمركي أو المستندات الداعمة.",
+      "upload": "رفع مستند",
+      "uploading": "جارٍ الرفع...",
+      "empty": "لا توجد مستندات بعد.",
+      "types": {
+        "customs": "تخليص جمركي",
+        "billOfLading": "بوليصة شحن",
+        "commercialInvoice": "فاتورة تجارية",
+        "packingList": "قائمة التعبئة",
+        "other": "أخرى"
+      },
+      "errors": {
+        "generic": "فشل الرفع. يرجى المحاولة مرة أخرى."
+      }
+    },
+    "rating": {
+      "title": "قيّم الناقل",
+      "subtitle": "ساعد التجار الآخرين في اختيار ناقلين موثوقين.",
+      "score": "التقييم",
+      "comment": "تعليق (اختياري)",
+      "submit": "إرسال التقييم",
+      "submitting": "جارٍ الإرسال...",
+      "submitted": "قيّمت هذا الناقل {score}/5.",
+      "errors": {
+        "generic": "تعذر إرسال التقييم."
+      }
+    },
+    "payment": {
+      "payAndConfirmButton": "الدفع بالبطاقة وتأكيد الشحنة",
+      "title": "الدفع بالبطاقة",
+      "reference": "رقم الشحنة",
+      "amount": "المبلغ المستحق",
+      "currency": "العملة",
+      "cardNumber": "رقم البطاقة",
+      "expiryMonth": "الشهر",
+      "expiryYear": "السنة",
+      "cvc": "رمز الأمان",
+      "mockHint": "مزود تجريبي: استخدم أي رقم بطاقة ما عدا البطاقات التي تنتهي بـ 0000.",
+      "checkoutHint": "سيتم تحويلك إلى مزود الدفع الآمن لإتمام عملية الدفع.",
+      "payAndConfirm": "المتابعة إلى الدفع",
+      "processing": "جارٍ معالجة الدفع...",
+      "cancel": "إلغاء",
+      "success": "تم الدفع بنجاح. الشحنة الآن بانتظار التعيين.",
+      "errors": {
+        "generic": "فشل الدفع. يرجى المحاولة مرة أخرى.",
+        "cardRequired": "رقم البطاقة مطلوب.",
+        "checkoutUnavailable": "الدفع غير متاح حالياً. يرجى المحاولة لاحقاً."
+      },
+      "status": {
+        "requires_confirmation": "بانتظار تأكيد البطاقة",
+        "processing": "قيد المعالجة",
+        "succeeded": "مدفوع",
+        "failed": "فشل",
+        "cancelled": "ملغى",
+        "refunded": "مسترد"
+      }
+    },
+    "timeline": {
+      "empty": "لا توجد أحداث في الجدول الزمني بعد."
+    },
+    "errors": {
+      "requiredStops": "عناوين الاستلام والتسليم مطلوبة."
+    },
+    "status": {
+      "draft": "مسودة",
+      "pending_assignment": "بانتظار التعيين",
+      "assigned": "معينة",
+      "picked_up": "تم الاستلام",
+      "in_transit": "قيد النقل",
+      "delivered": "تم التسليم",
+      "completed": "مكتملة",
+      "cancelled": "ملغاة"
+    }
+  },
+  "admin": {
+    "brand": "إدارة ترانزيت",
+    "loading": "جارٍ التحميل...",
+    "logout": "تسجيل الخروج",
+    "working": "يرجى الانتظار...",
+    "nav": {
+      "dashboard": "لوحة التحكم",
+      "shipments": "الشحنات",
+      "customers": "العملاء",
+      "fleetOwners": "مالكو الأساطيل",
+      "drivers": "السائقون",
+      "vehicles": "المركبات",
+      "payments": "المدفوعات",
+      "payouts": "السحوبات",
+      "ratings": "التقييمات",
+      "settings": "الإعدادات"
+    },
+    "errors": {
+      "generic": "حدث خطأ ما. يرجى المحاولة مرة أخرى."
+    },
+    "metrics": {
+      "total": "إجمالي الشحنات",
+      "active": "الشحنات النشطة",
+      "pending": "بانتظار التعيين",
+      "assigned": "معينة",
+      "inProgress": "قيد التنفيذ",
+      "completed": "مكتملة",
+      "cancelled": "ملغاة",
+      "revenue": "إجمالي الإيرادات",
+      "pendingPayments": "مدفوعات معلقة",
+      "fleetOwners": "مالكو الأساطيل",
+      "drivers": "السائقون",
+      "vehicles": "المركبات",
+      "pendingPayouts": "سحوبات معلقة"
+    },
+    "dashboard": {
+      "title": "لوحة تحكم الإدارة",
+      "subtitle": "نظرة عامة على العمليات",
+      "recentTitle": "أحدث الشحنات",
+      "viewAll": "عرض كل الشحنات",
+      "emptyRecent": "لا توجد شحنات بعد.",
+      "notificationsTitle": "أحدث الإشعارات",
+      "viewNotifications": "عرض كل الإشعارات",
+      "emptyNotifications": "لا توجد إشعارات بعد."
+    },
+    "shipments": {
+      "title": "إدارة الشحنات",
+      "subtitle": "مراقبة وتعيين شحنات العملاء",
+      "detailsTitle": "تفاصيل الشحنة",
+      "notFound": "الشحنة غير موجودة",
+      "backToList": "العودة إلى الشحنات",
+      "empty": "لا توجد شحنات تطابق هذا الفلتر.",
+      "searchPlaceholder": "ابحث بالرقم المرجعي أو البضاعة",
+      "exportCsv": "تصدير CSV",
+      "exportPdf": "تصدير PDF",
+      "pagination": {
+        "prev": "السابق",
+        "next": "التالي",
+        "page": "صفحة {page} من {total}"
+      },
+      "filters": {
+        "all": "الكل"
+      },
+      "assign": {
+        "title": "تعيين للأسطول",
+        "fleetOwner": "مالك الأسطول",
+        "driver": "السائق",
+        "vehicle": "المركبة",
+        "selectFleetOwner": "اختر مالك الأسطول",
+        "selectDriver": "اختر السائق",
+        "selectVehicle": "اختر المركبة",
+        "submit": "تعيين الشحنة",
+        "required": "مالك الأسطول والسائق والمركبة مطلوبون."
+      },
+      "actions": {
+        "setStatus": "تعيين كـ {status}"
+      },
+      "tracking": {
+        "title": "تتبع الشحنة",
+        "mapTitle": "خريطة التتبع",
+        "publicUrl": "رابط التتبع العام",
+        "copyLink": "نسخ رابط التتبع",
+        "copied": "تم نسخ الرابط",
+        "openPage": "فتح صفحة التتبع العامة",
+        "noCoordinates": "لا توجد إحداثيات تتبع لهذه الشحنة بعد"
+      }
+    },
+    "customers": {
+      "title": "العملاء",
+      "subtitle": "حسابات العملاء المسجلة",
+      "loading": "جارٍ تحميل العملاء...",
+      "empty": "لا يوجد عملاء بعد.",
+      "name": "الاسم",
+      "email": "البريد الإلكتروني",
+      "phone": "الهاتف",
+      "shipments": "الشحنات",
+      "status": "الحالة",
+      "joined": "تاريخ التسجيل",
+      "active": "نشط",
+      "inactive": "غير نشط",
+      "errors": { "generic": "حدث خطأ ما. يرجى المحاولة مرة أخرى." }
+    },
+    "fleetOwners": {
+      "title": "مالكو الأساطيل",
+      "subtitle": "شركات الأساطيل المسجلة",
+      "loading": "جارٍ تحميل مالكي الأساطيل...",
+      "empty": "لا يوجد مالكو أساطيل بعد.",
+      "company": "الشركة",
+      "email": "البريد الإلكتروني",
+      "phone": "الهاتف",
+      "drivers": "السائقون",
+      "vehicles": "المركبات",
+      "kyc": "التحقق",
+      "status": "الحالة",
+      "active": "نشط",
+      "inactive": "غير نشط",
+      "kycStatus": {
+        "not_submitted": "لم يُقدَّم",
+        "pending": "قيد المراجعة",
+        "approved": "موافق عليه",
+        "rejected": "مرفوض"
+      },
+      "errors": { "generic": "حدث خطأ ما. يرجى المحاولة مرة أخرى." }
+    },
+    "drivers": {
+      "title": "السائقون",
+      "subtitle": "جميع السائقين المسجلين في الأساطيل",
+      "loading": "جارٍ تحميل السائقين...",
+      "empty": "لا يوجد سائقون بعد.",
+      "email": "البريد الإلكتروني",
+      "phone": "الهاتف",
+      "license": "رخصة القيادة",
+      "available": "متاح",
+      "status": "الحالة",
+      "yes": "نعم",
+      "no": "لا",
+      "active": "نشط",
+      "inactive": "غير نشط",
+      "errors": { "generic": "حدث خطأ ما. يرجى المحاولة مرة أخرى." }
+    },
+    "vehicles": {
+      "title": "المركبات",
+      "subtitle": "جميع المركبات المسجلة في الأساطيل",
+      "loading": "جارٍ تحميل المركبات...",
+      "empty": "لا توجد مركبات بعد.",
+      "plate": "رقم اللوحة",
+      "type": "النوع",
+      "capacity": "الحمولة",
+      "status": "الحالة",
+      "active": "نشط",
+      "inactive": "غير نشط",
+      "errors": { "generic": "حدث خطأ ما. يرجى المحاولة مرة أخرى." }
+    },
+    "payments": {
+      "title": "المدفوعات",
+      "subtitle": "جميع معاملات الدفع",
+      "loading": "جارٍ تحميل المدفوعات...",
+      "empty": "لا توجد مدفوعات بعد.",
+      "reference": "الشحنة",
+      "amount": "المبلغ",
+      "provider": "مزود الدفع",
+      "status": "الحالة",
+      "date": "التاريخ",
+      "statuses": {
+        "requires_payment_method": "يتطلب وسيلة دفع",
+        "requires_confirmation": "يتطلب تأكيد",
+        "processing": "قيد المعالجة",
+        "succeeded": "ناجح",
+        "failed": "فاشل",
+        "cancelled": "ملغى",
+        "refunded": "مسترد"
+      },
+      "errors": { "generic": "حدث خطأ ما. يرجى المحاولة مرة أخرى." }
+    },
+    "ratings": {
+      "title": "التقييمات",
+      "subtitle": "تقييمات العملاء لناقلي الأساطيل",
+      "loading": "جارٍ تحميل التقييمات...",
+      "empty": "لا توجد تقييمات بعد.",
+      "shipment": "الشحنة",
+      "customer": "العميل",
+      "fleetOwner": "مالك الأسطول",
+      "score": "التقييم",
+      "comment": "التعليق",
+      "date": "التاريخ",
+      "errors": { "generic": "حدث خطأ ما. يرجى المحاولة مرة أخرى." }
+    },
+    "payouts": {
+      "title": "طلبات السحب",
+      "subtitle": "مراجعة ومعالجة طلبات سحب الأساطيل",
+      "loading": "جارٍ تحميل السحوبات...",
+      "empty": "لا توجد طلبات سحب بعد.",
+      "user": "مالك الأسطول",
+      "amount": "المبلغ",
+      "status": "الحالة",
+      "actions": "الإجراءات",
+      "approve": "موافقة",
+      "reject": "رفض",
+      "markPaid": "تسجيل كمدفوع",
+      "rejectReason": "سبب الرفض",
+      "statuses": {
+        "pending": "قيد المراجعة",
+        "approved": "موافق عليه",
+        "rejected": "مرفوض",
+        "paid": "مدفوع"
+      },
+      "errors": {
+        "generic": "حدث خطأ ما. يرجى المحاولة مرة أخرى."
+      }
+    }
+  },
+  "fleet": {
+    "loading": "جارٍ التحميل...",
+    "logout": "تسجيل الخروج",
+    "working": "يرجى الانتظار...",
+    "errors": {
+      "generic": "حدث خطأ ما. يرجى المحاولة مرة أخرى."
+    },
+    "nav": {
+      "dashboard": "لوحة التحكم",
+      "shipments": "الشحنات",
+      "drivers": "السائقون",
+      "vehicles": "المركبات",
+      "wallet": "المحفظة",
+      "payouts": "السحوبات",
+      "ratings": "التقييمات"
+    },
+    "dashboard": {
+      "title": "لوحة تحكم الأسطول",
+      "subtitle": "نظرة عامة على عملياتك",
+      "earnings": "رصيد المحفظة",
+      "assigned": "معينة",
+      "inProgress": "قيد التنفيذ",
+      "completed": "مكتملة",
+      "recentTitle": "أحدث الشحنات",
+      "viewAll": "عرض الكل",
+      "emptyRecent": "لا توجد شحنات معينة بعد."
+    },
+    "shipments": {
+      "title": "الشحنات",
+      "subtitle": "الشحنات المتاحة والمعينة",
+      "availableTitle": "الشحنات المتاحة",
+      "assignedTitle": "الشحنات المعينة",
+      "emptyAvailable": "لا توجد شحنات متاحة للقبول.",
+      "emptyAssigned": "لا توجد شحنات معينة بعد.",
+      "actions": "الإجراءات",
+      "accept": "قبول",
+      "selectDriver": "اختر السائق",
+      "selectVehicle": "اختر المركبة",
+      "acceptRequired": "السائق والمركبة مطلوبان لقبول الشحنة."
+    },
+    "drivers": {
+      "title": "السائقون",
+      "subtitle": "سائقو أسطولك",
+      "empty": "لا يوجد سائقون مسجلون بعد.",
+      "addTitle": "إضافة سائق",
+      "email": "البريد الإلكتروني",
+      "password": "كلمة المرور",
+      "phone": "الهاتف",
+      "license": "الرخصة",
+      "available": "متاح",
+      "create": "إضافة سائق",
+      "creating": "جارٍ الإضافة...",
+      "yes": "نعم",
+      "no": "لا",
+      "actions": "الإجراءات",
+      "toggleAvailable": "تبديل التوفر",
+      "delete": "حذف",
+      "confirmDelete": "حذف هذا السائق؟"
+    },
+    "vehicles": {
+      "title": "المركبات",
+      "subtitle": "مركبات أسطولك",
+      "empty": "لا توجد مركبات مسجلة بعد.",
+      "addTitle": "إضافة مركبة",
+      "plate": "رقم اللوحة",
+      "type": "النوع",
+      "capacity": "السعة",
+      "create": "إضافة مركبة",
+      "creating": "جارٍ الإضافة...",
+      "active": "نشطة",
+      "yes": "نعم",
+      "no": "لا",
+      "actions": "الإجراءات",
+      "toggleActive": "تبديل النشاط",
+      "delete": "حذف",
+      "confirmDelete": "حذف هذه المركبة؟"
+    },
+    "wallet": {
+      "title": "المحفظة",
+      "subtitle": "الرصيد وسجل المعاملات",
+      "balance": "الرصيد المتاح",
+      "transactions": "المعاملات",
+      "type": "النوع",
+      "amount": "المبلغ",
+      "date": "التاريخ",
+      "empty": "لا توجد معاملات بعد.",
+      "loading": "جارٍ تحميل المحفظة...",
+      "errors": {
+        "generic": "حدث خطأ ما. يرجى المحاولة مرة أخرى."
+      }
+    },
+    "payouts": {
+      "title": "السحوبات",
+      "subtitle": "طلب سحب من محفظتك",
+      "balance": "رصيد المحفظة",
+      "requestTitle": "طلب سحب جديد",
+      "amount": "المبلغ (ريال)",
+      "accountName": "اسم صاحب الحساب",
+      "bankName": "اسم البنك",
+      "iban": "الآيبان",
+      "submit": "إرسال الطلب",
+      "submitting": "جارٍ الإرسال...",
+      "status": "الحالة",
+      "created": "تاريخ الطلب",
+      "empty": "لا توجد طلبات سحب بعد.",
+      "loading": "جارٍ تحميل السحوبات...",
+      "statuses": {
+        "pending": "قيد المراجعة",
+        "approved": "موافق عليه",
+        "rejected": "مرفوض",
+        "paid": "مدفوع"
+      },
+      "errors": {
+        "generic": "حدث خطأ ما. يرجى المحاولة مرة أخرى."
+      }
+    },
+    "ratings": {
+      "title": "تقييمات الناقل",
+      "subtitle": "ملاحظات عملائك",
+      "overview": "الملخص",
+      "average": "متوسط التقييم",
+      "total": "إجمالي التقييمات",
+      "recent": "أحدث التقييمات",
+      "noRecent": "لا توجد تقييمات بعد.",
+      "empty": "لا تتوفر بيانات تقييم.",
+      "loading": "جارٍ تحميل التقييمات...",
+      "errors": {
+        "generic": "حدث خطأ ما. يرجى المحاولة مرة أخرى."
+      }
+    }
+  },
+  "driver": {
+    "loading": "جارٍ التحميل...",
+    "logout": "تسجيل الخروج",
+    "working": "يرجى الانتظار...",
+    "errors": {
+      "generic": "حدث خطأ ما. يرجى المحاولة مرة أخرى."
+    },
+    "nav": {
+      "dashboard": "لوحة التحكم"
+    },
+    "dashboard": {
+      "title": "لوحة تحكم السائق",
+      "subtitle": "شحنتك النشطة",
+      "noActive": "ليس لديك شحنة نشطة حالياً.",
+      "viewShipment": "فتح الشحنة"
+    },
+    "shipment": {
+      "title": "الشحنة",
+      "loading": "جارٍ تحميل الشحنة...",
+      "notFound": "الشحنة غير موجودة",
+      "backToDashboard": "العودة إلى لوحة التحكم"
+    },
+    "actions": {
+      "pickup": "تأكيد الاستلام",
+      "startTransit": "بدء النقل",
+      "deliver": "تأكيد التسليم"
+    }
+  },
+  "tracking": {
+    "title": "تتبع شحنتك",
+    "subtitle": "أدخل رقم التتبع لمعرفة حالة التسليم.",
+    "referenceLabel": "رقم التتبع",
+    "referencePlaceholder": "مثال: TRX-2026-0001",
+    "trackButton": "تتبع",
+    "backToSearch": "العودة للبحث",
+    "loading": "جارٍ تحميل التتبع...",
+    "liveMap": "الخريطة المباشرة",
+    "estimatedDelivery": "التسليم المتوقع",
+    "notFound": "رقم التتبع غير موجود.",
+    "errors": {
+      "generic": "حدث خطأ ما. يرجى المحاولة مرة أخرى."
+    }
+  },
+  "notifications": {
+    "title": "الإشعارات",
+    "subtitle": "تنبيهاتك وتحديثاتك الأخيرة",
+    "loading": "جارٍ تحميل الإشعارات...",
+    "empty": "ليس لديك إشعارات بعد.",
+    "markRead": "تعيين كمقروء",
+    "markAllRead": "تعيين الكل كمقروء",
+    "working": "يرجى الانتظار..."
+  },
+  "settings": {
+    "title": "إعدادات المنصة",
+    "subtitle": "إدارة إعدادات الشركة والبريد والدفع والإشعارات",
+    "loading": "جارٍ تحميل الإعدادات...",
+    "save": "حفظ التغييرات",
+    "saving": "جارٍ الحفظ...",
+    "saved": "تم حفظ الإعدادات بنجاح.",
+    "sections": {
+      "company": "الشركة",
+      "email": "البريد",
+      "payment": "الدفع",
+      "notifications": "الإشعارات"
+    },
+    "company": {
+      "nameEn": "اسم الشركة (إنجليزي)",
+      "nameAr": "اسم الشركة (عربي)",
+      "email": "بريد الدعم",
+      "phone": "الهاتف",
+      "address": "العنوان"
+    },
+    "email": {
+      "provider": "مزود البريد",
+      "fromAddress": "عنوان المرسل",
+      "enabled": "تفعيل إشعارات البريد"
+    },
+    "payment": {
+      "provider": "مزود الدفع",
+      "currency": "العملة",
+      "successPath": "مسار إعادة التوجيه عند النجاح",
+      "cancelPath": "مسار إعادة التوجيه عند الإلغاء"
+    },
+    "notifications": {
+      "inApp": "إشعارات داخل التطبيق",
+      "email": "إشعارات البريد",
+      "push": "الإشعارات الفورية"
+    },
+    "errors": {
+      "generic": "حدث خطأ ما. يرجى المحاولة مرة أخرى."
+    }
+  },
+  "payment": {
+    "success": {
+      "title": "تم الدفع بنجاح",
+      "subtitle": "اكتمل دفع شحنتك",
+      "message": "شكراً لك. شحنتك الآن بانتظار تعيين الأسطول.",
+      "verifying": "جارٍ التحقق من الدفع..."
+    },
+    "errors": {
+      "verifyFailed": "تعذر التحقق من الدفع بعد. تحقق من صفحة الشحنة قريباً."
+    },
+    "cancel": {
+      "title": "تم إلغاء الدفع",
+      "subtitle": "لم يكتمل الدفع",
+      "message": "يمكنك العودة إلى الشحنة والمحاولة مرة أخرى عندما تكون جاهزاً."
+    },
+    "viewShipment": "عرض الشحنة",
+    "backToList": "العودة إلى الشحنات"
+  }
+}
