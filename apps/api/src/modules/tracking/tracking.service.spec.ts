@@ -4,6 +4,7 @@ import { ShipmentStatus } from '@prisma/client';
 import type { User } from '@prisma/client';
 
 import type { PrismaService } from '../../database/prisma.service';
+import type { NotificationDeliveryService } from '../notifications/notification-delivery.service';
 import type { ShipmentAccessService } from '../shipments/shipment-access.service';
 
 import type { TrackingCacheService } from './tracking-cache.service';
@@ -38,6 +39,10 @@ describe('TrackingService', () => {
     publishPosition: jest.fn(),
   };
 
+  const notificationDelivery = {
+    safeNotifyTrackingAlert: jest.fn(),
+  };
+
   const prisma = {
     $transaction: jest.fn(),
     trackingPoint: {
@@ -65,6 +70,7 @@ describe('TrackingService', () => {
       config as unknown as ConfigService,
       cache as unknown as TrackingCacheService,
       gateway as unknown as TrackingGateway,
+      notificationDelivery as unknown as NotificationDeliveryService,
     );
   });
 

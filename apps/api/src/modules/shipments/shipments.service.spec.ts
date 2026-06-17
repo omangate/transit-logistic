@@ -9,6 +9,7 @@ import type { PricingEngineService } from '../pricing/pricing-engine.service';
 import type { WalletLedgerService } from '../wallets/wallet-ledger.service';
 
 import type { ShipmentAccessService } from './shipment-access.service';
+import type { ShipmentCommerceService } from './shipment-commerce.service';
 import { ShipmentStateService } from './shipment-state.service';
 import { ShipmentsService } from './shipments.service';
 
@@ -55,6 +56,10 @@ describe('ShipmentsService', () => {
   const pricingEngine = {
     calculate: jest.fn(),
     estimate: jest.fn(),
+  };
+
+  const commerce = {
+    ensureContractAndInvoice: jest.fn(),
   };
 
   const prisma = {
@@ -111,6 +116,7 @@ describe('ShipmentsService', () => {
       ledger as unknown as WalletLedgerService,
       notificationDelivery as unknown as NotificationDeliveryService,
       pricingEngine as unknown as PricingEngineService,
+      commerce as unknown as ShipmentCommerceService,
     );
   });
 
