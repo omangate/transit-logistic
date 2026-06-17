@@ -16,7 +16,7 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { Roles } from '../auth/roles.decorator';
 import { RolesGuard } from '../auth/roles.guard';
 
-import { ShipmentCommerceService } from './shipment-commerce.service';
+import { type ShipmentCommerceService } from './shipment-commerce.service';
 
 @Controller('shipments/:shipmentId')
 @UseGuards(JwtAuthGuard, RolesGuard)

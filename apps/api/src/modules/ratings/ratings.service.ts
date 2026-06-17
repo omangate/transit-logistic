@@ -6,7 +6,7 @@ import {
 import type { User } from '@prisma/client';
 import { ShipmentStatus } from '@transit-logistic/shared';
 
-import { PrismaService } from '../../database/prisma.service';
+import { type PrismaService } from '../../database/prisma.service';
 
 import type { CreateRatingDto } from './dto/create-rating.dto';
 

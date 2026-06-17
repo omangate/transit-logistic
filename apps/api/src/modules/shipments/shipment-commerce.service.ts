@@ -1,8 +1,9 @@
-import { Injectable, ForbiddenException } from '@nestjs/common';
-import type { Prisma, Shipment } from '@prisma/client';
 import { randomBytes } from 'crypto';
 
-import { PrismaService } from '../../database/prisma.service';
+import { Injectable, ForbiddenException } from '@nestjs/common';
+import type { Prisma, Shipment } from '@prisma/client';
+
+import { type PrismaService } from '../../database/prisma.service';
 
 type ShipmentWithDetails = Shipment & {
   stops: Array<{

@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   Body,
   Controller,
   Get,
@@ -9,15 +8,15 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import type { User } from '@prisma/client';
-import { ShipmentStatus, UserRole } from '@transit-logistic/shared';
+import { UserRole } from '@transit-logistic/shared';
 
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { Roles } from '../auth/roles.decorator';
 import { RolesGuard } from '../auth/roles.guard';
 
-import { CreateRatingDto } from './dto/create-rating.dto';
-import { RatingsService } from './ratings.service';
+import { type CreateRatingDto } from './dto/create-rating.dto';
+import { type RatingsService } from './ratings.service';
 
 @Controller()
 @UseGuards(JwtAuthGuard, RolesGuard)

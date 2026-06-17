@@ -1,16 +1,17 @@
+import { randomBytes } from 'crypto';
+import { mkdir, writeFile } from 'fs/promises';
+import { join } from 'path';
+
 import {
   BadRequestException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+import { type ConfigService } from '@nestjs/config';
 import type { User } from '@prisma/client';
-import { randomBytes } from 'crypto';
-import { mkdir, writeFile } from 'fs/promises';
-import { join } from 'path';
 
-import { PrismaService } from '../../database/prisma.service';
-import { ShipmentAccessService } from '../shipments/shipment-access.service';
+import { type PrismaService } from '../../database/prisma.service';
+import { type ShipmentAccessService } from '../shipments/shipment-access.service';
 
 const MAX_FILE_BYTES = 5 * 1024 * 1024;
 const ALLOWED_MIME = new Set([

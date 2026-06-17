@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/consistent-type-imports -- Nest DI needs runtime injection tokens */
 
 import { Injectable } from '@nestjs/common';
-
 import {
 
   NotificationChannel,
@@ -17,7 +16,6 @@ import {
 
 
 import { PrismaService } from '../../database/prisma.service';
-
 import { ShipmentsService } from '../shipments/shipments.service';
 
 
