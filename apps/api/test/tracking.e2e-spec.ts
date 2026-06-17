@@ -12,6 +12,7 @@ import { configuration } from '../src/config/configuration';
 import { PrismaService } from '../src/database/prisma.service';
 import { JwtAuthGuard } from '../src/modules/auth/jwt-auth.guard';
 import { RolesGuard } from '../src/modules/auth/roles.guard';
+import { NotificationDeliveryService } from '../src/modules/notifications/notification-delivery.service';
 import { ShipmentAccessService } from '../src/modules/shipments/shipment-access.service';
 import { DriverTrackingController } from '../src/modules/tracking/driver-tracking.controller';
 import { TrackingAuthService } from '../src/modules/tracking/tracking-auth.service';
@@ -96,6 +97,10 @@ describe('Tracking E2E', () => {
     isAdmin: jest.fn().mockReturnValue(false),
   };
 
+  const notificationDelivery = {
+    safeNotifyTrackingAlert: jest.fn(),
+  };
+
   const redis = {
     set: jest.fn(async (key: string, value: string) => {
       redisStore.set(key, value);
@@ -130,6 +135,7 @@ describe('Tracking E2E', () => {
         TrackingAuthService,
         { provide: PrismaService, useValue: prisma },
         { provide: ShipmentAccessService, useValue: access },
+        { provide: NotificationDeliveryService, useValue: notificationDelivery },
         { provide: REDIS_CLIENT, useValue: redis },
       ],
     })
