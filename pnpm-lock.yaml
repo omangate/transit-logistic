@@ -83,6 +83,9 @@ importers:
       passport-jwt:
         specifier: ^4.0.1
         version: 4.0.1
+      prisma:
+        specifier: ^6.8.2
+        version: 6.19.3(typescript@5.9.3)
       reflect-metadata:
         specifier: ^0.2.2
         version: 0.2.2
@@ -135,9 +138,6 @@ importers:
       jest:
         specifier: ^30.4.2
         version: 30.4.2(@types/node@22.19.20)(ts-node@10.9.2(@swc/core@1.15.40)(@types/node@22.19.20)(typescript@5.9.3))
-      prisma:
-        specifier: ^6.8.2
-        version: 6.19.3(typescript@5.9.3)
       rimraf:
         specifier: ^6.0.1
         version: 6.1.3
