@@ -1,4 +1,8 @@
-import { NotificationChannel, ShipmentStatus, WalletTransactionType } from '@prisma/client';
+import {
+  NotificationChannel,
+  ShipmentStatus,
+  WalletTransactionType,
+} from '@transit-logistic/shared';
 
 import type { PrismaService } from '../../database/prisma.service';
 
@@ -51,14 +55,14 @@ describe('Notifications integration', () => {
       customerId: 'customer-1',
       driverId: 'driver-1',
       fleetOwnerUserId: 'fleet-1',
-      fromStatus: ShipmentStatus.assigned,
-      toStatus: ShipmentStatus.picked_up,
+      fromStatus: ShipmentStatus.ASSIGNED,
+      toStatus: ShipmentStatus.PICKED_UP,
     });
 
     await deliveryService.notifyWalletTransaction({
       userId: 'customer-1',
       transactionId: 'tx-1',
-      transactionType: WalletTransactionType.shipment_payment,
+      transactionType: WalletTransactionType.SHIPMENT_PAYMENT,
       amount: '120.00',
       balanceAfter: '380.00',
       referenceType: 'shipment',
@@ -68,7 +72,7 @@ describe('Notifications integration', () => {
     expect(stored).toHaveLength(4);
     expect(stored[0]).toMatchObject({
       userId: 'customer-1',
-      channel: NotificationChannel.in_app,
+      channel: NotificationChannel.IN_APP,
     });
     expect(stored[3]).toMatchObject({
       userId: 'customer-1',
@@ -105,7 +109,7 @@ describe('Notifications integration', () => {
     expect(prisma.notification.updateMany).toHaveBeenCalledWith({
       where: {
         userId: user.id,
-        channel: NotificationChannel.in_app,
+        channel: NotificationChannel.IN_APP,
         isRead: false,
       },
       data: {

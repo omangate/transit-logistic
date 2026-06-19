@@ -1,5 +1,5 @@
-import { PayoutRequestStatus, WalletTransactionType } from '@prisma/client';
-import type { User } from '@prisma/client';
+import { PayoutRequestStatus, WalletTransactionType } from '@transit-logistic/shared';
+import type { User } from '@/types/user';
 import { Decimal } from '@prisma/client/runtime/library';
 
 import type { PrismaService } from '../../database/prisma.service';
@@ -70,7 +70,7 @@ describe('Payouts integration', () => {
       bankName: 'Bank',
       iban: 'SA1234567890123456789012',
     },
-    status: PayoutRequestStatus.pending,
+    status: PayoutRequestStatus.PENDING,
     reviewedById: null,
     reviewedAt: null,
     rejectionReason: null,
@@ -116,11 +116,11 @@ describe('Payouts integration', () => {
 
     prisma.payoutRequest.findUnique.mockResolvedValue({
       ...payoutRecord,
-      status: PayoutRequestStatus.pending,
+      status: PayoutRequestStatus.PENDING,
     });
     prisma.payoutRequest.update.mockResolvedValueOnce({
       ...payoutRecord,
-      status: PayoutRequestStatus.approved,
+      status: PayoutRequestStatus.APPROVED,
       reviewedById: adminUser.id,
       reviewedAt: new Date('2026-01-02T00:00:00.000Z'),
       reviewedBy: { id: adminUser.id, email: adminUser.email },
@@ -135,11 +135,11 @@ describe('Payouts integration', () => {
 
     prisma.payoutRequest.findUnique.mockResolvedValue({
       ...payoutRecord,
-      status: PayoutRequestStatus.approved,
+      status: PayoutRequestStatus.APPROVED,
     });
     prisma.payoutRequest.findUniqueOrThrow.mockResolvedValue({
       ...payoutRecord,
-      status: PayoutRequestStatus.approved,
+      status: PayoutRequestStatus.APPROVED,
     });
     ledger.debit.mockResolvedValue({
       wallet: {
@@ -151,7 +151,7 @@ describe('Payouts integration', () => {
       },
       transaction: {
         id: 'tx-1',
-        type: WalletTransactionType.payout,
+        type: WalletTransactionType.PAYOUT,
         amount: '150.00',
         balanceAfter: '350.00',
         idempotencyKey: 'payout-process-payout-1',
@@ -161,7 +161,7 @@ describe('Payouts integration', () => {
     });
     prisma.payoutRequest.update.mockResolvedValueOnce({
       ...payoutRecord,
-      status: PayoutRequestStatus.processed,
+      status: PayoutRequestStatus.PROCESSED,
       reviewedById: adminUser.id,
       reviewedAt: new Date('2026-01-03T00:00:00.000Z'),
       walletTransactionId: 'tx-1',
@@ -185,7 +185,7 @@ describe('Payouts integration', () => {
     expect(ledger.debit).toHaveBeenCalledWith(
       expect.objectContaining({
         walletId: 'wallet-1',
-        type: WalletTransactionType.payout,
+        type: WalletTransactionType.PAYOUT,
         referenceType: 'payout_request',
         referenceId: 'payout-1',
       }),
@@ -196,17 +196,17 @@ describe('Payouts integration', () => {
   it('builds admin summary totals by status', async () => {
     prisma.payoutRequest.groupBy.mockResolvedValue([
       {
-        status: PayoutRequestStatus.pending,
+        status: PayoutRequestStatus.PENDING,
         _sum: { amount: new Decimal('100.00') },
         _count: { _all: 1 },
       },
       {
-        status: PayoutRequestStatus.approved,
+        status: PayoutRequestStatus.APPROVED,
         _sum: { amount: new Decimal('200.00') },
         _count: { _all: 2 },
       },
       {
-        status: PayoutRequestStatus.processed,
+        status: PayoutRequestStatus.PROCESSED,
         _sum: { amount: new Decimal('300.00') },
         _count: { _all: 3 },
       },

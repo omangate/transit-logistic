@@ -1,18 +1,18 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { ShipmentStatus } from '@prisma/client';
+import { ShipmentStatus } from '@transit-logistic/shared';
 
 const TRANSITIONS: Record<ShipmentStatus, ShipmentStatus[]> = {
-  [ShipmentStatus.draft]: [ShipmentStatus.pending_assignment, ShipmentStatus.cancelled],
-  [ShipmentStatus.pending_assignment]: [
-    ShipmentStatus.assigned,
-    ShipmentStatus.cancelled,
+  [ShipmentStatus.DRAFT]: [ShipmentStatus.PENDING_ASSIGNMENT, ShipmentStatus.CANCELLED],
+  [ShipmentStatus.PENDING_ASSIGNMENT]: [
+    ShipmentStatus.ASSIGNED,
+    ShipmentStatus.CANCELLED,
   ],
-  [ShipmentStatus.assigned]: [ShipmentStatus.picked_up, ShipmentStatus.cancelled],
-  [ShipmentStatus.picked_up]: [ShipmentStatus.in_transit],
-  [ShipmentStatus.in_transit]: [ShipmentStatus.delivered],
-  [ShipmentStatus.delivered]: [ShipmentStatus.completed],
-  [ShipmentStatus.completed]: [],
-  [ShipmentStatus.cancelled]: [],
+  [ShipmentStatus.ASSIGNED]: [ShipmentStatus.PICKED_UP, ShipmentStatus.CANCELLED],
+  [ShipmentStatus.PICKED_UP]: [ShipmentStatus.IN_TRANSIT],
+  [ShipmentStatus.IN_TRANSIT]: [ShipmentStatus.DELIVERED],
+  [ShipmentStatus.DELIVERED]: [ShipmentStatus.COMPLETED],
+  [ShipmentStatus.COMPLETED]: [],
+  [ShipmentStatus.CANCELLED]: [],
 };
 
 @Injectable()

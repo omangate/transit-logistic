@@ -1,4 +1,5 @@
-import { PrismaClient, UserRole } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
+import { UserRole } from '@transit-logistic/shared';
 import * as bcrypt from 'bcrypt';
 
 const prisma = new PrismaClient();
@@ -35,13 +36,13 @@ async function main() {
   const admin = await upsertUser({
     email: 'admin@transit.dev',
     password: 'Admin1234',
-    role: UserRole.admin,
+    role: UserRole.ADMIN,
   });
 
   const fleetUser = await upsertUser({
     email: 'fleet@transit.dev',
     password: 'Fleet1234',
-    role: UserRole.fleet_owner,
+    role: UserRole.FLEET_OWNER,
     phone: '+96890000001',
   });
 
@@ -60,7 +61,7 @@ async function main() {
   const driverUser = await upsertUser({
     email: 'driver@transit.dev',
     password: 'Driver1234',
-    role: UserRole.driver,
+    role: UserRole.DRIVER,
     phone: '+96890000002',
   });
 

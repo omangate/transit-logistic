@@ -4,8 +4,9 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { PaymentStatus as PrismaPaymentStatus, Prisma, ShipmentStatus, WalletTransactionType } from '@prisma/client';
-import type { User } from '@prisma/client';
+import { PaymentStatus as PrismaPaymentStatus, Prisma } from '@prisma/client';
+import { ShipmentStatus, WalletTransactionType } from '@transit-logistic/shared';
+import type { User } from '@/types/user';
 
 import { PrismaService } from '../../database/prisma.service';
 import { FleetOwnershipService } from '../fleet/fleet-ownership.service';
@@ -28,14 +29,14 @@ import {
 import { ShipmentStateService } from './shipment-state.service';
 
 const PAID_CANCELLATION_STATUSES: ShipmentStatus[] = [
-  ShipmentStatus.pending_assignment,
-  ShipmentStatus.assigned,
+  ShipmentStatus.PENDING_ASSIGNMENT,
+  ShipmentStatus.ASSIGNED,
 ];
 
 const ACTIVE_DRIVER_STATUSES: ShipmentStatus[] = [
-  ShipmentStatus.assigned,
-  ShipmentStatus.picked_up,
-  ShipmentStatus.in_transit,
+  ShipmentStatus.ASSIGNED,
+  ShipmentStatus.PICKED_UP,
+  ShipmentStatus.IN_TRANSIT,
 ];
 
 type TransitionAuditOptions = {
@@ -70,7 +71,7 @@ export class ShipmentsService {
             data: {
               referenceNumber: generateShipmentReference(),
               customerId: user.id,
-              status: ShipmentStatus.draft,
+              status: ShipmentStatus.DRAFT,
               cargoType: dto.cargoType,
               cargoDescription: dto.cargoDescription,
               weightKg: dto.weightKg,
@@ -95,7 +96,7 @@ export class ShipmentsService {
             include: this.defaultInclude(),
           });
 
-          await this.recordTransitionInTransaction(tx, created.id, null, ShipmentStatus.draft, user.id, {
+          await this.recordTransitionInTransaction(tx, created.id, null, ShipmentStatus.DRAFT, user.id, {
             eventType: 'shipment.created',
             note: 'Shipment created',
           });
@@ -207,7 +208,7 @@ export class ShipmentsService {
       });
     }
 
-    if (shipment.status !== ShipmentStatus.draft) {
+    if (shipment.status !== ShipmentStatus.DRAFT) {
       throw new BadRequestException({
         code: 'SHIPMENT_NOT_EDITABLE',
         message_en: 'Only draft shipments can be updated.',
@@ -287,7 +288,7 @@ export class ShipmentsService {
       });
     }
 
-    if (shipment.status !== ShipmentStatus.draft) {
+    if (shipment.status !== ShipmentStatus.DRAFT) {
       throw new BadRequestException({
         code: 'SHIPMENT_NOT_PAYABLE',
         message_en: 'Only draft shipments can be paid.',
@@ -344,7 +345,7 @@ export class ShipmentsService {
       });
     }
 
-    this.state.assertTransition(shipment.status, ShipmentStatus.pending_assignment);
+    this.state.assertTransition(shipment.status, ShipmentStatus.PENDING_ASSIGNMENT);
 
     const pricing = await this.calculateShipmentPrice(shipmentId);
 
@@ -359,14 +360,14 @@ export class ShipmentsService {
         });
       }
 
-      if (locked.status === ShipmentStatus.pending_assignment) {
+      if (locked.status === ShipmentStatus.PENDING_ASSIGNMENT) {
         return tx.shipment.findUniqueOrThrow({
           where: { id: shipmentId },
           include: this.defaultInclude(),
         });
       }
 
-      if (locked.status !== ShipmentStatus.draft) {
+      if (locked.status !== ShipmentStatus.DRAFT) {
         throw new BadRequestException({
           code: 'SHIPMENT_CONFIRM_CONFLICT',
           message_en: 'Shipment can no longer be confirmed.',
@@ -395,15 +396,15 @@ export class ShipmentsService {
 
       const transitioned = await tx.shipment.update({
         where: { id: shipmentId },
-        data: { status: ShipmentStatus.pending_assignment },
+        data: { status: ShipmentStatus.PENDING_ASSIGNMENT },
         include: this.defaultInclude(),
       });
 
       await this.recordTransitionInTransaction(
         tx,
         shipmentId,
-        ShipmentStatus.draft,
-        ShipmentStatus.pending_assignment,
+        ShipmentStatus.DRAFT,
+        ShipmentStatus.PENDING_ASSIGNMENT,
         user.id,
         {
           eventType: 'shipment.confirmed',
@@ -415,8 +416,8 @@ export class ShipmentsService {
       return transitioned;
     });
 
-    if (updated.status === ShipmentStatus.pending_assignment) {
-      void this.dispatchShipmentNotifications(updated, ShipmentStatus.draft);
+    if (updated.status === ShipmentStatus.PENDING_ASSIGNMENT) {
+      void this.dispatchShipmentNotifications(updated, ShipmentStatus.DRAFT);
     }
 
     void this.commerce.ensureContractAndInvoice(
@@ -447,7 +448,7 @@ export class ShipmentsService {
     const updated = await this.prisma.$transaction(async (tx) => {
       const locked = await this.lockShipmentForUpdate(tx, shipmentId);
 
-      if (locked.status === ShipmentStatus.cancelled) {
+      if (locked.status === ShipmentStatus.CANCELLED) {
         const didRefund = await this.refundCustomerInTransaction(
           tx,
           shipmentId,
@@ -460,8 +461,8 @@ export class ShipmentsService {
           await this.recordTransitionInTransaction(
             tx,
             shipmentId,
-            ShipmentStatus.cancelled,
-            ShipmentStatus.cancelled,
+            ShipmentStatus.CANCELLED,
+            ShipmentStatus.CANCELLED,
             user.id,
             { eventType: 'shipment.refunded', note: 'Customer refunded after cancellation' },
           );
@@ -473,12 +474,12 @@ export class ShipmentsService {
         });
       }
 
-      this.state.assertTransition(locked.status, ShipmentStatus.cancelled);
+      this.state.assertTransition(locked.status, ShipmentStatus.CANCELLED);
       const previousStatus = locked.status;
 
       const cancelled = await tx.shipment.update({
         where: { id: shipmentId },
-        data: { status: ShipmentStatus.cancelled },
+        data: { status: ShipmentStatus.CANCELLED },
         include: this.defaultInclude(),
       });
 
@@ -486,7 +487,7 @@ export class ShipmentsService {
         tx,
         shipmentId,
         previousStatus,
-        ShipmentStatus.cancelled,
+        ShipmentStatus.CANCELLED,
         user.id,
         { eventType: 'shipment.cancelled', note: 'Shipment cancelled' },
       );
@@ -504,8 +505,8 @@ export class ShipmentsService {
           await this.recordTransitionInTransaction(
             tx,
             shipmentId,
-            ShipmentStatus.cancelled,
-            ShipmentStatus.cancelled,
+            ShipmentStatus.CANCELLED,
+            ShipmentStatus.CANCELLED,
             user.id,
             { eventType: 'shipment.refunded', note: 'Customer refunded after cancellation' },
           );
@@ -515,7 +516,7 @@ export class ShipmentsService {
       return cancelled;
     });
 
-    if (updated.status === ShipmentStatus.cancelled) {
+    if (updated.status === ShipmentStatus.CANCELLED) {
       void this.dispatchShipmentNotifications(updated, shipment.status);
     }
 
@@ -526,7 +527,7 @@ export class ShipmentsService {
     const shipment = await this.access.assertCanView(user, shipmentId);
     const fleetOwner = await this.fleetOwnership.requireFleetOwner(user);
 
-    if (shipment.status !== ShipmentStatus.pending_assignment) {
+    if (shipment.status !== ShipmentStatus.PENDING_ASSIGNMENT) {
       throw new BadRequestException({
         code: 'SHIPMENT_NOT_AVAILABLE',
         message_en: 'Shipment is not available for assignment.',
@@ -537,7 +538,7 @@ export class ShipmentsService {
     await this.fleetOwnership.assertVehicleOwnership(user, dto.vehicleId);
     const driver = await this.fleetOwnership.assertDriverOwnership(user, dto.driverId);
 
-    this.state.assertTransition(shipment.status, ShipmentStatus.assigned);
+    this.state.assertTransition(shipment.status, ShipmentStatus.ASSIGNED);
 
     const updated = await this.prisma.$transaction((tx) =>
       this.assignShipmentInTransaction(
@@ -557,7 +558,7 @@ export class ShipmentsService {
       ),
     );
 
-    void this.dispatchShipmentNotifications(updated, ShipmentStatus.pending_assignment);
+    void this.dispatchShipmentNotifications(updated, ShipmentStatus.PENDING_ASSIGNMENT);
 
     return this.toShipmentResponse(updated);
   }
@@ -575,7 +576,7 @@ export class ShipmentsService {
       });
     }
 
-    if (shipment.status !== ShipmentStatus.pending_assignment) {
+    if (shipment.status !== ShipmentStatus.PENDING_ASSIGNMENT) {
       throw new BadRequestException({
         code: 'SHIPMENT_NOT_AVAILABLE',
         message_en: 'Shipment is not available for assignment.',
@@ -619,7 +620,7 @@ export class ShipmentsService {
       });
     }
 
-    this.state.assertTransition(shipment.status, ShipmentStatus.assigned);
+    this.state.assertTransition(shipment.status, ShipmentStatus.ASSIGNED);
 
     const updated = await this.prisma.$transaction((tx) =>
       this.assignShipmentInTransaction(
@@ -643,7 +644,7 @@ export class ShipmentsService {
       ),
     );
 
-    void this.dispatchShipmentNotifications(updated, ShipmentStatus.pending_assignment);
+    void this.dispatchShipmentNotifications(updated, ShipmentStatus.PENDING_ASSIGNMENT);
 
     return this.toShipmentResponse(updated);
   }
@@ -675,15 +676,15 @@ export class ShipmentsService {
     const previousStatus = shipment.status;
     const timestampPatch: Prisma.ShipmentUpdateInput = {};
 
-    if (status === ShipmentStatus.picked_up) {
+    if (status === ShipmentStatus.PICKED_UP) {
       timestampPatch.pickedUpAt = new Date();
     }
 
-    if (status === ShipmentStatus.delivered) {
+    if (status === ShipmentStatus.DELIVERED) {
       timestampPatch.deliveredAt = new Date();
     }
 
-    if (status === ShipmentStatus.completed) {
+    if (status === ShipmentStatus.COMPLETED) {
       timestampPatch.completedAt = new Date();
     }
 
@@ -721,7 +722,7 @@ export class ShipmentsService {
         },
       );
 
-      if (status === ShipmentStatus.completed) {
+      if (status === ShipmentStatus.COMPLETED) {
         await this.creditFleetOwnerInTransaction(tx, transitioned);
       }
 
@@ -730,7 +731,7 @@ export class ShipmentsService {
 
     void this.dispatchShipmentNotifications(updated, previousStatus);
 
-    if (status === ShipmentStatus.completed && updated.fleetOwner?.userId) {
+    if (status === ShipmentStatus.COMPLETED && updated.fleetOwner?.userId) {
       void this.notifyWalletByIdempotencyKey(
         `shipment-earning-${updated.id}`,
         updated.fleetOwner.userId,
@@ -790,9 +791,9 @@ export class ShipmentsService {
         driverId: user.id,
         status: {
           in: [
-            ShipmentStatus.assigned,
-            ShipmentStatus.picked_up,
-            ShipmentStatus.in_transit,
+            ShipmentStatus.ASSIGNED,
+            ShipmentStatus.PICKED_UP,
+            ShipmentStatus.IN_TRANSIT,
           ],
         },
       },
@@ -811,13 +812,13 @@ export class ShipmentsService {
         tx,
         shipmentId,
         user.id,
-        ShipmentStatus.picked_up,
+        ShipmentStatus.PICKED_UP,
         { pickedUpAt: new Date() },
         { eventType: 'shipment.picked_up', note: 'Shipment picked up' },
       ),
     );
 
-    void this.dispatchShipmentNotifications(updated, ShipmentStatus.assigned);
+    void this.dispatchShipmentNotifications(updated, ShipmentStatus.ASSIGNED);
 
     return this.toShipmentResponse(updated);
   }
@@ -830,13 +831,13 @@ export class ShipmentsService {
         tx,
         shipmentId,
         user.id,
-        ShipmentStatus.in_transit,
+        ShipmentStatus.IN_TRANSIT,
         {},
         { eventType: 'shipment.in_transit', note: 'Shipment in transit' },
       ),
     );
 
-    void this.dispatchShipmentNotifications(updated, ShipmentStatus.picked_up);
+    void this.dispatchShipmentNotifications(updated, ShipmentStatus.PICKED_UP);
 
     return this.toShipmentResponse(updated);
   }
@@ -849,13 +850,13 @@ export class ShipmentsService {
         tx,
         shipmentId,
         user.id,
-        ShipmentStatus.delivered,
+        ShipmentStatus.DELIVERED,
         { deliveredAt: new Date() },
         { eventType: 'shipment.delivered', note: 'Shipment delivered' },
       ),
     );
 
-    void this.dispatchShipmentNotifications(updated, ShipmentStatus.in_transit);
+    void this.dispatchShipmentNotifications(updated, ShipmentStatus.IN_TRANSIT);
 
     return this.toShipmentResponse(updated);
   }
@@ -875,7 +876,7 @@ export class ShipmentsService {
       });
     }
 
-    if (shipment.status !== ShipmentStatus.delivered) {
+    if (shipment.status !== ShipmentStatus.DELIVERED) {
       throw new BadRequestException({
         code: 'SHIPMENT_NOT_DELIVERED',
         message_en: 'Shipment can only be completed after delivery.',
@@ -883,12 +884,12 @@ export class ShipmentsService {
       });
     }
 
-    this.state.assertTransition(shipment.status, ShipmentStatus.completed);
+    this.state.assertTransition(shipment.status, ShipmentStatus.COMPLETED);
 
     const updated = await this.prisma.$transaction(async (tx) => {
       const locked = await this.lockShipmentForUpdate(tx, shipmentId);
 
-      if (locked.status === ShipmentStatus.completed) {
+      if (locked.status === ShipmentStatus.COMPLETED) {
         const current = await tx.shipment.findUniqueOrThrow({
           where: { id: shipmentId },
           include: this.defaultInclude(),
@@ -897,7 +898,7 @@ export class ShipmentsService {
         return current;
       }
 
-      if (locked.status !== ShipmentStatus.delivered) {
+      if (locked.status !== ShipmentStatus.DELIVERED) {
         throw new BadRequestException({
           code: 'SHIPMENT_NOT_DELIVERED',
           message_en: 'Shipment can only be completed after delivery.',
@@ -908,7 +909,7 @@ export class ShipmentsService {
       const completed = await tx.shipment.update({
         where: { id: shipmentId },
         data: {
-          status: ShipmentStatus.completed,
+          status: ShipmentStatus.COMPLETED,
           completedAt: new Date(),
         },
         include: this.defaultInclude(),
@@ -919,8 +920,8 @@ export class ShipmentsService {
       await this.recordTransitionInTransaction(
         tx,
         shipmentId,
-        ShipmentStatus.delivered,
-        ShipmentStatus.completed,
+        ShipmentStatus.DELIVERED,
+        ShipmentStatus.COMPLETED,
         user.id,
         { eventType: 'shipment.completed', note: 'Shipment completed' },
       );
@@ -928,7 +929,7 @@ export class ShipmentsService {
       return completed;
     });
 
-    void this.dispatchShipmentNotifications(updated, ShipmentStatus.delivered);
+    void this.dispatchShipmentNotifications(updated, ShipmentStatus.DELIVERED);
 
     if (updated.fleetOwner?.userId) {
       void this.notifyWalletByIdempotencyKey(
@@ -1053,7 +1054,7 @@ export class ShipmentsService {
   ) {
     const locked = await this.lockShipmentForUpdate(tx, shipmentId);
 
-    if (locked.status !== ShipmentStatus.pending_assignment) {
+    if (locked.status !== ShipmentStatus.PENDING_ASSIGNMENT) {
       throw new BadRequestException({
         code: 'SHIPMENT_NOT_AVAILABLE',
         message_en: 'Shipment is no longer available for assignment.',
@@ -1086,7 +1087,7 @@ export class ShipmentsService {
     const updated = await tx.shipment.update({
       where: { id: shipmentId },
       data: {
-        status: ShipmentStatus.assigned,
+        status: ShipmentStatus.ASSIGNED,
         fleetOwnerId: assignment.fleetOwnerId,
         vehicleId: assignment.vehicleId,
         driverId: assignment.driverUserId,
@@ -1097,8 +1098,8 @@ export class ShipmentsService {
     await this.recordTransitionInTransaction(
       tx,
       shipmentId,
-      ShipmentStatus.pending_assignment,
-      ShipmentStatus.assigned,
+      ShipmentStatus.PENDING_ASSIGNMENT,
+      ShipmentStatus.ASSIGNED,
       actorId,
       audit,
     );
@@ -1210,7 +1211,7 @@ export class ShipmentsService {
       {
         walletId: wallet.id,
         amount: earning,
-        type: WalletTransactionType.adjustment,
+        type: WalletTransactionType.ADJUSTMENT,
         idempotencyKey: `shipment-earning-${shipment.id}`,
         description: `Earning for shipment ${shipment.referenceNumber}`,
         referenceType: 'shipment',
@@ -1377,7 +1378,7 @@ export class ShipmentsService {
       toStatus: shipment.status,
     });
 
-    if (shipment.status === ShipmentStatus.pending_assignment) {
+    if (shipment.status === ShipmentStatus.PENDING_ASSIGNMENT) {
       void this.notificationDelivery.safeNotifyAdminsNewShipment({
         shipmentId: shipment.id,
         referenceNumber: shipment.referenceNumber,

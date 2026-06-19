@@ -1,23 +1,23 @@
-import { ShipmentStatus, WalletTransactionType } from '@prisma/client';
+import { ShipmentStatus, WalletTransactionType } from '@transit-logistic/shared';
 
 const SHIPMENT_STATUS_LABELS: Record<ShipmentStatus, { en: string; ar: string }> = {
-  [ShipmentStatus.draft]: { en: 'Draft', ar: 'مسودة' },
-  [ShipmentStatus.pending_assignment]: { en: 'Pending assignment', ar: 'بانتظار التعيين' },
-  [ShipmentStatus.assigned]: { en: 'Assigned', ar: 'معينة' },
-  [ShipmentStatus.picked_up]: { en: 'Picked up', ar: 'تم الاستلام' },
-  [ShipmentStatus.in_transit]: { en: 'In transit', ar: 'قيد النقل' },
-  [ShipmentStatus.delivered]: { en: 'Delivered', ar: 'تم التسليم' },
-  [ShipmentStatus.completed]: { en: 'Completed', ar: 'مكتملة' },
-  [ShipmentStatus.cancelled]: { en: 'Cancelled', ar: 'ملغاة' },
+  [ShipmentStatus.DRAFT]: { en: 'Draft', ar: 'مسودة' },
+  [ShipmentStatus.PENDING_ASSIGNMENT]: { en: 'Pending assignment', ar: 'بانتظار التعيين' },
+  [ShipmentStatus.ASSIGNED]: { en: 'Assigned', ar: 'معينة' },
+  [ShipmentStatus.PICKED_UP]: { en: 'Picked up', ar: 'تم الاستلام' },
+  [ShipmentStatus.IN_TRANSIT]: { en: 'In transit', ar: 'قيد النقل' },
+  [ShipmentStatus.DELIVERED]: { en: 'Delivered', ar: 'تم التسليم' },
+  [ShipmentStatus.COMPLETED]: { en: 'Completed', ar: 'مكتملة' },
+  [ShipmentStatus.CANCELLED]: { en: 'Cancelled', ar: 'ملغاة' },
 };
 
 const WALLET_TYPE_LABELS: Record<WalletTransactionType, { en: string; ar: string }> = {
-  [WalletTransactionType.top_up]: { en: 'Top up', ar: 'إيداع' },
-  [WalletTransactionType.shipment_payment]: { en: 'Shipment payment', ar: 'دفع شحنة' },
-  [WalletTransactionType.platform_fee]: { en: 'Platform fee', ar: 'رسوم المنصة' },
-  [WalletTransactionType.payout]: { en: 'Payout', ar: 'سحب' },
-  [WalletTransactionType.refund]: { en: 'Refund', ar: 'استرداد' },
-  [WalletTransactionType.adjustment]: { en: 'Adjustment', ar: 'تعديل' },
+  [WalletTransactionType.TOP_UP]: { en: 'Top up', ar: 'إيداع' },
+  [WalletTransactionType.SHIPMENT_PAYMENT]: { en: 'Shipment payment', ar: 'دفع شحنة' },
+  [WalletTransactionType.PLATFORM_FEE]: { en: 'Platform fee', ar: 'رسوم المنصة' },
+  [WalletTransactionType.PAYOUT]: { en: 'Payout', ar: 'سحب' },
+  [WalletTransactionType.REFUND]: { en: 'Refund', ar: 'استرداد' },
+  [WalletTransactionType.ADJUSTMENT]: { en: 'Adjustment', ar: 'تعديل' },
 };
 
 export function buildShipmentStatusNotification(

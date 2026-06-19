@@ -3,7 +3,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import type { User } from '@prisma/client';
+import type { User } from '@/types/user';
 import { ShipmentStatus } from '@transit-logistic/shared';
 
 import { type PrismaService } from '../../database/prisma.service';
@@ -28,7 +28,10 @@ export class RatingsService {
       });
     }
 
-    if (![ShipmentStatus.DELIVERED, ShipmentStatus.COMPLETED].includes(shipment.status as ShipmentStatus)) {
+    if (
+      shipment.status !== ShipmentStatus.DELIVERED &&
+      shipment.status !== ShipmentStatus.COMPLETED
+    ) {
       throw new BadRequestException({
         code: 'RATING_NOT_ALLOWED',
         message_en: 'Ratings are available after delivery.',

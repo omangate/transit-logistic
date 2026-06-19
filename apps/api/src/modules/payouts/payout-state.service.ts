@@ -1,17 +1,17 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { PayoutRequestStatus } from '@prisma/client';
+import { PayoutRequestStatus } from '@transit-logistic/shared';
 
 const TRANSITIONS: Record<PayoutRequestStatus, PayoutRequestStatus[]> = {
-  [PayoutRequestStatus.pending]: [
-    PayoutRequestStatus.approved,
-    PayoutRequestStatus.rejected,
+  [PayoutRequestStatus.PENDING]: [
+    PayoutRequestStatus.APPROVED,
+    PayoutRequestStatus.REJECTED,
   ],
-  [PayoutRequestStatus.approved]: [
-    PayoutRequestStatus.processed,
-    PayoutRequestStatus.rejected,
+  [PayoutRequestStatus.APPROVED]: [
+    PayoutRequestStatus.PROCESSED,
+    PayoutRequestStatus.REJECTED,
   ],
-  [PayoutRequestStatus.rejected]: [],
-  [PayoutRequestStatus.processed]: [],
+  [PayoutRequestStatus.REJECTED]: [],
+  [PayoutRequestStatus.PROCESSED]: [],
 };
 
 @Injectable()

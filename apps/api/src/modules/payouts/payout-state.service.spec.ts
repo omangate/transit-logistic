@@ -1,5 +1,5 @@
 import { BadRequestException } from '@nestjs/common';
-import { PayoutRequestStatus } from '@prisma/client';
+import { PayoutRequestStatus } from '@transit-logistic/shared';
 
 import { PayoutStateService } from './payout-state.service';
 
@@ -8,28 +8,28 @@ describe('PayoutStateService', () => {
 
   it('allows pending to approved and rejected', () => {
     expect(() =>
-      service.assertTransition(PayoutRequestStatus.pending, PayoutRequestStatus.approved),
+      service.assertTransition(PayoutRequestStatus.PENDING, PayoutRequestStatus.APPROVED),
     ).not.toThrow();
     expect(() =>
-      service.assertTransition(PayoutRequestStatus.pending, PayoutRequestStatus.rejected),
+      service.assertTransition(PayoutRequestStatus.PENDING, PayoutRequestStatus.REJECTED),
     ).not.toThrow();
   });
 
   it('allows approved to processed and rejected', () => {
     expect(() =>
-      service.assertTransition(PayoutRequestStatus.approved, PayoutRequestStatus.processed),
+      service.assertTransition(PayoutRequestStatus.APPROVED, PayoutRequestStatus.PROCESSED),
     ).not.toThrow();
     expect(() =>
-      service.assertTransition(PayoutRequestStatus.approved, PayoutRequestStatus.rejected),
+      service.assertTransition(PayoutRequestStatus.APPROVED, PayoutRequestStatus.REJECTED),
     ).not.toThrow();
   });
 
   it('rejects invalid transitions', () => {
     expect(() =>
-      service.assertTransition(PayoutRequestStatus.pending, PayoutRequestStatus.processed),
+      service.assertTransition(PayoutRequestStatus.PENDING, PayoutRequestStatus.PROCESSED),
     ).toThrow(BadRequestException);
     expect(() =>
-      service.assertTransition(PayoutRequestStatus.processed, PayoutRequestStatus.approved),
+      service.assertTransition(PayoutRequestStatus.PROCESSED, PayoutRequestStatus.APPROVED),
     ).toThrow(BadRequestException);
   });
 });

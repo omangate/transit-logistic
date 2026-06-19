@@ -1,4 +1,4 @@
-import type { ShipmentStatus, WalletTransactionType } from '@prisma/client';
+import type { ShipmentStatus, WalletTransactionType } from '@transit-logistic/shared';
 
 export const NOTIFICATION_TYPES = {
   SHIPMENT_STATUS: 'shipment_status',

@@ -10,7 +10,7 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import type { User } from '@prisma/client';
+import type { User } from '@/types/user';
 import { UserRole } from '@transit-logistic/shared';
 
 import { CurrentUser } from '../../common/decorators/current-user.decorator';

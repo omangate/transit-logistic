@@ -4,8 +4,8 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { UserRole, WalletTransactionType } from '@prisma/client';
-import type { User } from '@prisma/client';
+import { UserRole, WalletTransactionType } from '@transit-logistic/shared';
+import type { User } from '@/types/user';
 
 import { PrismaService } from '../../database/prisma.service';
 import { NotificationDeliveryService } from '../notifications/notification-delivery.service';
@@ -15,9 +15,9 @@ import type { TransactionQueryDto } from './dto/transaction-query.dto';
 import { WalletLedgerService } from './wallet-ledger.service';
 
 const WALLET_ELIGIBLE_ROLES: UserRole[] = [
-  UserRole.customer,
-  UserRole.fleet_owner,
-  UserRole.driver,
+  UserRole.CUSTOMER,
+  UserRole.FLEET_OWNER,
+  UserRole.DRIVER,
 ];
 
 @Injectable()
@@ -81,7 +81,7 @@ export class WalletsService {
     const result = await this.ledger.credit({
       walletId: wallet.id,
       amount: dto.amount,
-      type: WalletTransactionType.adjustment,
+      type: WalletTransactionType.ADJUSTMENT,
       idempotencyKey: dto.idempotencyKey,
       description: dto.description ?? 'Admin credit',
       referenceType: 'admin_adjustment',
@@ -106,7 +106,7 @@ export class WalletsService {
     const result = await this.ledger.debit({
       walletId: wallet.id,
       amount: dto.amount,
-      type: WalletTransactionType.adjustment,
+      type: WalletTransactionType.ADJUSTMENT,
       idempotencyKey: dto.idempotencyKey,
       description: dto.description ?? 'Admin debit',
       referenceType: 'admin_adjustment',

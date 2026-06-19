@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/consistent-type-imports -- Nest DI needs runtime injection tokens */
 import { Body, Controller, Post, UseGuards } from '@nestjs/common';
 import { Throttle, ThrottlerGuard } from '@nestjs/throttler';
-import type { User } from '@prisma/client';
+import type { User } from '@/types/user';
 
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { Public } from '../../common/decorators/public.decorator';

@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PaymentStatus as PrismaPaymentStatus, Prisma } from '@prisma/client';
-import type { User } from '@prisma/client';
+import type { User } from '@/types/user';
 import { PaymentProviderType, PaymentStatus } from '@transit-logistic/shared';
 
 import { PrismaService } from '../../database/prisma.service';

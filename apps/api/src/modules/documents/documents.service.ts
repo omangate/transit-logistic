@@ -8,7 +8,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { type ConfigService } from '@nestjs/config';
-import type { User } from '@prisma/client';
+import type { User } from '@/types/user';
 
 import { type PrismaService } from '../../database/prisma.service';
 import { type ShipmentAccessService } from '../shipments/shipment-access.service';

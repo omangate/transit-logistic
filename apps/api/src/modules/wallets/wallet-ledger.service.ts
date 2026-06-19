@@ -4,7 +4,8 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import type { Prisma, Wallet, WalletTransactionType } from '@prisma/client';
+import type { Prisma, Wallet } from '@prisma/client';
+import { WalletTransactionType } from '@transit-logistic/shared';
 import { Prisma as PrismaNamespace } from '@prisma/client';
 
 import { PrismaService } from '../../database/prisma.service';

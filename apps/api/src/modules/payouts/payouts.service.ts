@@ -6,15 +6,13 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import {
-  PayoutRequestStatus,
   Prisma,
-  WalletTransactionType,
   type PayoutRequest,
-  type User,
 } from '@prisma/client';
 import { Prisma as PrismaNamespace } from '@prisma/client';
-import { UserRole } from '@transit-logistic/shared';
+import { PayoutRequestStatus, UserRole, WalletTransactionType } from '@transit-logistic/shared';
 
+import type { User } from '@/types/user';
 import { PrismaService } from '../../database/prisma.service';
 import { FleetOwnershipService } from '../fleet/fleet-ownership.service';
 import { WalletLedgerService } from '../wallets/wallet-ledger.service';
@@ -59,7 +57,7 @@ export class PayoutsService {
         userId: user.id,
         amount,
         bankDetails: dto.bankDetails as unknown as Prisma.InputJsonValue,
-        status: PayoutRequestStatus.pending,
+        status: PayoutRequestStatus.PENDING,
       },
       include: this.defaultInclude(),
     });
@@ -138,7 +136,7 @@ export class PayoutsService {
   async approve(admin: User, payoutId: string) {
     const payout = await this.getPayoutForReview(payoutId);
 
-    this.payoutState.assertTransition(payout.status, PayoutRequestStatus.approved);
+    this.payoutState.assertTransition(payout.status, PayoutRequestStatus.APPROVED);
     await this.assertSufficientAvailableBalance(
       payout.walletId,
       payout.userId,
@@ -149,7 +147,7 @@ export class PayoutsService {
     const updated = await this.prisma.payoutRequest.update({
       where: { id: payoutId },
       data: {
-        status: PayoutRequestStatus.approved,
+        status: PayoutRequestStatus.APPROVED,
         reviewedById: admin.id,
         reviewedAt: new Date(),
         rejectionReason: null,
@@ -164,8 +162,8 @@ export class PayoutsService {
     const payout = await this.getPayoutForReview(payoutId);
 
     if (
-      payout.status !== PayoutRequestStatus.pending &&
-      payout.status !== PayoutRequestStatus.approved
+      payout.status !== PayoutRequestStatus.PENDING &&
+      payout.status !== PayoutRequestStatus.APPROVED
     ) {
       throw new BadRequestException({
         code: 'INVALID_PAYOUT_STATUS_TRANSITION',
@@ -177,7 +175,7 @@ export class PayoutsService {
     const updated = await this.prisma.payoutRequest.update({
       where: { id: payoutId },
       data: {
-        status: PayoutRequestStatus.rejected,
+        status: PayoutRequestStatus.REJECTED,
         reviewedById: admin.id,
         reviewedAt: new Date(),
         rejectionReason: dto.rejectionReason,
@@ -191,7 +189,7 @@ export class PayoutsService {
   async markPaid(admin: User, payoutId: string) {
     const payout = await this.getPayoutForReview(payoutId);
 
-    this.payoutState.assertTransition(payout.status, PayoutRequestStatus.processed);
+    this.payoutState.assertTransition(payout.status, PayoutRequestStatus.PROCESSED);
 
     if (payout.walletTransactionId) {
       throw new BadRequestException({
@@ -206,7 +204,7 @@ export class PayoutsService {
         where: { id: payoutId },
       });
 
-      if (locked.status !== PayoutRequestStatus.approved) {
+      if (locked.status !== PayoutRequestStatus.APPROVED) {
         throw new BadRequestException({
           code: 'INVALID_PAYOUT_STATUS_TRANSITION',
           message_en: 'Only approved payout requests can be marked as paid.',
@@ -218,7 +216,7 @@ export class PayoutsService {
         {
           walletId: locked.walletId,
           amount: locked.amount,
-          type: WalletTransactionType.payout,
+          type: WalletTransactionType.PAYOUT,
           idempotencyKey: `payout-process-${locked.id}`,
           description: `Payout request ${locked.id}`,
           referenceType: 'payout_request',
@@ -230,7 +228,7 @@ export class PayoutsService {
       return tx.payoutRequest.update({
         where: { id: payoutId },
         data: {
-          status: PayoutRequestStatus.processed,
+          status: PayoutRequestStatus.PROCESSED,
           reviewedById: admin.id,
           reviewedAt: new Date(),
           walletTransactionId: ledgerResult.transaction.id,

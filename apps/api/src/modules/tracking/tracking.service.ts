@@ -1,8 +1,9 @@
 /* eslint-disable @typescript-eslint/consistent-type-imports -- Nest DI needs runtime injection tokens */
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { ShipmentStatus, type Prisma } from '@prisma/client';
-import type { User } from '@prisma/client';
+import { ShipmentStatus } from '@transit-logistic/shared';
+import type { Prisma } from '@prisma/client';
+import type { User } from '@/types/user';
 
 import { PrismaService } from '../../database/prisma.service';
 import { NotificationDeliveryService } from '../notifications/notification-delivery.service';
@@ -17,9 +18,9 @@ import type { LiveTrackingPosition } from './tracking-live.types';
 import { TrackingGateway } from './tracking.gateway';
 
 const TRACKABLE_STATUSES: ShipmentStatus[] = [
-  ShipmentStatus.assigned,
-  ShipmentStatus.picked_up,
-  ShipmentStatus.in_transit,
+  ShipmentStatus.ASSIGNED,
+  ShipmentStatus.PICKED_UP,
+  ShipmentStatus.IN_TRANSIT,
 ];
 
 @Injectable()
@@ -207,7 +208,7 @@ export class TrackingService {
     latitude: number,
     longitude: number,
   ) {
-    if (shipment.status !== ShipmentStatus.in_transit) {
+    if (shipment.status !== ShipmentStatus.IN_TRANSIT) {
       return;
     }
 

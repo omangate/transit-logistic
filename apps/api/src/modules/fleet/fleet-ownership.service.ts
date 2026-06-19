@@ -5,9 +5,10 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import type { FleetOwner, User } from '@prisma/client';
+import type { FleetOwner } from '@prisma/client';
 import { UserRole } from '@transit-logistic/shared';
 
+import type { User } from '@/types/user';
 import { PrismaService } from '../../database/prisma.service';
 
 @Injectable()

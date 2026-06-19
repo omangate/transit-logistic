@@ -1,5 +1,5 @@
 import { BadRequestException } from '@nestjs/common';
-import { ShipmentStatus, WalletTransactionType } from '@prisma/client';
+import { ShipmentStatus, WalletTransactionType } from '@transit-logistic/shared';
 import { UserRole } from '@transit-logistic/shared';
 
 import type { PrismaService } from '../../database/prisma.service';
@@ -40,8 +40,8 @@ describe('NotificationDeliveryService', () => {
       customerId: 'customer-1',
       driverId: 'driver-1',
       fleetOwnerUserId: 'fleet-1',
-      fromStatus: ShipmentStatus.pending_assignment,
-      toStatus: ShipmentStatus.assigned,
+      fromStatus: ShipmentStatus.PENDING_ASSIGNMENT,
+      toStatus: ShipmentStatus.ASSIGNED,
     });
 
     expect(result.delivered).toBe(1);
@@ -56,7 +56,7 @@ describe('NotificationDeliveryService', () => {
     const result = await service.notifyWalletTransaction({
       userId: 'user-1',
       transactionId: 'tx-1',
-      transactionType: WalletTransactionType.adjustment,
+      transactionType: WalletTransactionType.ADJUSTMENT,
       amount: '50.00',
       balanceAfter: '150.00',
       referenceType: 'admin_adjustment',

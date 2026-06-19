@@ -1,5 +1,6 @@
 import { BadRequestException } from '@nestjs/common';
-import { Prisma, WalletTransactionType } from '@prisma/client';
+import { Prisma } from '@prisma/client';
+import { WalletTransactionType } from '@transit-logistic/shared';
 
 import type { PrismaService } from '../../database/prisma.service';
 
@@ -20,7 +21,7 @@ describe('WalletLedgerService', () => {
       findUnique: jest.fn().mockResolvedValue(null),
       create: jest.fn().mockResolvedValue({
         id: 'tx-1',
-        type: WalletTransactionType.adjustment,
+        type: WalletTransactionType.ADJUSTMENT,
         amount: new Prisma.Decimal(10),
         balanceAfter: new Prisma.Decimal(110),
         idempotencyKey: 'key-1',
@@ -60,7 +61,7 @@ describe('WalletLedgerService', () => {
       service.credit({
         walletId: wallet.id,
         amount: 0,
-        type: WalletTransactionType.adjustment,
+        type: WalletTransactionType.ADJUSTMENT,
         idempotencyKey: 'zero-amount',
       }),
     ).rejects.toBeInstanceOf(BadRequestException);
@@ -73,7 +74,7 @@ describe('WalletLedgerService', () => {
       {
         walletId: wallet.id,
         amount: 10,
-        type: WalletTransactionType.adjustment,
+        type: WalletTransactionType.ADJUSTMENT,
         idempotencyKey: 'credit-1',
       },
       tx as never,
@@ -88,7 +89,7 @@ describe('WalletLedgerService', () => {
     const existing = {
       wallet,
       id: 'tx-existing',
-      type: WalletTransactionType.adjustment,
+      type: WalletTransactionType.ADJUSTMENT,
       amount: new Prisma.Decimal(10),
       balanceAfter: new Prisma.Decimal(110),
       idempotencyKey: 'duplicate-key',
@@ -103,7 +104,7 @@ describe('WalletLedgerService', () => {
       {
         walletId: wallet.id,
         amount: 10,
-        type: WalletTransactionType.shipment_payment,
+        type: WalletTransactionType.SHIPMENT_PAYMENT,
         idempotencyKey: 'duplicate-key',
       },
       tx as never,

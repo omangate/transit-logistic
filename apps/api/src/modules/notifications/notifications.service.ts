@@ -1,7 +1,8 @@
 /* eslint-disable @typescript-eslint/consistent-type-imports -- Nest DI needs runtime injection tokens */
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { NotificationChannel, type Prisma } from '@prisma/client';
-import type { User } from '@prisma/client';
+import type { Prisma } from '@prisma/client';
+import { NotificationChannel } from '@transit-logistic/shared';
+import type { User } from '@/types/user';
 
 import { PrismaService } from '../../database/prisma.service';
 
@@ -19,7 +20,7 @@ export class NotificationsService {
 
     const where: Prisma.NotificationWhereInput = {
       userId: user.id,
-      channel: NotificationChannel.in_app,
+      channel: NotificationChannel.IN_APP,
     };
 
     if (query.unreadOnly) {
@@ -46,7 +47,7 @@ export class NotificationsService {
     const count = await this.prisma.notification.count({
       where: {
         userId: user.id,
-        channel: NotificationChannel.in_app,
+        channel: NotificationChannel.IN_APP,
         isRead: false,
       },
     });
@@ -59,7 +60,7 @@ export class NotificationsService {
       where: {
         id: notificationId,
         userId: user.id,
-        channel: NotificationChannel.in_app,
+        channel: NotificationChannel.IN_APP,
       },
     });
 
@@ -79,7 +80,7 @@ export class NotificationsService {
       where: {
         id: notificationId,
         userId: user.id,
-        channel: NotificationChannel.in_app,
+        channel: NotificationChannel.IN_APP,
         isRead: false,
       },
       data: {
@@ -112,7 +113,7 @@ export class NotificationsService {
       where: {
         id: { in: notificationIds },
         userId: user.id,
-        channel: NotificationChannel.in_app,
+        channel: NotificationChannel.IN_APP,
         isRead: false,
       },
       data: {
@@ -128,7 +129,7 @@ export class NotificationsService {
     const result = await this.prisma.notification.updateMany({
       where: {
         userId: user.id,
-        channel: NotificationChannel.in_app,
+        channel: NotificationChannel.IN_APP,
         isRead: false,
       },
       data: {
@@ -144,7 +145,7 @@ export class NotificationsService {
     const notification = await this.prisma.notification.create({
       data: {
         userId: input.userId,
-        channel: NotificationChannel.in_app,
+        channel: NotificationChannel.IN_APP,
         titleEn: input.titleEn,
         titleAr: input.titleAr,
         bodyEn: input.bodyEn,
@@ -164,7 +165,7 @@ export class NotificationsService {
     const result = await this.prisma.notification.createMany({
       data: inputs.map((input) => ({
         userId: input.userId,
-        channel: NotificationChannel.in_app,
+        channel: NotificationChannel.IN_APP,
         titleEn: input.titleEn,
         titleAr: input.titleAr,
         bodyEn: input.bodyEn,

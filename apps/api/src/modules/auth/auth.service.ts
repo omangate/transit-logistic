@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import type { User } from '@prisma/client';
+import type { User } from '@/types/user';
 import { UserRole as SharedUserRole } from '@transit-logistic/shared';
 import * as bcrypt from 'bcrypt';
 

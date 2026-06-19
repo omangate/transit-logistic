@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/consistent-type-imports -- Nest DI needs runtime injection tokens */
 import { Injectable } from '@nestjs/common';
-import type { User } from '@prisma/client';
+import type { User } from '@/types/user';
 
 import { PrismaService } from '../../database/prisma.service';
 

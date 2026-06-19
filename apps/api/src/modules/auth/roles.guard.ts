@@ -5,7 +5,9 @@ import {
   ForbiddenException,
   Injectable,
 } from '@nestjs/common';
-import { Reflector } from '@nestjs/core';import type { User } from '@prisma/client';
+import { Reflector } from '@nestjs/core';
+
+import type { User } from '@/types/user';
 import type { UserRole } from '@transit-logistic/shared';
 
 import { ROLES_KEY } from './roles.decorator';

@@ -8,7 +8,7 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import type { OnGatewayConnection, OnGatewayDisconnect } from '@nestjs/websockets';
-import type { User } from '@prisma/client';
+import type { User } from '@/types/user';
 import type { Server, Socket } from 'socket.io';
 
 import { ShipmentAccessService } from '../shipments/shipment-access.service';

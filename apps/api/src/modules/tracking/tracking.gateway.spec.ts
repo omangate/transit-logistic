@@ -1,4 +1,4 @@
-import type { User } from '@prisma/client';
+import type { User } from '@/types/user';
 
 import type { ShipmentAccessService } from '../shipments/shipment-access.service';
 

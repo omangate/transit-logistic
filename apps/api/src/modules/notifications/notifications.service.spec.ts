@@ -1,6 +1,6 @@
 import { NotFoundException } from '@nestjs/common';
-import { NotificationChannel } from '@prisma/client';
-import type { User } from '@prisma/client';
+import { NotificationChannel } from '@transit-logistic/shared';
+import type { User } from '@/types/user';
 
 import type { PrismaService } from '../../database/prisma.service';
 
@@ -24,7 +24,7 @@ describe('NotificationsService', () => {
   const notification = {
     id: 'notification-1',
     userId: user.id,
-    channel: NotificationChannel.in_app,
+    channel: NotificationChannel.IN_APP,
     titleEn: 'Shipment update',
     titleAr: 'تحديث الشحنة',
     bodyEn: 'Shipment TL-001 is now assigned.',
@@ -107,7 +107,7 @@ describe('NotificationsService', () => {
     expect(prisma.notification.create).toHaveBeenCalledWith({
       data: expect.objectContaining({
         userId: user.id,
-        channel: NotificationChannel.in_app,
+        channel: NotificationChannel.IN_APP,
       }),
     });
   });

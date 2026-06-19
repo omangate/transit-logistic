@@ -1,6 +1,6 @@
 import { BadRequestException, ForbiddenException } from '@nestjs/common';
-import { PayoutRequestStatus } from '@prisma/client';
-import type { User } from '@prisma/client';
+import { PayoutRequestStatus } from '@transit-logistic/shared';
+import type { User } from '@/types/user';
 import { Decimal } from '@prisma/client/runtime/library';
 
 import type { PrismaService } from '../../database/prisma.service';
@@ -107,7 +107,7 @@ describe('PayoutsService', () => {
       amount: new Decimal('100.00'),
       currency: 'SAR',
       bankDetails: { iban: 'SA1234567890123456789012' },
-      status: PayoutRequestStatus.pending,
+      status: PayoutRequestStatus.PENDING,
       reviewedById: null,
       reviewedAt: null,
       rejectionReason: null,
@@ -163,7 +163,7 @@ describe('PayoutsService', () => {
       walletId: 'wallet-1',
       userId: fleetOwnerUser.id,
       amount: new Decimal('100.00'),
-      status: PayoutRequestStatus.pending,
+      status: PayoutRequestStatus.PENDING,
     });
     prisma.wallet.findUnique.mockResolvedValue({
       id: 'wallet-1',
@@ -179,7 +179,7 @@ describe('PayoutsService', () => {
       amount: new Decimal('100.00'),
       currency: 'SAR',
       bankDetails: {},
-      status: PayoutRequestStatus.approved,
+      status: PayoutRequestStatus.APPROVED,
       reviewedById: adminUser.id,
       reviewedAt: new Date('2026-01-02T00:00:00.000Z'),
       rejectionReason: null,

@@ -4,7 +4,7 @@ import { ConfigModule } from '@nestjs/config';
 import { JwtModule, JwtService } from '@nestjs/jwt';
 import { IoAdapter } from '@nestjs/platform-socket.io';
 import { Test } from '@nestjs/testing';
-import { ShipmentStatus } from '@prisma/client';
+import { ShipmentStatus } from '@transit-logistic/shared';
 import { io, type Socket as ClientSocket } from 'socket.io-client';
 import request from 'supertest';
 
@@ -181,7 +181,7 @@ describe('Tracking E2E', () => {
       id: shipmentId,
       customerId: customer.id,
       driverId: driver.id,
-      status: ShipmentStatus.in_transit,
+      status: ShipmentStatus.IN_TRANSIT,
     });
 
     tx.trackingPoint.create.mockImplementation(async ({ data }: { data: Record<string, unknown> }) => ({
@@ -227,7 +227,7 @@ describe('Tracking E2E', () => {
       id: shipmentId,
       customerId: customer.id,
       driverId: driver.id,
-      status: ShipmentStatus.in_transit,
+      status: ShipmentStatus.IN_TRANSIT,
     });
   });
 

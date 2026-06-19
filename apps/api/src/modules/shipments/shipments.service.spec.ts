@@ -1,6 +1,6 @@
 import { BadRequestException } from '@nestjs/common';
-import { ShipmentStatus } from '@prisma/client';
-import type { User } from '@prisma/client';
+import { ShipmentStatus } from '@transit-logistic/shared';
+import type { User } from '@/types/user';
 
 import type { PrismaService } from '../../database/prisma.service';
 import type { FleetOwnershipService } from '../fleet/fleet-ownership.service';
@@ -140,7 +140,7 @@ describe('ShipmentsService', () => {
     access.assertCanView.mockResolvedValue({
       id: 'shipment-1',
       customerId: customer.id,
-      status: ShipmentStatus.assigned,
+      status: ShipmentStatus.ASSIGNED,
     });
 
     await expect(service.complete(customer, 'shipment-1')).rejects.toBeInstanceOf(
@@ -151,7 +151,7 @@ describe('ShipmentsService', () => {
   it('rejects invalid state transitions in the state service', () => {
     const state = new ShipmentStateService();
 
-    expect(() => state.assertTransition(ShipmentStatus.draft, ShipmentStatus.delivered)).toThrow(
+    expect(() => state.assertTransition(ShipmentStatus.DRAFT, ShipmentStatus.DELIVERED)).toThrow(
       BadRequestException,
     );
   });

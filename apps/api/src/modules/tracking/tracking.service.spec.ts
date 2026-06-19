@@ -1,7 +1,7 @@
 import { BadRequestException } from '@nestjs/common';
 import type { ConfigService } from '@nestjs/config';
-import { ShipmentStatus } from '@prisma/client';
-import type { User } from '@prisma/client';
+import { ShipmentStatus } from '@transit-logistic/shared';
+import type { User } from '@/types/user';
 
 import type { PrismaService } from '../../database/prisma.service';
 import type { NotificationDeliveryService } from '../notifications/notification-delivery.service';
@@ -78,7 +78,7 @@ describe('TrackingService', () => {
     access.assertCanView.mockResolvedValue({
       id: 'shipment-1',
       driverId: 'other-driver',
-      status: ShipmentStatus.in_transit,
+      status: ShipmentStatus.IN_TRANSIT,
     });
 
     await expect(
@@ -93,7 +93,7 @@ describe('TrackingService', () => {
     access.assertCanView.mockResolvedValue({
       id: 'shipment-1',
       driverId: driver.id,
-      status: ShipmentStatus.delivered,
+      status: ShipmentStatus.DELIVERED,
     });
 
     await expect(

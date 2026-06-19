@@ -1,19 +1,19 @@
-import { PayoutRequestStatus } from '@prisma/client';
+import { PayoutRequestStatus } from '@transit-logistic/shared';
 
 export type PayoutApiStatus = 'pending' | 'approved' | 'rejected' | 'paid';
 
 const DB_TO_API: Record<PayoutRequestStatus, PayoutApiStatus> = {
-  [PayoutRequestStatus.pending]: 'pending',
-  [PayoutRequestStatus.approved]: 'approved',
-  [PayoutRequestStatus.rejected]: 'rejected',
-  [PayoutRequestStatus.processed]: 'paid',
+  [PayoutRequestStatus.PENDING]: 'pending',
+  [PayoutRequestStatus.APPROVED]: 'approved',
+  [PayoutRequestStatus.REJECTED]: 'rejected',
+  [PayoutRequestStatus.PROCESSED]: 'paid',
 };
 
 const API_TO_DB: Record<PayoutApiStatus, PayoutRequestStatus> = {
-  pending: PayoutRequestStatus.pending,
-  approved: PayoutRequestStatus.approved,
-  rejected: PayoutRequestStatus.rejected,
-  paid: PayoutRequestStatus.processed,
+  pending: PayoutRequestStatus.PENDING,
+  approved: PayoutRequestStatus.APPROVED,
+  rejected: PayoutRequestStatus.REJECTED,
+  paid: PayoutRequestStatus.PROCESSED,
 };
 
 export function toApiPayoutStatus(status: PayoutRequestStatus): PayoutApiStatus {
@@ -25,6 +25,6 @@ export function fromApiPayoutStatus(status: PayoutApiStatus): PayoutRequestStatu
 }
 
 export const RESERVED_PAYOUT_STATUSES: PayoutRequestStatus[] = [
-  PayoutRequestStatus.pending,
-  PayoutRequestStatus.approved,
+  PayoutRequestStatus.PENDING,
+  PayoutRequestStatus.APPROVED,
 ];

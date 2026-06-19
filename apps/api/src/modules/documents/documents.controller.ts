@@ -10,7 +10,7 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import type { User } from '@prisma/client';
+import type { User } from '@/types/user';
 import { UserRole } from '@transit-logistic/shared';
 
 import { CurrentUser } from '../../common/decorators/current-user.decorator';

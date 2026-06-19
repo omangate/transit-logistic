@@ -2,7 +2,7 @@
 import { randomUUID } from 'node:crypto';
 
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
-import { ShipmentStatus, type UserRole, type WalletTransactionType } from '@prisma/client';
+import { ShipmentStatus, UserRole, WalletTransactionType } from '@transit-logistic/shared';
 
 import { PrismaService } from '../../database/prisma.service';
 import { EmailService } from '../email/email.service';
@@ -317,11 +317,11 @@ export class NotificationDeliveryService {
   }
 
   private resolveEmailKindForStatus(status: ShipmentStatus) {
-    if (status === ShipmentStatus.assigned) {
+    if (status === ShipmentStatus.ASSIGNED) {
       return 'assignment' as const;
     }
 
-    if (status === ShipmentStatus.delivered || status === ShipmentStatus.completed) {
+    if (status === ShipmentStatus.DELIVERED || status === ShipmentStatus.COMPLETED) {
       return 'delivery' as const;
     }
 
@@ -339,7 +339,7 @@ export class NotificationDeliveryService {
       recipients.add(context.fleetOwnerUserId);
     }
 
-    if (context.toStatus === ShipmentStatus.pending_assignment) {
+    if (context.toStatus === ShipmentStatus.PENDING_ASSIGNMENT) {
       return [context.customerId];
     }
 

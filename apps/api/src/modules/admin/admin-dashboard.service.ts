@@ -2,18 +2,11 @@
 
 import { Injectable } from '@nestjs/common';
 import {
-
   NotificationChannel,
-
   PaymentStatus,
-
   PayoutRequestStatus,
-
   ShipmentStatus,
-
-} from '@prisma/client';
-
-
+} from '@transit-logistic/shared';
 
 import { PrismaService } from '../../database/prisma.service';
 import { ShipmentsService } from '../shipments/shipments.service';
@@ -38,11 +31,11 @@ export class AdminDashboardService {
 
     const pendingPaymentStatuses = [
 
-      PaymentStatus.requires_payment_method,
+      PaymentStatus.REQUIRES_PAYMENT_METHOD,
 
-      PaymentStatus.requires_confirmation,
+      PaymentStatus.REQUIRES_CONFIRMATION,
 
-      PaymentStatus.processing,
+      PaymentStatus.PROCESSING,
 
     ];
 
@@ -90,25 +83,25 @@ export class AdminDashboardService {
 
       this.prisma.shipment.count(),
 
-      this.prisma.shipment.count({ where: { status: ShipmentStatus.draft } }),
+      this.prisma.shipment.count({ where: { status: ShipmentStatus.DRAFT } }),
 
-      this.prisma.shipment.count({ where: { status: ShipmentStatus.pending_assignment } }),
+      this.prisma.shipment.count({ where: { status: ShipmentStatus.PENDING_ASSIGNMENT } }),
 
-      this.prisma.shipment.count({ where: { status: ShipmentStatus.assigned } }),
+      this.prisma.shipment.count({ where: { status: ShipmentStatus.ASSIGNED } }),
 
-      this.prisma.shipment.count({ where: { status: ShipmentStatus.picked_up } }),
+      this.prisma.shipment.count({ where: { status: ShipmentStatus.PICKED_UP } }),
 
-      this.prisma.shipment.count({ where: { status: ShipmentStatus.in_transit } }),
+      this.prisma.shipment.count({ where: { status: ShipmentStatus.IN_TRANSIT } }),
 
-      this.prisma.shipment.count({ where: { status: ShipmentStatus.delivered } }),
+      this.prisma.shipment.count({ where: { status: ShipmentStatus.DELIVERED } }),
 
-      this.prisma.shipment.count({ where: { status: ShipmentStatus.completed } }),
+      this.prisma.shipment.count({ where: { status: ShipmentStatus.COMPLETED } }),
 
-      this.prisma.shipment.count({ where: { status: ShipmentStatus.cancelled } }),
+      this.prisma.shipment.count({ where: { status: ShipmentStatus.CANCELLED } }),
 
       this.prisma.paymentIntent.aggregate({
 
-        where: { status: PaymentStatus.succeeded },
+        where: { status: PaymentStatus.SUCCEEDED },
 
         _sum: { amount: true },
 
@@ -134,7 +127,7 @@ export class AdminDashboardService {
 
       this.prisma.vehicle.count(),
 
-      this.prisma.payoutRequest.count({ where: { status: PayoutRequestStatus.pending } }),
+      this.prisma.payoutRequest.count({ where: { status: PayoutRequestStatus.PENDING } }),
 
       this.prisma.shipment.findMany({
 
@@ -162,7 +155,7 @@ export class AdminDashboardService {
 
           userId: adminUserId,
 
-          channel: NotificationChannel.in_app,
+          channel: NotificationChannel.IN_APP,
 
         },
 

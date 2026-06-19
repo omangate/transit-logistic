@@ -1,7 +1,8 @@
 /* eslint-disable @typescript-eslint/consistent-type-imports -- Nest DI needs runtime injection tokens */
 import { ConflictException, Injectable } from '@nestjs/common';
-import type { Prisma, User } from '@prisma/client';
+import type { Prisma } from '@prisma/client';
 
+import type { User } from '@/types/user';
 import { PrismaService } from '../../database/prisma.service';
 
 import type { CreateVehicleDto } from './dto/create-vehicle.dto';

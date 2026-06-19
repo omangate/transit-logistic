@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/consistent-type-imports -- Nest DI needs runtime injection tokens */
 import { Injectable } from '@nestjs/common';
-import { UserRole } from '@prisma/client';
+import { UserRole } from '@transit-logistic/shared';
 
 import { PrismaService } from '../../database/prisma.service';
 
@@ -10,7 +10,7 @@ export class AdminCustomersService {
 
   async listCustomers() {
     const customers = await this.prisma.user.findMany({
-      where: { role: UserRole.customer },
+      where: { role: UserRole.CUSTOMER },
       include: {
         customerProfile: true,
         _count: { select: { shipmentsCreated: true } },

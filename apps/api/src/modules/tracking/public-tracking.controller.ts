@@ -1,5 +1,5 @@
 import { Controller, Get, NotFoundException, Param } from '@nestjs/common';
-import { ShipmentStatus } from '@prisma/client';
+import { ShipmentStatus } from '@transit-logistic/shared';
 
 import { Public } from '../../common/decorators/public.decorator';
 /* eslint-disable @typescript-eslint/consistent-type-imports -- Nest DI needs runtime injection tokens */
@@ -8,9 +8,9 @@ import { PrismaService } from '../../database/prisma.service';
 import { TrackingCacheService } from './tracking-cache.service';
 
 const LIVE_STATUSES = new Set<ShipmentStatus>([
-  ShipmentStatus.picked_up,
-  ShipmentStatus.in_transit,
-  ShipmentStatus.assigned,
+  ShipmentStatus.PICKED_UP,
+  ShipmentStatus.IN_TRANSIT,
+  ShipmentStatus.ASSIGNED,
 ]);
 
 @Controller('public/track')
@@ -32,7 +32,7 @@ export class PublicTrackingController {
       },
     });
 
-    if (!shipment || shipment.status === ShipmentStatus.draft) {
+    if (!shipment || shipment.status === ShipmentStatus.DRAFT) {
       throw new NotFoundException({
         code: 'TRACKING_NOT_FOUND',
         message_en: 'Tracking number not found.',
