@@ -4,16 +4,17 @@
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
-    "build": "prisma generate && rimraf dist tsconfig.build.tsbuildinfo && nest build",
-    "postinstall": "prisma generate",
+    "build": "pnpm db:generate && rimraf dist tsconfig.build.tsbuildinfo && nest build",
+    "postinstall": "prisma generate --schema=./prisma/schema.prisma",
+    "prestart": "pnpm db:generate",
     "dev": "ts-node src/main.ts",
     "start": "node dist/main.js",
-    "start:prod": "node dist/main",
+    "start:prod": "pnpm db:generate && node dist/main.js",
     "lint": "eslint \"{src,test}/**/*.ts\"",
     "test": "jest && jest --config test/jest-e2e.json --runInBand",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "clean": "rimraf dist",
-    "db:generate": "prisma generate",
+    "db:generate": "prisma generate --schema=./prisma/schema.prisma",
     "db:migrate": "prisma migrate dev",
     "db:push": "prisma db push",
     "db:studio": "prisma studio",
@@ -65,5 +66,8 @@
     "ts-jest": "^29.4.11",
     "ts-node": "^10.9.2",
     "typescript": "^5.8.3"
+  },
+  "prisma": {
+    "schema": "prisma/schema.prisma"
   }
 }
