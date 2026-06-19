@@ -6,6 +6,8 @@ import { getMessages, getTranslations, setRequestLocale } from 'next-intl/server
 
 import '../globals.css';
 
+import { getServerApiBaseUrl } from '@/lib/api-config';
+
 type Props = {
   children: React.ReactNode;
   params: Promise<{ locale: string }>;
@@ -40,9 +42,19 @@ export default async function LocaleLayout({ children, params }: Props) {
   setRequestLocale(locale);
   const messages = await getMessages();
   const direction = LOCALE_DIRECTION[locale as SupportedLocale];
+  const apiBaseUrl = getServerApiBaseUrl();
+  const runtimeEnvScript =
+    apiBaseUrl.length > 0
+      ? `window.__ENV=${JSON.stringify({ NEXT_PUBLIC_API_URL: apiBaseUrl })}`
+      : null;
 
   return (
     <html lang={locale} dir={direction}>
+      <head>
+        {runtimeEnvScript ? (
+          <script dangerouslySetInnerHTML={{ __html: runtimeEnvScript }} />
+        ) : null}
+      </head>
       <body>
         <NextIntlClientProvider messages={messages}>{children}</NextIntlClientProvider>
       </body>

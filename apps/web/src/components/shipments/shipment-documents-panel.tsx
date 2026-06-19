@@ -6,10 +6,9 @@ import { useEffect, useState } from 'react';
 import { FormError } from '../form-error';
 
 import { listShipmentDocuments, uploadShipmentDocument } from '@/lib/api';
+import { getApiBaseUrl } from '@/lib/api-config';
 import { getLocalizedApiMessage, isApiClientError } from '@/lib/api-error';
 import type { ShipmentDocument } from '@/types/shipment';
-
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
 
 type ShipmentDocumentsPanelProps = {
   shipmentId: string;
@@ -89,7 +88,7 @@ export function ShipmentDocumentsPanel({ shipmentId, canUpload }: ShipmentDocume
           {documents.map((document) => (
             <li key={document.id}>
               <a
-                href={`${API_BASE_URL}${document.fileUrl}`}
+                href={`${getApiBaseUrl()}${document.fileUrl}`}
                 target="_blank"
                 rel="noreferrer"
               >

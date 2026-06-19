@@ -4,6 +4,7 @@ import {
   isApiClientError,
   parseApiError,
 } from '@/lib/api-error';
+import { getApiBaseUrl } from '@/lib/api-config';
 import {
   clearAuthSession,
   getAccessToken,
@@ -52,8 +53,6 @@ import type {
 import type { PublicTracking } from '@/types/tracking';
 import type { PaginatedWalletTransactions, Wallet } from '@/types/wallet';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
-
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   let response: Response;
 
@@ -63,7 +62,7 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
       headers.set('Content-Type', 'application/json');
     }
 
-    response = await fetch(`${API_BASE_URL}/api/v1${path}`, {
+    response = await fetch(`${getApiBaseUrl()}/api/v1${path}`, {
       ...init,
       headers,
     });
@@ -221,7 +220,7 @@ async function downloadAuthBlob(path: string): Promise<Blob> {
     throw createUnauthorizedError();
   }
 
-  const response = await fetch(`${API_BASE_URL}/api/v1${path}`, {
+  const response = await fetch(`${getApiBaseUrl()}/api/v1${path}`, {
     headers: { Authorization: `Bearer ${token}` },
   });
 
@@ -277,7 +276,7 @@ export async function exportAdminShipmentsCsv(query?: ShipmentListQuery): Promis
   }
 
   const response = await fetch(
-    `${API_BASE_URL}/api/v1/admin/shipments/export/csv${toQueryString(query)}`,
+    `${getApiBaseUrl()}/api/v1/admin/shipments/export/csv${toQueryString(query)}`,
     { headers: { Authorization: `Bearer ${token}` } },
   );
 
@@ -295,7 +294,7 @@ export async function exportAdminShipmentsPdf(query?: ShipmentListQuery): Promis
   }
 
   const response = await fetch(
-    `${API_BASE_URL}/api/v1/admin/shipments/export/pdf${toQueryString(query)}`,
+    `${getApiBaseUrl()}/api/v1/admin/shipments/export/pdf${toQueryString(query)}`,
     { headers: { Authorization: `Bearer ${token}` } },
   );
 
@@ -345,7 +344,7 @@ export async function uploadShipmentDocument(
     formData.append('documentType', documentType);
   }
 
-  const response = await fetch(`${API_BASE_URL}/api/v1/shipments/${shipmentId}/documents`, {
+  const response = await fetch(`${getApiBaseUrl()}/api/v1/shipments/${shipmentId}/documents`, {
     method: 'POST',
     headers: { Authorization: `Bearer ${token}` },
     body: formData,
