@@ -1,5 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server';
 
+import { getApiOrigin } from '@/lib/api-config';
+
 const HOP_BY_HOP_HEADERS = new Set([
   'connection',
   'keep-alive',
@@ -12,17 +14,6 @@ const HOP_BY_HOP_HEADERS = new Set([
   'host',
 ]);
 
-export function getApiOrigin(): string | null {
-  const configured =
-    process.env.NEXT_PUBLIC_API_URL?.trim() ?? process.env.API_URL?.trim() ?? null;
-
-  if (!configured) {
-    return null;
-  }
-
-  return configured.replace(/\/$/, '').replace(/\/api\/v1\/?$/, '');
-}
-
 export async function proxyToBackend(
   request: NextRequest,
   backendPath: string,
@@ -32,8 +23,8 @@ export async function proxyToBackend(
     return NextResponse.json(
       {
         code: 'API_NOT_CONFIGURED',
-        message_en: 'NEXT_PUBLIC_API_URL is not configured on the web service.',
-        message_ar: 'لم يتم تكوين NEXT_PUBLIC_API_URL على خدمة الويب.',
+        message_en: 'API URL is not configured. Set NEXT_PUBLIC_API_URL for local development.',
+        message_ar: 'لم يتم تكوين عنوان واجهة برمجة التطبيقات. عيّن NEXT_PUBLIC_API_URL للتطوير المحلي.',
       },
       { status: 503 },
     );

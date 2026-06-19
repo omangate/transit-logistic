@@ -1,42 +1,26 @@
-declare global {
-  interface Window {
-    __ENV?: {
-      NEXT_PUBLIC_API_URL?: string;
-    };
-  }
+export const PRODUCTION_API_ORIGIN = 'https://transit-logistic-production.up.railway.app';
+
+function normalizeApiOrigin(url: string): string {
+  return url.replace(/\/$/, '').replace(/\/api\/v1\/?$/, '');
 }
 
-function normalizeBaseUrl(url: string): string {
-  return url.replace(/\/$/, '');
-}
+/** Resolved API origin for server-side proxy and SSR fetches. */
+export function getApiOrigin(): string {
+  const configured =
+    process.env.NEXT_PUBLIC_API_URL?.trim() ?? process.env.API_URL?.trim();
 
-function readConfiguredApiUrl(): string | undefined {
-  if (typeof window !== 'undefined') {
-    const runtimeUrl = window.__ENV?.NEXT_PUBLIC_API_URL?.trim();
-    if (runtimeUrl) {
-      return normalizeBaseUrl(runtimeUrl);
-    }
+  if (configured) {
+    return normalizeApiOrigin(configured);
   }
 
-  const envUrl = process.env.NEXT_PUBLIC_API_URL?.trim();
-  if (envUrl) {
-    return normalizeBaseUrl(envUrl);
+  if (process.env.NODE_ENV === 'production') {
+    return PRODUCTION_API_ORIGIN;
   }
 
-  return undefined;
+  return '';
 }
 
-/** API origin when an absolute URL is required (e.g. uploads). Empty when using same-origin proxy. */
-export function getApiBaseUrl(): string {
-  return readConfiguredApiUrl() ?? '';
-}
-
-/** Server-only: read API URL for runtime HTML injection. */
-export function getServerApiBaseUrl(): string {
-  return readConfiguredApiUrl() ?? '';
-}
-
-/** Build a fetch URL for `/api/v1` endpoints. Browser calls stay same-origin and use route handlers. */
+/** Build a fetch URL for `/api/v1` endpoints. Browser calls stay same-origin via route handlers. */
 export function buildApiUrl(path: string): string {
   const normalizedPath = path.startsWith('/') ? path : `/${path}`;
   const apiPath = normalizedPath.startsWith('/api/v1')
@@ -47,7 +31,7 @@ export function buildApiUrl(path: string): string {
     return apiPath;
   }
 
-  const base = readConfiguredApiUrl();
+  const base = getApiOrigin();
   return base ? `${base}${apiPath}` : apiPath;
 }
 
@@ -59,6 +43,6 @@ export function buildAssetUrl(path: string): string {
     return normalizedPath;
   }
 
-  const base = readConfiguredApiUrl();
+  const base = getApiOrigin();
   return base ? `${base}${normalizedPath}` : normalizedPath;
 }
