@@ -3,6 +3,12 @@ import createNextIntlPlugin from 'next-intl/plugin';
 
 import { PRODUCTION_API_ORIGIN } from './src/lib/api-config';
 
+// Railway and other hosts often set NODE_ENV=development during `next build`, which
+// makes Next prerender pages-router /404 and /500 with next/document Html and fails.
+if (process.argv.some((arg) => arg.includes('build')) && process.env.NODE_ENV !== 'production') {
+  process.env.NODE_ENV = 'production';
+}
+
 const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
 
 function resolveApiOrigin(): string {
