@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react';
 import { FormError } from '../form-error';
 
 import { listShipmentDocuments, uploadShipmentDocument } from '@/lib/api';
-import { getApiBaseUrl } from '@/lib/api-config';
+import { buildAssetUrl } from '@/lib/api-config';
 import { getLocalizedApiMessage, isApiClientError } from '@/lib/api-error';
 import type { ShipmentDocument } from '@/types/shipment';
 
@@ -88,7 +88,7 @@ export function ShipmentDocumentsPanel({ shipmentId, canUpload }: ShipmentDocume
           {documents.map((document) => (
             <li key={document.id}>
               <a
-                href={`${getApiBaseUrl()}${document.fileUrl}`}
+                href={buildAssetUrl(document.fileUrl)}
                 target="_blank"
                 rel="noreferrer"
               >
