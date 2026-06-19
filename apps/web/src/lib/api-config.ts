@@ -36,20 +36,29 @@ export function getServerApiBaseUrl(): string {
   return readConfiguredApiUrl() ?? '';
 }
 
-/** Build a fetch URL for `/api/v1` endpoints. Uses same-origin paths in the browser when possible. */
+/** Build a fetch URL for `/api/v1` endpoints. Browser calls stay same-origin and use route handlers. */
 export function buildApiUrl(path: string): string {
   const normalizedPath = path.startsWith('/') ? path : `/${path}`;
   const apiPath = normalizedPath.startsWith('/api/v1')
     ? normalizedPath
     : `/api/v1${normalizedPath}`;
 
-  const base = getApiBaseUrl();
+  if (typeof window !== 'undefined') {
+    return apiPath;
+  }
+
+  const base = readConfiguredApiUrl();
   return base ? `${base}${apiPath}` : apiPath;
 }
 
 /** Resolve a backend asset path (e.g. `/uploads/...`) for links and downloads. */
 export function buildAssetUrl(path: string): string {
   const normalizedPath = path.startsWith('/') ? path : `/${path}`;
-  const base = getApiBaseUrl();
+
+  if (typeof window !== 'undefined') {
+    return normalizedPath;
+  }
+
+  const base = readConfiguredApiUrl();
   return base ? `${base}${normalizedPath}` : normalizedPath;
 }
