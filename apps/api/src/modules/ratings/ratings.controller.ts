@@ -15,8 +15,9 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { Roles } from '../auth/roles.decorator';
 import { RolesGuard } from '../auth/roles.guard';
 
-import { type CreateRatingDto } from './dto/create-rating.dto';
-import { type RatingsService } from './ratings.service';
+import type { CreateRatingDto } from './dto/create-rating.dto';
+/* eslint-disable @typescript-eslint/consistent-type-imports -- Nest DI needs runtime injection tokens */
+import { RatingsService } from './ratings.service';
 
 @Controller()
 @UseGuards(JwtAuthGuard, RolesGuard)

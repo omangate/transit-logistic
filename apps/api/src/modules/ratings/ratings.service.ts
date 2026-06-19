@@ -6,7 +6,8 @@ import {
 import type { User } from '@/types/user';
 import { ShipmentStatus } from '@transit-logistic/shared';
 
-import { type PrismaService } from '../../database/prisma.service';
+/* eslint-disable @typescript-eslint/consistent-type-imports -- Nest DI needs runtime injection tokens */
+import { PrismaService } from '../../database/prisma.service';
 
 import type { CreateRatingDto } from './dto/create-rating.dto';
 

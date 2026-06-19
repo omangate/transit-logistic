@@ -18,7 +18,8 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { Roles } from '../auth/roles.decorator';
 import { RolesGuard } from '../auth/roles.guard';
 
-import { type DocumentsService } from './documents.service';
+/* eslint-disable @typescript-eslint/consistent-type-imports -- Nest DI needs runtime injection tokens */
+import { DocumentsService } from './documents.service';
 
 type UploadedFile = {
   mimetype: string;

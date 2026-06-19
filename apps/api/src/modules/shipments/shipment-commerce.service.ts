@@ -3,7 +3,8 @@ import { randomBytes } from 'crypto';
 import { Injectable, ForbiddenException } from '@nestjs/common';
 import type { Prisma, Shipment } from '@prisma/client';
 
-import { type PrismaService } from '../../database/prisma.service';
+/* eslint-disable @typescript-eslint/consistent-type-imports -- Nest DI needs runtime injection tokens */
+import { PrismaService } from '../../database/prisma.service';
 
 type ShipmentWithDetails = Shipment & {
   stops: Array<{

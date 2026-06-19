@@ -7,11 +7,12 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { type ConfigService } from '@nestjs/config';
 import type { User } from '@/types/user';
 
-import { type PrismaService } from '../../database/prisma.service';
-import { type ShipmentAccessService } from '../shipments/shipment-access.service';
+/* eslint-disable @typescript-eslint/consistent-type-imports -- Nest DI needs runtime injection tokens */
+import { ConfigService } from '@nestjs/config';
+import { PrismaService } from '../../database/prisma.service';
+import { ShipmentAccessService } from '../shipments/shipment-access.service';
 
 const MAX_FILE_BYTES = 5 * 1024 * 1024;
 const ALLOWED_MIME = new Set([
