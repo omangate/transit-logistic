@@ -19,7 +19,7 @@ import {
   listShipments,
 } from '@/lib/api';
 import { getLocalizedApiMessage, isApiClientError } from '@/lib/api-error';
-import { formatDate, formatRoute } from '@/lib/shipment-utils';
+import { formatDate, formatRoute, isOneOfShipmentStatuses } from '@/lib/shipment-utils';
 import type { FleetDriverOption, FleetVehicleOption } from '@/types/admin';
 import type { Shipment } from '@/types/shipment';
 
@@ -54,13 +54,13 @@ export function FleetShipmentsContent() {
       setAvailable(availableResponse.data);
       setAssigned(
         assignedResponse.data.filter((shipment) =>
-          [
+          isOneOfShipmentStatuses(shipment.status, [
             ShipmentStatus.ASSIGNED,
             ShipmentStatus.PICKED_UP,
             ShipmentStatus.IN_TRANSIT,
             ShipmentStatus.DELIVERED,
             ShipmentStatus.COMPLETED,
-          ].includes(shipment.status),
+          ]),
         ),
       );
       setDrivers(driversData);

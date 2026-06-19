@@ -32,6 +32,7 @@ import {
   formatRoute,
   getDeliveryStop,
   getPickupStop,
+  isOneOfShipmentStatuses,
 } from '@/lib/shipment-utils';
 import type { PaymentQuote } from '@/types/payment';
 import type { Shipment, ShipmentTimeline } from '@/types/shipment';
@@ -180,7 +181,7 @@ export function ShipmentDetailsContent({ shipmentId }: ShipmentDetailsContentPro
     paymentQuote !== null;
   const canEdit =
     user.role === UserRole.CUSTOMER && shipment.status === ShipmentStatus.DRAFT;
-  const canCancel = CANCELLABLE_STATUSES.includes(shipment.status);
+  const canCancel = isOneOfShipmentStatuses(shipment.status, CANCELLABLE_STATUSES);
   const canComplete =
     user.role === UserRole.CUSTOMER && shipment.status === ShipmentStatus.DELIVERED;
   const canRate =
@@ -189,13 +190,16 @@ export function ShipmentDetailsContent({ shipmentId }: ShipmentDetailsContentPro
       shipment.status === ShipmentStatus.COMPLETED);
   const showDocuments =
     shipment.isCrossBorder ||
-    ![ShipmentStatus.DRAFT, ShipmentStatus.CANCELLED].includes(shipment.status);
-  const showLiveMap = ![
+    !isOneOfShipmentStatuses(shipment.status, [
+      ShipmentStatus.DRAFT,
+      ShipmentStatus.CANCELLED,
+    ]);
+  const showLiveMap = !isOneOfShipmentStatuses(shipment.status, [
     ShipmentStatus.DRAFT,
     ShipmentStatus.PENDING_ASSIGNMENT,
     ShipmentStatus.CANCELLED,
     ShipmentStatus.COMPLETED,
-  ].includes(shipment.status);
+  ]);
   const pricingBase = shipment.pricing?.baseAmount ?? paymentQuote?.baseAmount ?? null;
   const pricingFee = shipment.pricing?.platformFee ?? paymentQuote?.platformFee ?? null;
   const pricingTotal =

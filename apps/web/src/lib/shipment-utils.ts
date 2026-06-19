@@ -13,8 +13,16 @@ export function countShipmentsByStatus(shipments: Shipment[], status: ShipmentSt
   return shipments.filter((shipment) => shipment.status === status).length;
 }
 
+export function isOneOfShipmentStatuses(
+  status: ShipmentStatus,
+  allowed: readonly ShipmentStatus[],
+): boolean {
+  return allowed.some((candidate) => candidate === status);
+}
+
 export function countActiveShipments(shipments: Shipment[]): number {
-  return shipments.filter((shipment) => ACTIVE_STATUSES.includes(shipment.status)).length;
+  return shipments.filter((shipment) => isOneOfShipmentStatuses(shipment.status, ACTIVE_STATUSES))
+    .length;
 }
 
 export function getPickupStop(shipment: Shipment) {

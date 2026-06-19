@@ -26,6 +26,7 @@ import {
   formatRoute,
   getDeliveryStop,
   getPickupStop,
+  isOneOfShipmentStatuses,
 } from '@/lib/shipment-utils';
 import type { Shipment, ShipmentTimeline } from '@/types/shipment';
 
@@ -77,7 +78,10 @@ export function DriverShipmentContent({ shipmentId }: DriverShipmentContentProps
   useEffect(() => {
     if (
       !shipment ||
-      ![ShipmentStatus.PICKED_UP, ShipmentStatus.IN_TRANSIT].includes(shipment.status)
+      !isOneOfShipmentStatuses(shipment.status, [
+        ShipmentStatus.PICKED_UP,
+        ShipmentStatus.IN_TRANSIT,
+      ])
     ) {
       return;
     }
@@ -208,7 +212,10 @@ export function DriverShipmentContent({ shipmentId }: DriverShipmentContentProps
               {isActionPending ? t('working') : t('actions.deliver')}
             </button>
           ) : null}
-          {[ShipmentStatus.PICKED_UP, ShipmentStatus.IN_TRANSIT].includes(shipment.status) ? (
+          {isOneOfShipmentStatuses(shipment.status, [
+            ShipmentStatus.PICKED_UP,
+            ShipmentStatus.IN_TRANSIT,
+          ]) ? (
             <button
               type="button"
               className="portal-button portal-button--ghost"
