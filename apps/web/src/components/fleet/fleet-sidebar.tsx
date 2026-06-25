@@ -10,6 +10,7 @@ const NAV_ITEMS = [
   { href: '/fleet/shipments', labelKey: 'nav.shipments' as const },
   { href: '/fleet/drivers', labelKey: 'nav.drivers' as const },
   { href: '/fleet/vehicles', labelKey: 'nav.vehicles' as const },
+  { href: '/fleet/marketplace', labelKey: 'nav.marketplace' as const },
   { href: '/fleet/wallet', labelKey: 'nav.wallet' as const },
   { href: '/fleet/payouts', labelKey: 'nav.payouts' as const },
   { href: '/fleet/ratings', labelKey: 'nav.ratings' as const },

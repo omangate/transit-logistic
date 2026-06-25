@@ -134,6 +134,66 @@ enum ShippingMethod {
   @@map("shipping_method")
 }
 
+enum VehicleCategory {
+  light_truck
+  medium_truck
+  heavy_truck
+  trailer
+  van
+  specialized
+
+  @@map("vehicle_category")
+}
+
+enum TruckListingStatus {
+  draft
+  pending_approval
+  approved
+  rejected
+  suspended
+
+  @@map("truck_listing_status")
+}
+
+enum TruckAvailabilityStatus {
+  available
+  busy
+  maintenance
+
+  @@map("truck_availability_status")
+}
+
+enum QuoteRequestStatus {
+  pending
+  responded
+  accepted
+  declined
+  expired
+
+  @@map("quote_request_status")
+}
+
+enum GeoRegionType {
+  governorate
+  wilayat
+  city
+  industrial_area
+  free_zone
+  port
+
+  @@map("geo_region_type")
+}
+
+enum ShipmentRequestStatus {
+  open
+  matched
+  converted
+  cancelled
+  expired
+
+  @@map("shipment_request_status")
+}
+
 // ── Auth & Users ────────────────────────────────────────────────────────────
 
 model User {
@@ -142,7 +202,7 @@ model User {
   phone        String?   @unique
   passwordHash String    @map("password_hash")
   role         UserRole
-  locale       Locale    @default(en)
+  locale       Locale    @default(ar)
   isActive     Boolean   @default(true) @map("is_active")
   isVerified   Boolean   @default(false) @map("is_verified")
   lastLoginAt  DateTime? @map("last_login_at")
@@ -166,6 +226,9 @@ model User {
   statusHistory      ShipmentStatusHistory[]
   paymentIntents     PaymentIntent[]
   carrierRatings     CarrierRating[]      @relation("RatingCustomer")
+  truckQuoteRequests TruckQuoteRequest[]
+  truckReviews       TruckReview[]        @relation("TruckReviewCustomer")
+  shipmentRequests   ShipmentRequest[]
 
   @@map("users")
 }
@@ -214,6 +277,9 @@ model FleetOwner {
   drivers    DriverProfile[]
   shipments  Shipment[]
   ratings    CarrierRating[]
+  truckListings TruckListing[]
+  truckReviews  TruckReview[]
+  shipmentRequestMatches ShipmentRequestMatch[]
 
   @@map("fleet_owners")
 }
@@ -262,6 +328,7 @@ model Vehicle {
   fleetOwner FleetOwner        @relation(fields: [fleetOwnerId], references: [id])
   documents  VehicleDocument[]
   shipments  Shipment[]
+  truckListing TruckListing?
 
   @@unique([fleetOwnerId, plateNumber])
   @@map("vehicles")
@@ -313,6 +380,7 @@ model Shipment {
   fleetOwnerId    String?        @map("fleet_owner_id") @db.Uuid
   driverId        String?        @map("driver_id") @db.Uuid
   vehicleId       String?        @map("vehicle_id") @db.Uuid
+  truckListingId  String?        @map("truck_listing_id") @db.Uuid
   status          ShipmentStatus @default(draft)
   cargoType       CargoType      @default(dry) @map("cargo_type")
   cargoDescription String?       @map("cargo_description")
@@ -334,6 +402,7 @@ model Shipment {
   fleetOwner       FleetOwner?             @relation(fields: [fleetOwnerId], references: [id])
   driver           User?                   @relation("ShipmentDriver", fields: [driverId], references: [id])
   vehicle          Vehicle?                @relation(fields: [vehicleId], references: [id])
+  truckListing     TruckListing?           @relation(fields: [truckListingId], references: [id])
   stops            ShipmentStop[]
   documents        ShipmentDocument[]
   statusHistory    ShipmentStatusHistory[]
@@ -348,6 +417,7 @@ model Shipment {
 
   @@index([customerId])
   @@index([fleetOwnerId])
+  @@index([truckListingId])
   @@index([status])
   @@map("shipments")
 }
@@ -628,6 +698,256 @@ model GeofenceEvent {
 
   @@index([shipmentId])
   @@map("geofence_events")
+}
+
+// ── Truck Marketplace ───────────────────────────────────────────────────────
+
+model TruckListing {
+  id                       String                  @id @default(uuid()) @db.Uuid
+  fleetOwnerId             String                  @map("fleet_owner_id") @db.Uuid
+  vehicleId                String?                 @unique @map("vehicle_id") @db.Uuid
+  slug                     String                  @unique
+  name                     String
+  brand                    String?
+  model                    String?
+  year                     Int?
+  vehicleCategory          VehicleCategory         @map("vehicle_category")
+  vehicleType              VehicleType             @map("vehicle_type")
+  capacityKg               Decimal?                @map("capacity_kg") @db.Decimal(10, 2)
+  capacityCbm              Decimal?                @map("capacity_cbm") @db.Decimal(10, 2)
+  lengthM                  Decimal?                @map("length_m") @db.Decimal(6, 2)
+  widthM                   Decimal?                @map("width_m") @db.Decimal(6, 2)
+  heightM                  Decimal?                @map("height_m") @db.Decimal(6, 2)
+  cargoType                CargoType               @default(dry) @map("cargo_type")
+  shippingMethod           ShippingMethod          @default(standard) @map("shipping_method")
+  crossBorderSupport       Boolean                 @default(false) @map("cross_border_support")
+  refrigeratedSupport      Boolean                 @default(false) @map("refrigerated_support")
+  hazardousMaterialsSupport Boolean                @default(false) @map("hazardous_materials_support")
+  containerTransportSupport Boolean                @default(false) @map("container_transport_support")
+  insuranceCoverage        Boolean                 @default(false) @map("insurance_coverage")
+  operatingCountries       String[]                @default([]) @map("operating_countries")
+  plateNumber              String?                 @map("plate_number")
+  videoUrl                 String?                 @map("video_url")
+  description              String?
+  coverImageUrl            String?                 @map("cover_image_url")
+  availabilityStatus       TruckAvailabilityStatus @default(available) @map("availability_status")
+  listingStatus            TruckListingStatus      @default(draft) @map("listing_status")
+  isFeatured               Boolean                 @default(false) @map("is_featured")
+  isListingEnabled         Boolean                 @default(true) @map("is_listing_enabled")
+  pricePerKm               Decimal?                @map("price_per_km") @db.Decimal(10, 2)
+  dailyRentalPrice         Decimal?                @map("daily_rental_price") @db.Decimal(10, 2)
+  weeklyRentalPrice        Decimal?                @map("weekly_rental_price") @db.Decimal(10, 2)
+  monthlyRentalPrice       Decimal?                @map("monthly_rental_price") @db.Decimal(10, 2)
+  withDriverAvailable      Boolean                 @default(true) @map("with_driver_available")
+  withoutDriverAvailable   Boolean                 @default(true) @map("without_driver_available")
+  minRentalDays            Int?                    @map("min_rental_days")
+  avgRating                Decimal                 @default(0) @map("avg_rating") @db.Decimal(3, 2)
+  reviewCount              Int                     @default(0) @map("review_count")
+  completedDeliveries      Int                     @default(0) @map("completed_deliveries")
+  viewCount                Int                     @default(0) @map("view_count")
+  rejectionReason          String?                 @map("rejection_reason")
+  approvedAt               DateTime?               @map("approved_at")
+  createdAt                DateTime                @default(now()) @map("created_at")
+  updatedAt                DateTime                @updatedAt @map("updated_at")
+
+  fleetOwner    FleetOwner           @relation(fields: [fleetOwnerId], references: [id], onDelete: Cascade)
+  vehicle       Vehicle?             @relation(fields: [vehicleId], references: [id], onDelete: SetNull)
+  images        TruckListingImage[]
+  quoteRequests TruckQuoteRequest[]
+  reviews       TruckReview[]
+  views         MarketplaceView[]
+  shipments     Shipment[]
+  serviceAreas  TruckListingServiceArea[]
+
+  @@index([fleetOwnerId])
+  @@index([listingStatus, isListingEnabled])
+  @@index([isFeatured])
+  @@index([vehicleCategory])
+  @@index([vehicleType])
+  @@map("truck_listings")
+}
+
+model TruckListingImage {
+  id             String   @id @default(uuid()) @db.Uuid
+  truckListingId String   @map("truck_listing_id") @db.Uuid
+  url            String
+  sortOrder      Int      @default(0) @map("sort_order")
+  isCover        Boolean  @default(false) @map("is_cover")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  truckListing TruckListing @relation(fields: [truckListingId], references: [id], onDelete: Cascade)
+
+  @@index([truckListingId])
+  @@map("truck_listing_images")
+}
+
+model TruckQuoteRequest {
+  id             String             @id @default(uuid()) @db.Uuid
+  truckListingId String             @map("truck_listing_id") @db.Uuid
+  customerId     String             @map("customer_id") @db.Uuid
+  originCity     String             @map("origin_city")
+  originCountry  String             @map("origin_country")
+  destCity       String             @map("dest_city")
+  destCountry    String             @map("dest_country")
+  cargoDetails   String?            @map("cargo_details")
+  weightKg       Decimal?           @map("weight_kg") @db.Decimal(10, 2)
+  preferredDate  DateTime?          @map("preferred_date")
+  status         QuoteRequestStatus @default(pending)
+  fleetResponse  String?            @map("fleet_response")
+  createdAt      DateTime           @default(now()) @map("created_at")
+  updatedAt      DateTime           @updatedAt @map("updated_at")
+
+  truckListing TruckListing @relation(fields: [truckListingId], references: [id], onDelete: Cascade)
+  customer     User         @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+  @@index([truckListingId])
+  @@index([customerId])
+  @@index([status])
+  @@map("truck_quote_requests")
+}
+
+model TruckReview {
+  id                    String   @id @default(uuid()) @db.Uuid
+  truckListingId        String   @map("truck_listing_id") @db.Uuid
+  customerId            String   @map("customer_id") @db.Uuid
+  fleetOwnerId          String   @map("fleet_owner_id") @db.Uuid
+  driverId              String?  @map("driver_id") @db.Uuid
+  shipmentId            String?  @map("shipment_id") @db.Uuid
+  communicationScore    Int      @map("communication_score")
+  deliverySpeedScore    Int      @map("delivery_speed_score")
+  vehicleConditionScore Int      @map("vehicle_condition_score")
+  professionalismScore  Int      @map("professionalism_score")
+  overallScore          Int      @map("overall_score")
+  comment               String?
+  isVisible             Boolean  @default(true) @map("is_visible")
+  isModerated           Boolean  @default(false) @map("is_moderated")
+  createdAt             DateTime @default(now()) @map("created_at")
+
+  truckListing TruckListing @relation(fields: [truckListingId], references: [id], onDelete: Cascade)
+  customer     User         @relation("TruckReviewCustomer", fields: [customerId], references: [id], onDelete: Cascade)
+  fleetOwner   FleetOwner   @relation(fields: [fleetOwnerId], references: [id], onDelete: Cascade)
+
+  @@index([truckListingId])
+  @@index([fleetOwnerId])
+  @@index([customerId])
+  @@map("truck_reviews")
+}
+
+model MarketplaceView {
+  id             String   @id @default(uuid()) @db.Uuid
+  truckListingId String   @map("truck_listing_id") @db.Uuid
+  sessionId      String?  @map("session_id")
+  viewedAt       DateTime @default(now()) @map("viewed_at")
+
+  truckListing TruckListing @relation(fields: [truckListingId], references: [id], onDelete: Cascade)
+
+  @@index([truckListingId, viewedAt])
+  @@map("marketplace_views")
+}
+
+// ── Geography (multi-country) ─────────────────────────────────────────────────
+
+model Country {
+  code             String   @id @db.Char(2)
+  nameEn           String   @map("name_en")
+  nameAr           String   @map("name_ar")
+  defaultCurrency  String   @default("OMR") @map("default_currency")
+  centerLatitude   Decimal  @map("center_latitude") @db.Decimal(10, 7)
+  centerLongitude  Decimal  @map("center_longitude") @db.Decimal(10, 7)
+  defaultZoom      Int      @default(6) @map("default_zoom")
+  isActive         Boolean  @default(true) @map("is_active")
+  createdAt        DateTime @default(now()) @map("created_at")
+
+  regions GeoRegion[]
+
+  @@map("countries")
+}
+
+model GeoRegion {
+  id          String        @id @default(uuid()) @db.Uuid
+  countryCode String        @map("country_code") @db.Char(2)
+  type        GeoRegionType
+  code        String
+  nameEn      String        @map("name_en")
+  nameAr      String        @map("name_ar")
+  parentId    String?       @map("parent_id") @db.Uuid
+  latitude    Decimal?      @db.Decimal(10, 7)
+  longitude   Decimal?      @db.Decimal(10, 7)
+  isActive    Boolean       @default(true) @map("is_active")
+  createdAt   DateTime      @default(now()) @map("created_at")
+
+  country              Country                  @relation(fields: [countryCode], references: [code])
+  parent               GeoRegion?               @relation("GeoHierarchy", fields: [parentId], references: [id])
+  children             GeoRegion[]              @relation("GeoHierarchy")
+  truckServiceAreas    TruckListingServiceArea[]
+  pickupShipmentReqs   ShipmentRequest[]        @relation("PickupRegion")
+  deliveryShipmentReqs ShipmentRequest[]        @relation("DeliveryRegion")
+
+  @@unique([countryCode, code])
+  @@index([countryCode, type])
+  @@index([parentId])
+  @@map("geo_regions")
+}
+
+model TruckListingServiceArea {
+  truckListingId String @map("truck_listing_id") @db.Uuid
+  geoRegionId    String @map("geo_region_id") @db.Uuid
+
+  truckListing TruckListing @relation(fields: [truckListingId], references: [id], onDelete: Cascade)
+  geoRegion    GeoRegion    @relation(fields: [geoRegionId], references: [id], onDelete: Cascade)
+
+  @@id([truckListingId, geoRegionId])
+  @@map("truck_listing_service_areas")
+}
+
+model ShipmentRequest {
+  id                  String                @id @default(uuid()) @db.Uuid
+  referenceNumber     String                @unique @map("reference_number")
+  customerId          String                @map("customer_id") @db.Uuid
+  status              ShipmentRequestStatus @default(open)
+  pickupAddress       String                @map("pickup_address")
+  pickupGeoRegionId   String?               @map("pickup_geo_region_id") @db.Uuid
+  pickupLatitude      Decimal?              @map("pickup_latitude") @db.Decimal(10, 7)
+  pickupLongitude     Decimal?              @map("pickup_longitude") @db.Decimal(10, 7)
+  deliveryAddress     String                @map("delivery_address")
+  deliveryGeoRegionId String?               @map("delivery_geo_region_id") @db.Uuid
+  deliveryLatitude    Decimal?              @map("delivery_latitude") @db.Decimal(10, 7)
+  deliveryLongitude   Decimal?              @map("delivery_longitude") @db.Decimal(10, 7)
+  cargoType           CargoType             @default(dry) @map("cargo_type")
+  weightKg            Decimal?              @map("weight_kg") @db.Decimal(10, 2)
+  preferredDate       DateTime?             @map("preferred_date")
+  notes               String?
+  requiredVehicleType VehicleType?          @map("required_vehicle_type")
+  requiresRefrigerated Boolean              @default(false) @map("requires_refrigerated")
+  requiresCrossBorder  Boolean              @default(false) @map("requires_cross_border")
+  requiresContainer    Boolean              @default(false) @map("requires_container")
+  convertedShipmentId  String?               @map("converted_shipment_id") @db.Uuid
+  createdAt           DateTime              @default(now()) @map("created_at")
+  updatedAt           DateTime              @updatedAt @map("updated_at")
+
+  customer        User                     @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  pickupRegion    GeoRegion?               @relation("PickupRegion", fields: [pickupGeoRegionId], references: [id])
+  deliveryRegion  GeoRegion?               @relation("DeliveryRegion", fields: [deliveryGeoRegionId], references: [id])
+  matches         ShipmentRequestMatch[]
+
+  @@index([customerId])
+  @@index([status])
+  @@map("shipment_requests")
+}
+
+model ShipmentRequestMatch {
+  id                String   @id @default(uuid()) @db.Uuid
+  shipmentRequestId String   @map("shipment_request_id") @db.Uuid
+  fleetOwnerId      String   @map("fleet_owner_id") @db.Uuid
+  truckListingId    String?  @map("truck_listing_id") @db.Uuid
+  notifiedAt        DateTime @default(now()) @map("notified_at")
+
+  shipmentRequest ShipmentRequest @relation(fields: [shipmentRequestId], references: [id], onDelete: Cascade)
+  fleetOwner      FleetOwner      @relation(fields: [fleetOwnerId], references: [id], onDelete: Cascade)
+
+  @@unique([shipmentRequestId, fleetOwnerId])
+  @@index([fleetOwnerId])
+  @@map("shipment_request_matches")
 }
 
 // ── Notifications ───────────────────────────────────────────────────────────

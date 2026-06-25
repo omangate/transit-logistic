@@ -98,3 +98,77 @@ export const ShippingMethod = {
 } as const;
 
 export type ShippingMethod = (typeof ShippingMethod)[keyof typeof ShippingMethod];
+
+export const VehicleType = {
+  FLATBED: 'flatbed',
+  REFRIGERATED: 'refrigerated',
+  CONTAINER: 'container',
+  TANKER: 'tanker',
+  OTHER: 'other',
+} as const;
+
+export type VehicleType = (typeof VehicleType)[keyof typeof VehicleType];
+
+export const VehicleCategory = {
+  LIGHT_TRUCK: 'light_truck',
+  MEDIUM_TRUCK: 'medium_truck',
+  HEAVY_TRUCK: 'heavy_truck',
+  TRAILER: 'trailer',
+  VAN: 'van',
+  SPECIALIZED: 'specialized',
+} as const;
+
+export type VehicleCategory = (typeof VehicleCategory)[keyof typeof VehicleCategory];
+
+export const TruckListingStatus = {
+  DRAFT: 'draft',
+  PENDING_APPROVAL: 'pending_approval',
+  APPROVED: 'approved',
+  REJECTED: 'rejected',
+  SUSPENDED: 'suspended',
+} as const;
+
+export type TruckListingStatus =
+  (typeof TruckListingStatus)[keyof typeof TruckListingStatus];
+
+export const TruckAvailabilityStatus = {
+  AVAILABLE: 'available',
+  BUSY: 'busy',
+  MAINTENANCE: 'maintenance',
+} as const;
+
+export type TruckAvailabilityStatus =
+  (typeof TruckAvailabilityStatus)[keyof typeof TruckAvailabilityStatus];
+
+export const QuoteRequestStatus = {
+  PENDING: 'pending',
+  RESPONDED: 'responded',
+  ACCEPTED: 'accepted',
+  DECLINED: 'declined',
+  EXPIRED: 'expired',
+} as const;
+
+export type QuoteRequestStatus =
+  (typeof QuoteRequestStatus)[keyof typeof QuoteRequestStatus];
+
+export const GeoRegionType = {
+  GOVERNORATE: 'governorate',
+  WILAYAT: 'wilayat',
+  CITY: 'city',
+  INDUSTRIAL_AREA: 'industrial_area',
+  FREE_ZONE: 'free_zone',
+  PORT: 'port',
+} as const;
+
+export type GeoRegionType = (typeof GeoRegionType)[keyof typeof GeoRegionType];
+
+export const ShipmentRequestStatus = {
+  OPEN: 'open',
+  MATCHED: 'matched',
+  CONVERTED: 'converted',
+  CANCELLED: 'cancelled',
+  EXPIRED: 'expired',
+} as const;
+
+export type ShipmentRequestStatus =
+  (typeof ShipmentRequestStatus)[keyof typeof ShipmentRequestStatus];

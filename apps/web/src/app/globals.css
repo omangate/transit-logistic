@@ -710,6 +710,472 @@ button {
   border-color: #fca5a5;
 }
 
+/* Truck Marketplace */
+.marketplace-hero {
+  background: linear-gradient(135deg, #1e3a8a 0%, #1d4ed8 100%);
+  color: #fff;
+  padding: 3rem 0;
+}
+
+.marketplace-hero h1 {
+  margin: 0 0 0.5rem;
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
+}
+
+.marketplace-layout {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: 2rem;
+  padding-block: 2rem;
+}
+
+.marketplace-filters {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.marketplace-filters label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.875rem;
+}
+
+.marketplace-filters input,
+.marketplace-filters select,
+.marketplace-quote-form input,
+.marketplace-quote-form textarea,
+.marketplace-fleet-form input,
+.marketplace-fleet-form select,
+.marketplace-fleet-form textarea {
+  border: 1px solid var(--color-border);
+  border-radius: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  font: inherit;
+}
+
+.marketplace-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1.25rem;
+}
+
+.marketplace-card {
+  border: 1px solid var(--color-border);
+  border-radius: 0.75rem;
+  overflow: hidden;
+  background: #fff;
+  transition: box-shadow 0.2s;
+}
+
+.marketplace-card:hover {
+  box-shadow: 0 8px 24px rgb(15 23 42 / 8%);
+}
+
+.marketplace-card__image {
+  position: relative;
+  aspect-ratio: 16 / 10;
+  background: #e2e8f0;
+}
+
+.marketplace-card__image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.marketplace-card__placeholder {
+  display: grid;
+  place-items: center;
+  height: 100%;
+  font-size: 2.5rem;
+}
+
+.marketplace-card__badge {
+  position: absolute;
+  top: 0.75rem;
+  inset-inline-start: 0.75rem;
+  background: #f59e0b;
+  color: #fff;
+  font-size: 0.75rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 999px;
+}
+
+.marketplace-card__body {
+  padding: 1rem;
+}
+
+.marketplace-card__body h3 {
+  margin: 0 0 0.25rem;
+  font-size: 1rem;
+}
+
+.marketplace-card__meta {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: 0.8125rem;
+}
+
+.marketplace-card__stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.marketplace-profile-hero {
+  position: relative;
+  min-height: 280px;
+  background: #0f172a;
+  color: #fff;
+}
+
+.marketplace-profile-hero__img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.45;
+}
+
+.marketplace-profile-hero__content {
+  position: relative;
+  padding-block: 4rem;
+}
+
+.marketplace-profile-grid {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 2rem;
+  padding-block: 2rem;
+}
+
+.marketplace-specs {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.marketplace-specs div {
+  display: grid;
+  grid-template-columns: 140px 1fr;
+  gap: 0.5rem;
+}
+
+.marketplace-gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.marketplace-gallery img {
+  width: 100%;
+  aspect-ratio: 4/3;
+  object-fit: cover;
+  border-radius: 0.5rem;
+}
+
+.marketplace-profile-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.marketplace-quote-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  border: 1px solid var(--color-border);
+  border-radius: 0.75rem;
+  padding: 1rem;
+}
+
+.marketplace-home {
+  padding-block: 3rem;
+  background: #f1f5f9;
+}
+
+.marketplace-home__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.marketplace-home__block {
+  margin-bottom: 2rem;
+}
+
+.marketplace-fleet-form,
+.marketplace-fleet-list,
+.marketplace-admin-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.marketplace-fleet-item,
+.marketplace-admin-item {
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  border: 1px solid var(--color-border);
+  border-radius: 0.5rem;
+  padding: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.marketplace-admin-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.marketplace-hero__inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.marketplace-map-section {
+  margin-block: 1.5rem;
+}
+
+.oman-map {
+  border-radius: var(--radius-md, 8px);
+  overflow: hidden;
+  border: 1px solid var(--border-color, #e2e8f0);
+}
+
+.oman-map--loading {
+  display: grid;
+  place-items: center;
+  background: var(--surface-muted, #f8fafc);
+  color: var(--text-muted, #64748b);
+}
+
+.truck-listing-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.truck-listing-form__section {
+  padding: 1.25rem;
+  border: 1px solid var(--border-color, #e2e8f0);
+  border-radius: var(--radius-md, 8px);
+  background: var(--surface, #fff);
+}
+
+.truck-listing-form__section--private {
+  border-color: #fbbf24;
+  background: #fffbeb;
+}
+
+.truck-listing-form__section h2 {
+  margin: 0 0 1rem;
+  font-size: 1.1rem;
+}
+
+.truck-listing-form__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.truck-listing-form__checks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.truck-listing-form label,
+.shipment-request-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-size: 0.9rem;
+}
+
+.truck-listing-form input,
+.truck-listing-form select,
+.truck-listing-form textarea,
+.shipment-request-form input,
+.shipment-request-form select,
+.shipment-request-form textarea {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border-color, #e2e8f0);
+  border-radius: 6px;
+}
+
+.truck-listing-form__actions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-end;
+}
+
+.truck-listing-form__private-note {
+  font-size: 0.85rem;
+  color: var(--text-muted, #64748b);
+  margin: 0 0 0.75rem;
+}
+
+.geo-region-picker__list {
+  max-height: 280px;
+  overflow-y: auto;
+  border: 1px solid var(--border-color, #e2e8f0);
+  border-radius: 6px;
+  padding: 0.5rem;
+}
+
+.geo-region-picker__gov-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.35rem 0;
+}
+
+.geo-region-picker__wilayats {
+  padding-inline-start: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.geo-region-picker__toggle {
+  background: none;
+  border: 1px solid var(--border-color, #e2e8f0);
+  border-radius: 4px;
+  width: 1.75rem;
+  height: 1.75rem;
+  cursor: pointer;
+}
+
+.geo-location-search {
+  position: relative;
+}
+
+.geo-location-search__results {
+  position: absolute;
+  z-index: 10;
+  inset-inline: 0;
+  top: 100%;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  background: var(--surface, #fff);
+  border: 1px solid var(--border-color, #e2e8f0);
+  border-radius: 6px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.geo-location-search__results button {
+  width: 100%;
+  text-align: start;
+  padding: 0.5rem 0.75rem;
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+
+.geo-location-search__results button:hover {
+  background: var(--surface-muted, #f8fafc);
+}
+
+.geo-location-search__results span {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--text-muted, #64748b);
+}
+
+.shipment-request-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  padding-block: 2rem;
+}
+
+.shipment-request-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.marketplace-fleet-item__actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.portal-stats--wide {
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+}
+
+.admin-analytics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin-block: 1.5rem;
+}
+
+.admin-chart__bars {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.admin-chart__bars li {
+  display: grid;
+  grid-template-columns: 1fr 2fr auto;
+  gap: 0.5rem;
+  align-items: center;
+  font-size: 0.85rem;
+}
+
+.admin-chart__track {
+  height: 8px;
+  background: var(--surface-muted, #f1f5f9);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.admin-chart__fill {
+  height: 100%;
+  background: var(--primary, #2563eb);
+  border-radius: 4px;
+}
+
+.admin-routes ul {
+  list-style: none;
+  padding: 0;
+}
+
+.form-success {
+  color: #15803d;
+  padding: 0.75rem;
+  background: #f0fdf4;
+  border-radius: 6px;
+}
+
+@media (max-width: 768px) {
+  .marketplace-layout,
+  .marketplace-profile-grid,
+  .shipment-request-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
 @media (max-width: 768px) {
   .portal-layout {
     grid-template-columns: 1fr;
@@ -727,5 +1193,577 @@ button {
   .portal-header,
   .portal-content {
     padding-inline: 1rem;
+  }
+}
+
+/* Truck Rental Marketplace UI */
+.rental-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.rental-grid--compact {
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+}
+
+.rental-card {
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 1rem;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgb(15 23 42 / 6%);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.rental-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 32px rgb(15 23 42 / 10%);
+}
+
+.rental-card--compact .rental-card__media {
+  aspect-ratio: 16 / 10;
+}
+
+.rental-card__media {
+  position: relative;
+  display: block;
+  aspect-ratio: 4 / 3;
+  background: linear-gradient(135deg, #dbeafe, #e2e8f0);
+  overflow: hidden;
+}
+
+.rental-card__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.35s ease;
+}
+
+.rental-card:hover .rental-card__media img {
+  transform: scale(1.04);
+}
+
+.rental-card__placeholder {
+  display: grid;
+  place-items: center;
+  height: 100%;
+  font-size: 3rem;
+}
+
+.rental-card__media-badges {
+  position: absolute;
+  inset-inline: 0.75rem;
+  top: 0.75rem;
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  pointer-events: none;
+}
+
+.rental-card__featured {
+  background: #f59e0b;
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.rental-badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.25rem 0.55rem;
+  border-radius: 999px;
+}
+
+.rental-badge--sm {
+  font-size: 0.68rem;
+}
+
+.rental-badge--available {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.rental-badge--busy {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.rental-badge--maintenance {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.rental-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1rem 1rem 1.1rem;
+  flex: 1;
+}
+
+.rental-card__header {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  align-items: flex-start;
+}
+
+.rental-card__brand {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.rental-card__title {
+  margin: 0.15rem 0 0;
+  font-size: 1.05rem;
+  line-height: 1.3;
+}
+
+.rental-rating {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  white-space: nowrap;
+}
+
+.rental-rating__stars {
+  color: #f59e0b;
+  letter-spacing: -0.05em;
+}
+
+.rental-rating__value {
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+
+.rental-rating__count {
+  color: #64748b;
+  font-size: 0.75rem;
+}
+
+.rental-card__specs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.75rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  color: #475569;
+  font-size: 0.82rem;
+}
+
+.rental-card__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.rental-card__tag {
+  background: #f1f5f9;
+  color: #334155;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+}
+
+.rental-card__footer {
+  margin-top: auto;
+  padding-top: 0.5rem;
+  border-top: 1px solid #f1f5f9;
+}
+
+.rental-card__price {
+  margin: 0 0 0.75rem;
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #1d4ed8;
+}
+
+.rental-card__price--quote {
+  color: #64748b;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.rental-card__actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+}
+
+.rental-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  padding: 0.55rem 0.9rem;
+  border-radius: 0.6rem;
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border: 1px solid transparent;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.15s, color 0.15s;
+}
+
+.rental-btn--primary {
+  background: #1d4ed8;
+  color: #fff;
+}
+
+.rental-btn--primary:hover {
+  background: #1e40af;
+}
+
+.rental-btn--ghost {
+  background: #fff;
+  color: #1e293b;
+  border-color: #cbd5e1;
+}
+
+.rental-btn--ghost:hover {
+  background: #f8fafc;
+}
+
+.rental-btn--block {
+  width: 100%;
+}
+
+.rental-detail__top {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 2rem;
+  padding-block: 2rem;
+}
+
+.rental-gallery__main {
+  aspect-ratio: 16 / 10;
+  border-radius: 1rem;
+  overflow: hidden;
+  background: #e2e8f0;
+}
+
+.rental-gallery__main img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.rental-gallery__thumbs {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+  overflow-x: auto;
+}
+
+.rental-gallery__thumb {
+  flex: 0 0 88px;
+  height: 64px;
+  border: 2px solid transparent;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  padding: 0;
+  cursor: pointer;
+  background: none;
+}
+
+.rental-gallery__thumb--active {
+  border-color: #1d4ed8;
+}
+
+.rental-gallery__thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.rental-detail__summary {
+  position: sticky;
+  top: 1rem;
+  align-self: start;
+  padding: 1.25rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 1rem;
+  background: #fff;
+  box-shadow: 0 8px 30px rgb(15 23 42 / 6%);
+}
+
+.rental-detail__summary-head {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.75rem;
+}
+
+.rental-detail__brand {
+  margin: 0;
+  color: #64748b;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.rental-detail__summary h1 {
+  margin: 0.25rem 0 0.75rem;
+  font-size: clamp(1.4rem, 3vw, 2rem);
+}
+
+.rental-detail__fleet {
+  color: #475569;
+  margin: 0.5rem 0 1rem;
+}
+
+.rental-detail__price {
+  margin: 0 0 1rem;
+  font-size: 2rem;
+  font-weight: 800;
+  color: #1d4ed8;
+}
+
+.rental-detail__price span {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #64748b;
+}
+
+.rental-detail__price--quote {
+  font-size: 1.1rem;
+  color: #64748b;
+}
+
+.rental-detail__cta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.rental-detail__rental-box h2 {
+  margin: 0 0 0.75rem;
+  font-size: 1rem;
+}
+
+.rental-detail__rental-list {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.rental-detail__rental-list div {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  font-size: 0.88rem;
+}
+
+.rental-detail__rental-list dt {
+  color: #64748b;
+}
+
+.rental-detail__rental-list dd {
+  margin: 0;
+  font-weight: 600;
+}
+
+.rental-detail__sections {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 2rem;
+  padding-bottom: 2rem;
+}
+
+.rental-panel {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 1rem;
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.rental-panel h2 {
+  margin: 0 0 1rem;
+  font-size: 1.1rem;
+}
+
+.rental-spec-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 0.75rem;
+}
+
+.rental-spec-grid span {
+  display: block;
+  color: #64748b;
+  font-size: 0.78rem;
+  margin-bottom: 0.15rem;
+}
+
+.rental-fleet-profile {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.rental-fleet-profile__avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 999px;
+  background: #1d4ed8;
+  color: #fff;
+  display: grid;
+  place-items: center;
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+
+.rental-reviews {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.rental-review {
+  padding: 0.75rem;
+  background: #f8fafc;
+  border-radius: 0.75rem;
+}
+
+.rental-review__head {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.35rem;
+}
+
+.rental-quote-form {
+  position: sticky;
+  top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1.25rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 1rem;
+  background: #fff;
+}
+
+.rental-quote-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  font-size: 0.85rem;
+}
+
+.rental-quote-form input,
+.rental-quote-form textarea {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 0.5rem;
+  font: inherit;
+}
+
+.rental-detail__similar {
+  padding-bottom: 3rem;
+}
+
+.rental-detail__similar h2 {
+  margin-bottom: 1rem;
+}
+
+.fleet-rental-hub {
+  margin-bottom: 2rem;
+  padding: 1.25rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 1rem;
+  background: linear-gradient(180deg, #f8fafc, #fff);
+}
+
+.fleet-rental-hub__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.fleet-rental-hub__preview-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 1.25rem 0 0.75rem;
+}
+
+.fleet-listing-card-wrap__meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 0 0;
+}
+
+.fleet-listing-card-wrap__actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.rental-status {
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  background: #e2e8f0;
+}
+
+.rental-status--approved {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.rental-status--pending_approval {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.rental-status--draft {
+  background: #f1f5f9;
+  color: #475569;
+}
+
+.fleet-rental-quotes__list {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.fleet-rental-quotes__item {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.75rem;
+}
+
+@media (max-width: 960px) {
+  .rental-detail__top,
+  .rental-detail__sections {
+    grid-template-columns: 1fr;
+  }
+
+  .rental-detail__summary,
+  .rental-quote-form {
+    position: static;
   }
 }

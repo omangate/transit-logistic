@@ -12,6 +12,7 @@ const NAV_ITEMS = [
   { href: '/admin/fleet-owners', labelKey: 'nav.fleetOwners' as const },
   { href: '/admin/drivers', labelKey: 'nav.drivers' as const },
   { href: '/admin/vehicles', labelKey: 'nav.vehicles' as const },
+  { href: '/admin/marketplace', labelKey: 'nav.marketplace' as const },
   { href: '/admin/payments', labelKey: 'nav.payments' as const },
   { href: '/admin/payouts', labelKey: 'nav.payouts' as const },
   { href: '/admin/ratings', labelKey: 'nav.ratings' as const },

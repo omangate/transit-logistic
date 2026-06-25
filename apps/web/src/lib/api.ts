@@ -25,6 +25,20 @@ import type {
 } from '@/types/admin';
 import type { AuthTokensResponse, LoginRequest, RegisterRequest } from '@/types/auth';
 import type { AcceptShipmentInput } from '@/types/fleet';
+import type { GeoRegion, GovernorateWithWilayats } from '@/types/geography';
+import type {
+  CreateQuoteRequestInput,
+  CreateTruckListingInput,
+  FleetTruckListing,
+  MarketplaceAdminMetrics,
+  MarketplaceBrowseQuery,
+  MarketplaceHomeSections,
+  PaginatedTruckListings,
+  TruckListingDetail,
+  TruckListingSummary,
+  TruckQuoteRequest,
+  UpdateTruckListingInput,
+} from '@/types/marketplace';
 import type {
   NotificationListQuery,
   PaginatedNotifications,
@@ -50,6 +64,10 @@ import type {
   ShipmentTimeline,
   UpdateShipmentRequest,
 } from '@/types/shipment';
+import type {
+  CreateShipmentRequestInput,
+  ShipmentRequestRecord,
+} from '@/types/shipment-request';
 import type { PublicTracking } from '@/types/tracking';
 import type { PaginatedWalletTransactions, Wallet } from '@/types/wallet';
 
@@ -648,6 +666,158 @@ export async function updateSettings(input: UpdateSettingsInput): Promise<void> 
     method: 'PATCH',
     body: JSON.stringify(input),
   });
+}
+
+function toMarketplaceQueryString(query?: MarketplaceBrowseQuery): string {
+  if (!query) return '';
+  const params = new URLSearchParams();
+  Object.entries(query).forEach(([key, value]) => {
+    if (value !== undefined && value !== null && value !== '') {
+      params.set(key, String(value));
+    }
+  });
+  const serialized = params.toString();
+  return serialized ? `?${serialized}` : '';
+}
+
+export async function browseMarketplaceTrucks(
+  query?: MarketplaceBrowseQuery,
+): Promise<PaginatedTruckListings> {
+  return request<PaginatedTruckListings>(
+    `/marketplace/trucks${toMarketplaceQueryString(query)}`,
+  );
+}
+
+export async function getMarketplaceHome(): Promise<MarketplaceHomeSections> {
+  return request<MarketplaceHomeSections>('/marketplace/home');
+}
+
+export async function getMarketplaceTruck(slug: string): Promise<TruckListingDetail> {
+  return request<TruckListingDetail>(`/marketplace/trucks/${encodeURIComponent(slug)}`);
+}
+
+export async function getSimilarTrucks(slug: string): Promise<TruckListingSummary[]> {
+  return request<TruckListingSummary[]>(
+    `/marketplace/trucks/${encodeURIComponent(slug)}/similar`,
+  );
+}
+
+export async function listFleetQuoteRequests(): Promise<TruckQuoteRequest[]> {
+  return authRequest<TruckQuoteRequest[]>('/marketplace/quotes/fleet');
+}
+
+export async function listFleetTruckListings(): Promise<FleetTruckListing[]> {
+  return authRequest<FleetTruckListing[]>('/fleet/marketplace/trucks');
+}
+
+export async function getFleetTruckListing(id: string): Promise<FleetTruckListing> {
+  return authRequest<FleetTruckListing>(`/fleet/marketplace/trucks/${id}`);
+}
+
+export async function createFleetTruckListing(
+  input: CreateTruckListingInput,
+): Promise<FleetTruckListing> {
+  return authRequest<FleetTruckListing>('/fleet/marketplace/trucks', {
+    method: 'POST',
+    body: JSON.stringify(input),
+  });
+}
+
+export async function updateFleetTruckListing(
+  id: string,
+  input: UpdateTruckListingInput,
+): Promise<FleetTruckListing> {
+  return authRequest<FleetTruckListing>(`/fleet/marketplace/trucks/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify(input),
+  });
+}
+
+export async function submitFleetTruckListing(id: string): Promise<FleetTruckListing> {
+  return authRequest<FleetTruckListing>(`/fleet/marketplace/trucks/${id}/submit`, {
+    method: 'POST',
+  });
+}
+
+export async function requestTruckQuote(
+  listingId: string,
+  input: CreateQuoteRequestInput,
+): Promise<TruckQuoteRequest> {
+  return authRequest<TruckQuoteRequest>(`/marketplace/trucks/${listingId}/quotes`, {
+    method: 'POST',
+    body: JSON.stringify(input),
+  });
+}
+
+export async function getAdminMarketplaceMetrics(): Promise<MarketplaceAdminMetrics> {
+  return authRequest<MarketplaceAdminMetrics>('/admin/marketplace/metrics');
+}
+
+export async function listAdminMarketplaceTrucks(
+  status?: string,
+): Promise<FleetTruckListing[]> {
+  const query = status ? `?status=${encodeURIComponent(status)}` : '';
+  return authRequest<FleetTruckListing[]>(`/admin/marketplace/trucks${query}`);
+}
+
+export async function approveAdminMarketplaceTruck(id: string): Promise<FleetTruckListing> {
+  return authRequest<FleetTruckListing>(`/admin/marketplace/trucks/${id}/approve`, {
+    method: 'POST',
+  });
+}
+
+export async function rejectAdminMarketplaceTruck(
+  id: string,
+  rejectionReason: string,
+): Promise<FleetTruckListing> {
+  return authRequest<FleetTruckListing>(`/admin/marketplace/trucks/${id}/reject`, {
+    method: 'POST',
+    body: JSON.stringify({ rejectionReason }),
+  });
+}
+
+export async function featureAdminMarketplaceTruck(
+  id: string,
+  isFeatured: boolean,
+): Promise<FleetTruckListing> {
+  return authRequest<FleetTruckListing>(`/admin/marketplace/trucks/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify({ isFeatured }),
+  });
+}
+
+export async function listGovernorates(countryCode = 'OM'): Promise<GovernorateWithWilayats[]> {
+  return request<GovernorateWithWilayats[]>(
+    `/geography/countries/${encodeURIComponent(countryCode)}/governorates`,
+  );
+}
+
+export async function searchGeoRegions(countryCode: string, q: string): Promise<GeoRegion[]> {
+  const params = new URLSearchParams({ q });
+  return request<GeoRegion[]>(
+    `/geography/countries/${encodeURIComponent(countryCode)}/search?${params}`,
+  );
+}
+
+export async function getGeoRegion(id: string): Promise<GeoRegion> {
+  return request<GeoRegion>(`/geography/regions/${encodeURIComponent(id)}`);
+}
+
+export async function createShipmentRequest(
+  input: CreateShipmentRequestInput,
+): Promise<ShipmentRequestRecord> {
+  return authRequest<ShipmentRequestRecord>('/shipment-requests', {
+    method: 'POST',
+    body: JSON.stringify(input),
+  });
+}
+
+export async function listMyShipmentRequests(): Promise<ShipmentRequestRecord[]> {
+  return authRequest<ShipmentRequestRecord[]>('/shipment-requests/mine');
+}
+
+export async function listFleetShipmentRequests(): Promise<ShipmentRequestRecord[]> {
+  return authRequest<ShipmentRequestRecord[]>('/shipment-requests/fleet');
 }
 
 export { ApiClientError } from '@/lib/api-error';

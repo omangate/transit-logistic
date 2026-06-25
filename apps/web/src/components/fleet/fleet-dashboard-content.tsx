@@ -9,6 +9,7 @@ import { LoadingState } from '../portal/loading-state';
 import { StatCard } from '../portal/stat-card';
 import { StatusBadge } from '../portal/status-badge';
 
+import { FleetMarketplaceHub } from './fleet-marketplace-hub';
 import { FleetShell } from './fleet-shell';
 
 import { useRequireFleetAuth } from '@/hooks/use-require-fleet-auth';
@@ -84,6 +85,8 @@ export function FleetDashboardContent() {
   return (
     <FleetShell user={user} title={t('dashboard.title')} subtitle={t('dashboard.subtitle')}>
       <FormError message={error} />
+
+      <FleetMarketplaceHub />
 
       <section className="stats-grid">
         <StatCard

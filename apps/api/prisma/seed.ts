@@ -2,6 +2,8 @@ import { PrismaClient } from '@prisma/client';
 import { UserRole } from '@transit-logistic/shared';
 import * as bcrypt from 'bcrypt';
 
+import { seedOmanGeography } from './seed-geography';
+
 const prisma = new PrismaClient();
 const BCRYPT_ROUNDS = 12;
 
@@ -33,6 +35,8 @@ async function upsertUser(input: {
 }
 
 async function main() {
+  await seedOmanGeography(prisma);
+
   const admin = await upsertUser({
     email: 'admin@transit.dev',
     password: 'Admin1234',
@@ -79,7 +83,7 @@ async function main() {
     },
   });
 
-  await prisma.vehicle.upsert({
+  const vehicle = await prisma.vehicle.upsert({
     where: {
       fleetOwnerId_plateNumber: {
         fleetOwnerId: fleetOwner.id,
@@ -95,6 +99,48 @@ async function main() {
     },
     update: {
       isActive: true,
+    },
+  });
+
+  await prisma.truckListing.upsert({
+    where: { slug: 'volvo-fh16-flatbed-demo' },
+    create: {
+      fleetOwnerId: fleetOwner.id,
+      vehicleId: vehicle.id,
+      slug: 'volvo-fh16-flatbed-demo',
+      name: 'Volvo FH16 Flatbed',
+      brand: 'Volvo',
+      model: 'FH16',
+      year: 2022,
+      vehicleCategory: 'heavy_truck',
+      vehicleType: 'flatbed',
+      capacityKg: 25000,
+      capacityCbm: 45,
+      crossBorderSupport: true,
+      refrigeratedSupport: false,
+      insuranceCoverage: true,
+      operatingCountries: ['OM', 'AE', 'SA'],
+      description: 'Heavy-duty flatbed truck for cross-border freight across the GCC.',
+      coverImageUrl: '/uploads/demo/truck-volvo.jpg',
+      listingStatus: 'approved',
+      isFeatured: true,
+      isListingEnabled: true,
+      pricePerKm: 2.5,
+      dailyRentalPrice: 85,
+      weeklyRentalPrice: 520,
+      monthlyRentalPrice: 1800,
+      withDriverAvailable: true,
+      withoutDriverAvailable: true,
+      minRentalDays: 1,
+      approvedAt: new Date(),
+      completedDeliveries: 128,
+      avgRating: 4.7,
+      reviewCount: 24,
+    },
+    update: {
+      listingStatus: 'approved',
+      isFeatured: true,
+      isListingEnabled: true,
     },
   });
 
