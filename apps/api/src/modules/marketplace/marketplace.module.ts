@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 
+import { AuthModule } from '../auth/auth.module';
 import { FleetModule } from '../fleet/fleet.module';
 
 import { AdminMarketplaceController } from './admin-marketplace.controller';
@@ -11,7 +12,7 @@ import { PublicMarketplaceController } from './public-marketplace.controller';
 import { TruckListingsService } from './truck-listings.service';
 
 @Module({
-  imports: [FleetModule],
+  imports: [AuthModule, FleetModule],
   controllers: [
     PublicMarketplaceController,
     FleetTruckListingsController,

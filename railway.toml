@@ -1,9 +1,0 @@
-[build]
-buildCommand = "pnpm install --frozen-lockfile && pnpm --filter @transit-logistic/shared build && pnpm --filter @transit-logistic/api exec prisma generate && pnpm --filter @transit-logistic/api build"
-
-[deploy]
-startCommand = "if [ -f scripts/railway-start-api.cjs ]; then node scripts/railway-start-api.cjs; elif [ -f scripts/start-production.cjs ]; then node scripts/start-production.cjs; else echo 'Start script missing' && exit 1; fi"
-healthcheckPath = "/api/v1/health/live"
-healthcheckTimeout = 300
-restartPolicyType = "ON_FAILURE"
-restartPolicyMaxRetries = 5

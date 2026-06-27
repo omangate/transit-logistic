@@ -1,6 +1,16 @@
+function readPort(): number {
+  for (const key of ['PORT', 'API_PORT'] as const) {
+    const raw = process.env[key]?.trim();
+    if (!raw) continue;
+    const port = Number.parseInt(raw, 10);
+    if (!Number.isNaN(port) && port > 0) return port;
+  }
+  return 3001;
+}
+
 export const configuration = () => ({
   app: {
-    port: parseInt(process.env.PORT ?? process.env.API_PORT ?? '3001', 10),
+    port: readPort(),
     nodeEnv: process.env.NODE_ENV ?? 'development',
     corsOrigin:
       process.env.CORS_ORIGIN ??
