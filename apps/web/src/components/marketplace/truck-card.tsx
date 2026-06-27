@@ -3,7 +3,9 @@
 import { useTranslations } from 'next-intl';
 
 import { AvailabilityBadge } from '@/components/marketplace/availability-badge';
+import { FavoriteButton } from '@/components/marketplace/favorite-button';
 import { RatingStars } from '@/components/marketplace/rating-stars';
+import { VerificationBadge } from '@/components/marketplace/verification-badge';
 import { Link } from '@/i18n/navigation';
 import { buildAssetUrl } from '@/lib/api-config';
 import {
@@ -17,9 +19,10 @@ type TruckCardProps = {
   truck: TruckListingSummary;
   locale: string;
   compact?: boolean;
+  isFavorited?: boolean;
 };
 
-export function TruckCard({ truck, locale, compact = false }: TruckCardProps) {
+export function TruckCard({ truck, locale, compact = false, isFavorited = false }: TruckCardProps) {
   const t = useTranslations('marketplace');
   const imageUrl = truck.coverImageUrl ?? truck.images?.[0]?.url;
   const title = getTruckTitle(truck);
@@ -52,6 +55,7 @@ export function TruckCard({ truck, locale, compact = false }: TruckCardProps) {
           ) : null}
           <AvailabilityBadge status={truck.availabilityStatus} size="sm" />
         </div>
+        <FavoriteButton truckId={truck.id} initialFavorited={isFavorited} />
       </Link>
 
       <div className="rental-card__body">
@@ -61,6 +65,11 @@ export function TruckCard({ truck, locale, compact = false }: TruckCardProps) {
             <h3 className="rental-card__title">
               {[truck.model, truck.year].filter(Boolean).join(' · ') || title}
             </h3>
+            <VerificationBadge
+              kycStatus={truck.fleetOwner?.kycStatus}
+              insuranceIncluded={truck.insuranceCoverage}
+              size="sm"
+            />
           </div>
           <RatingStars rating={Number(truck.avgRating)} reviewCount={truck.reviewCount} size="sm" />
         </div>

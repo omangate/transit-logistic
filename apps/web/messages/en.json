@@ -833,7 +833,8 @@
       "pickup": "Pickup location",
       "delivery": "Delivery location",
       "locationPlaceholder": "Search city, port, or wilayat…",
-      "clearLocation": "Clear"
+      "clearLocation": "Clear",
+      "availability": "Availability status"
     },
     "rental": {
       "featured": "Featured",
@@ -868,6 +869,26 @@
       "video": "Video",
       "watchVideo": "Watch video",
       "pricingSection": "Rental pricing (OMR)"
+    },
+    "badges": {
+      "verified": "Verified fleet",
+      "pending": "Verification pending",
+      "insured": "Insured"
+    },
+    "favorites": {
+      "title": "Saved trucks",
+      "subtitle": "Your favorite trucks for quick booking",
+      "add": "Save truck",
+      "remove": "Remove from favorites",
+      "empty": "No saved trucks yet.",
+      "loginRequired": "Sign in to save favorite trucks."
+    },
+    "quotes": {
+      "myQuotes": "My quote requests",
+      "empty": "No quote requests yet.",
+      "loginRequired": "Sign in to view your quotes.",
+      "respondPlaceholder": "Your price and availability…",
+      "sendResponse": "Send response"
     },
     "request": {
       "title": "Request a shipment",

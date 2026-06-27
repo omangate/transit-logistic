@@ -41,6 +41,7 @@ export type TruckListingSummary = {
   crossBorderSupport: boolean;
   refrigeratedSupport: boolean;
   containerTransportSupport?: boolean;
+  insuranceCoverage?: boolean;
   pricePerKm: string | null;
   dailyRentalPrice?: string | null;
   weeklyRentalPrice?: string | null;
@@ -182,6 +183,7 @@ export type CreateTruckListingInput = {
   withDriverAvailable?: boolean;
   withoutDriverAvailable?: boolean;
   minRentalDays?: number;
+  availabilityStatus?: TruckAvailabilityStatus;
   galleryImages?: string[];
 };
 

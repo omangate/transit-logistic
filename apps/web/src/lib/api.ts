@@ -706,6 +706,36 @@ export async function listFleetQuoteRequests(): Promise<TruckQuoteRequest[]> {
   return authRequest<TruckQuoteRequest[]>('/marketplace/quotes/fleet');
 }
 
+export async function listMyQuoteRequests(): Promise<TruckQuoteRequest[]> {
+  return authRequest<TruckQuoteRequest[]>('/marketplace/quotes/mine');
+}
+
+export async function respondToQuoteRequest(
+  id: string,
+  fleetResponse: string,
+): Promise<TruckQuoteRequest> {
+  return authRequest<TruckQuoteRequest>(`/marketplace/quotes/${id}/respond`, {
+    method: 'PATCH',
+    body: JSON.stringify({ fleetResponse }),
+  });
+}
+
+export async function listFavoriteTrucks(): Promise<TruckListingSummary[]> {
+  return authRequest<TruckListingSummary[]>('/marketplace/favorites');
+}
+
+export async function listFavoriteTruckIds(): Promise<string[]> {
+  return authRequest<string[]>('/marketplace/favorites/ids');
+}
+
+export async function addTruckFavorite(listingId: string): Promise<{ favorited: boolean }> {
+  return authRequest(`/marketplace/trucks/${listingId}/favorite`, { method: 'POST' });
+}
+
+export async function removeTruckFavorite(listingId: string): Promise<{ favorited: boolean }> {
+  return authRequest(`/marketplace/trucks/${listingId}/favorite`, { method: 'DELETE' });
+}
+
 export async function listFleetTruckListings(): Promise<FleetTruckListing[]> {
   return authRequest<FleetTruckListing[]>('/fleet/marketplace/trucks');
 }

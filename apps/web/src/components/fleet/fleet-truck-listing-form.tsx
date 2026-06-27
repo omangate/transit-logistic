@@ -1,6 +1,6 @@
 'use client';
 
-import { VehicleCategory, VehicleType } from '@transit-logistic/shared';
+import { VehicleCategory, VehicleType, TruckAvailabilityStatus } from '@transit-logistic/shared';
 import { useLocale, useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
 
@@ -45,6 +45,7 @@ export function FleetTruckListingForm({ listingId, onSaved }: FleetTruckListingF
     model: '',
     vehicleCategory: VehicleCategory.HEAVY_TRUCK,
     vehicleType: VehicleType.FLATBED,
+    availabilityStatus: TruckAvailabilityStatus.AVAILABLE,
     operatingCountries: ['OM'],
     crossBorderSupport: false,
     refrigeratedSupport: false,
@@ -83,6 +84,7 @@ export function FleetTruckListingForm({ listingId, onSaved }: FleetTruckListingF
           withDriverAvailable: listing.withDriverAvailable ?? true,
           withoutDriverAvailable: listing.withoutDriverAvailable ?? true,
           minRentalDays: listing.minRentalDays ?? undefined,
+          availabilityStatus: listing.availabilityStatus,
           insuranceCoverage: listing.insuranceCoverage ?? false,
           operatingCountries: listing.operatingCountries,
           description: listing.description ?? '',
@@ -344,6 +346,19 @@ export function FleetTruckListingForm({ listingId, onSaved }: FleetTruckListingF
             />
           </label>
         </div>
+        <label>
+          {t('form.availability')}
+          <select
+            value={form.availabilityStatus ?? TruckAvailabilityStatus.AVAILABLE}
+            onChange={(e) =>
+              update('availabilityStatus', e.target.value as TruckAvailabilityStatus)
+            }
+          >
+            {Object.values(TruckAvailabilityStatus).map((v) => (
+              <option key={v} value={v}>{t(`availability.${v}`)}</option>
+            ))}
+          </select>
+        </label>
         <div className="truck-listing-form__checks">
           <label>
             <input

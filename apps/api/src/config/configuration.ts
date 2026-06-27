@@ -1,6 +1,6 @@
 export const configuration = () => ({
   app: {
-    port: parseInt(process.env.API_PORT ?? '3001', 10),
+    port: parseInt(process.env.PORT ?? process.env.API_PORT ?? '3001', 10),
     nodeEnv: process.env.NODE_ENV ?? 'development',
     corsOrigin:
       process.env.CORS_ORIGIN ??

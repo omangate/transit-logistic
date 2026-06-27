@@ -67,7 +67,11 @@ async function bootstrap() {
     }),
   );
 
-  await app.listen(port);
+  await app.listen(port, '0.0.0.0');
+  console.log(`API listening on port ${port}`);
 }
 
-void bootstrap();
+void bootstrap().catch((error: unknown) => {
+  console.error('Failed to start API:', error);
+  process.exit(1);
+});

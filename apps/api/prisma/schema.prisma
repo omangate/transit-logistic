@@ -228,6 +228,7 @@ model User {
   carrierRatings     CarrierRating[]      @relation("RatingCustomer")
   truckQuoteRequests TruckQuoteRequest[]
   truckReviews       TruckReview[]        @relation("TruckReviewCustomer")
+  truckFavorites     TruckFavorite[]
   shipmentRequests   ShipmentRequest[]
 
   @@map("users")
@@ -758,6 +759,7 @@ model TruckListing {
   views         MarketplaceView[]
   shipments     Shipment[]
   serviceAreas  TruckListingServiceArea[]
+  favorites     TruckFavorite[]
 
   @@index([fleetOwnerId])
   @@index([listingStatus, isListingEnabled])
@@ -843,6 +845,20 @@ model MarketplaceView {
 
   @@index([truckListingId, viewedAt])
   @@map("marketplace_views")
+}
+
+model TruckFavorite {
+  id             String   @id @default(uuid()) @db.Uuid
+  userId         String   @map("user_id") @db.Uuid
+  truckListingId String   @map("truck_listing_id") @db.Uuid
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  truckListing TruckListing @relation(fields: [truckListingId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, truckListingId])
+  @@index([userId])
+  @@map("truck_favorites")
 }
 
 // ── Geography (multi-country) ─────────────────────────────────────────────────

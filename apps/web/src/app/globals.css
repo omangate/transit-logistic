@@ -1767,3 +1767,70 @@ button {
     position: static;
   }
 }
+
+.favorite-btn {
+  position: absolute;
+  top: 0.75rem;
+  inset-inline-end: 0.75rem;
+  z-index: 2;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 999px;
+  border: none;
+  background: rgb(255 255 255 / 92%);
+  font-size: 1.1rem;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgb(15 23 42 / 12%);
+}
+
+.favorite-btn--active {
+  color: #dc2626;
+}
+
+.verification-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-top: 0.35rem;
+}
+
+.verification-badge {
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+}
+
+.verification-badge--verified {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.verification-badge--pending {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.verification-badge--insurance {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.marketplace-hero__inner .portal-button {
+  margin-inline-start: 0.5rem;
+}
+
+.fleet-quote-respond {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-width: 220px;
+}
+
+.fleet-quote-respond textarea {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 0.5rem;
+  font: inherit;
+}

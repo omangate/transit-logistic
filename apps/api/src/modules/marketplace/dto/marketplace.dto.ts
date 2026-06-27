@@ -16,6 +16,7 @@ import {
 import {
   CargoType,
   ShippingMethod,
+  TruckAvailabilityStatus,
   VehicleCategory,
   VehicleType,
 } from '@transit-logistic/shared';
@@ -321,6 +322,10 @@ export class UpdateTruckListingDto {
   @IsInt()
   @Min(1)
   minRentalDays?: number;
+
+  @IsOptional()
+  @IsEnum(TruckAvailabilityStatus)
+  availabilityStatus?: TruckAvailabilityStatus;
 
   @IsOptional()
   @IsBoolean()

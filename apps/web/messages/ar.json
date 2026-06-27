@@ -830,7 +830,8 @@
       "pickup": "موقع الاستلام",
       "delivery": "موقع التسليم",
       "locationPlaceholder": "ابحث عن مدينة أو ميناء أو ولاية…",
-      "clearLocation": "مسح"
+      "clearLocation": "مسح",
+      "availability": "حالة التوفر"
     },
     "rental": {
       "featured": "مميز",
@@ -865,6 +866,26 @@
       "video": "فيديو",
       "watchVideo": "مشاهدة الفيديو",
       "pricingSection": "أسعار الإيجار (ريال عماني)"
+    },
+    "badges": {
+      "verified": "أسطول موثّق",
+      "pending": "التحقق قيد المراجعة",
+      "insured": "مؤمّن"
+    },
+    "favorites": {
+      "title": "الشاحنات المحفوظة",
+      "subtitle": "شاحناتك المفضلة للحجز السريع",
+      "add": "حفظ الشاحنة",
+      "remove": "إزالة من المفضلة",
+      "empty": "لا توجد شاحنات محفوظة بعد.",
+      "loginRequired": "سجّل الدخول لحفظ الشاحنات المفضلة."
+    },
+    "quotes": {
+      "myQuotes": "طلبات العروض الخاصة بي",
+      "empty": "لا توجد طلبات عروض بعد.",
+      "loginRequired": "سجّل الدخول لعرض طلباتك.",
+      "respondPlaceholder": "السعر والتوفر…",
+      "sendResponse": "إرسال الرد"
     },
     "request": {
       "title": "طلب شحنة",

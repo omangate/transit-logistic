@@ -140,6 +140,33 @@ if (driver) {
   }
 }
 
+// Marketplace (public + geography)
+const marketplaceHome = await req('GET', '/marketplace/home');
+record('Marketplace home', marketplaceHome.code === 200, `${marketplaceHome.json?.featured?.length ?? 0} featured`);
+
+const trucks = await req('GET', '/marketplace/trucks?page=1&limit=5');
+record('Marketplace browse trucks', trucks.code === 200, `${trucks.json?.items?.length ?? 0} items`);
+
+const gov = await req('GET', '/geography/countries/OM/governorates');
+record('Oman governorates', gov.code === 200, `${gov.json?.length ?? 0} governorates`);
+
+if (admin) {
+  const mpMetrics = await req('GET', '/admin/marketplace/metrics', null, admin);
+  record('Admin marketplace metrics', mpMetrics.code === 200);
+}
+
+if (customer) {
+  const favIds = await req('GET', '/marketplace/favorites/ids', null, customer);
+  record('Customer favorite truck ids', favIds.code === 200);
+}
+
+if (fleet) {
+  const fleetTrucks = await req('GET', '/fleet/marketplace/trucks', null, fleet);
+  record('Fleet marketplace listings', fleetTrucks.code === 200, `${fleetTrucks.json?.length ?? 0} listings`);
+  const fleetQuotes = await req('GET', '/marketplace/quotes/fleet', null, fleet);
+  record('Fleet quote inbox', fleetQuotes.code === 200);
+}
+
 // Web locales + portals (static shell)
 await webPage('/en/login');
 await webPage('/ar/login');
@@ -149,6 +176,10 @@ await webPage('/en/admin/dashboard');
 await webPage('/en/fleet/dashboard');
 await webPage('/en/driver/dashboard');
 await webPage('/en/track');
+await webPage('/ar/marketplace');
+await webPage('/en/marketplace');
+await webPage('/ar/marketplace/favorites');
+await webPage('/en/marketplace/quotes');
 
 const passed = results.filter((r) => r.ok).length;
 const failed = results.filter((r) => !r.ok).length;

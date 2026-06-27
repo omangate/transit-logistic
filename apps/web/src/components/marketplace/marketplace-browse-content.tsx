@@ -12,8 +12,9 @@ import { GeoLocationSearch } from '@/components/geography/geo-location-search';
 import { OmanMap } from '@/components/map/oman-map';
 import { TruckCard } from '@/components/marketplace/truck-card';
 import { Link } from '@/i18n/navigation';
-import { browseMarketplaceTrucks, listGovernorates } from '@/lib/api';
+import { browseMarketplaceTrucks, listFavoriteTruckIds, listGovernorates } from '@/lib/api';
 import { getLocalizedApiMessage, isApiClientError } from '@/lib/api-error';
+import { getStoredUser } from '@/lib/auth-storage';
 import type { GeoRegion, GovernorateWithWilayats } from '@/types/geography';
 import type { MarketplaceBrowseQuery, TruckListingSummary } from '@/types/marketplace';
 
@@ -37,9 +38,18 @@ export function MarketplaceBrowseContent() {
     limit: 12,
     sort: 'newest',
   });
+  const [favoriteIds, setFavoriteIds] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     void listGovernorates('OM').then(setGovernorates).catch(() => setGovernorates([]));
+  }, []);
+
+  useEffect(() => {
+    const user = getStoredUser();
+    if (!user) return;
+    void listFavoriteTruckIds()
+      .then((ids) => setFavoriteIds(new Set(ids)))
+      .catch(() => setFavoriteIds(new Set()));
   }, []);
 
   const load = useCallback(async () => {
@@ -101,6 +111,12 @@ export function MarketplaceBrowseContent() {
           </div>
           <Link href="/marketplace/request" className="portal-button portal-button--primary">
             {t('request.cta')}
+          </Link>
+          <Link href="/marketplace/favorites" className="portal-button">
+            {t('favorites.title')}
+          </Link>
+          <Link href="/marketplace/quotes" className="portal-button">
+            {t('quotes.myQuotes')}
           </Link>
         </div>
       </header>
@@ -340,7 +356,12 @@ export function MarketplaceBrowseContent() {
           {!loading && items.length === 0 ? <p>{t('browse.empty')}</p> : null}
           <div className="rental-grid">
             {items.map((truck) => (
-              <TruckCard key={truck.id} truck={truck} locale={locale} />
+              <TruckCard
+                key={truck.id}
+                truck={truck}
+                locale={locale}
+                isFavorited={favoriteIds.has(truck.id)}
+              />
             ))}
           </div>
           <p className="marketplace-compare-hint">

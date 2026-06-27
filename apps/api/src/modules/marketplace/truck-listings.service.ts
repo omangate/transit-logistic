@@ -240,6 +240,9 @@ export class TruckListingsService {
             ? { withoutDriverAvailable: data.withoutDriverAvailable }
             : {}),
           ...(data.minRentalDays !== undefined ? { minRentalDays: data.minRentalDays } : {}),
+          ...(data.availabilityStatus !== undefined
+            ? { availabilityStatus: data.availabilityStatus }
+            : {}),
           ...(data.isListingEnabled !== undefined
             ? { isListingEnabled: data.isListingEnabled }
             : {}),

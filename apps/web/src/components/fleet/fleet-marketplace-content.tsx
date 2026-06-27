@@ -9,11 +9,7 @@ import { TruckCard } from '@/components/marketplace/truck-card';
 import { LoadingState } from '@/components/portal/loading-state';
 import { useRequireFleetAuth } from '@/hooks/use-require-fleet-auth';
 import { Link } from '@/i18n/navigation';
-import {
-  listFleetQuoteRequests,
-  listFleetTruckListings,
-  submitFleetTruckListing,
-} from '@/lib/api';
+import { respondToQuoteRequest, listFleetQuoteRequests, listFleetTruckListings, submitFleetTruckListing } from '@/lib/api';
 import { getLocalizedApiMessage, isApiClientError } from '@/lib/api-error';
 import type { FleetTruckListing, TruckQuoteRequest } from '@/types/marketplace';
 
@@ -121,10 +117,27 @@ export function FleetMarketplaceContent() {
                 <div>
                   <strong>{quote.truckListing?.name}</strong>
                   <p>{quote.originCity}, {quote.originCountry} → {quote.destCity}, {quote.destCountry}</p>
+                  {quote.cargoDetails ? <p>{quote.cargoDetails}</p> : null}
+                  {quote.fleetResponse ? <p><em>{quote.fleetResponse}</em></p> : null}
                 </div>
-                <span className={`rental-status rental-status--${quote.status}`}>
-                  {quote.status}
-                </span>
+                <div className="fleet-quote-respond">
+                  <span className={`rental-status rental-status--${quote.status}`}>{quote.status}</span>
+                  {quote.status === 'pending' ? (
+                    <form
+                      onSubmit={async (e) => {
+                        e.preventDefault();
+                        const fd = new FormData(e.currentTarget);
+                        const response = String(fd.get('response') || '');
+                        if (!response.trim()) return;
+                        await respondToQuoteRequest(quote.id, response);
+                        await load();
+                      }}
+                    >
+                      <textarea name="response" rows={2} placeholder={t('quotes.respondPlaceholder')} required />
+                      <button type="submit" className="rental-btn rental-btn--primary">{t('quotes.sendResponse')}</button>
+                    </form>
+                  ) : null}
+                </div>
               </article>
             ))}
           </div>

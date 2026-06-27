@@ -2,6 +2,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   ParseUUIDPipe,
@@ -22,6 +23,7 @@ import {
   CreateTruckReviewDto,
   RespondQuoteDto,
 } from './dto/marketplace.dto';
+import { MarketplaceFavoritesService } from './marketplace-favorites.service';
 import { MarketplaceQuotesService } from './marketplace-quotes.service';
 import { TruckListingsService } from './truck-listings.service';
 
@@ -31,6 +33,7 @@ export class MarketplaceActionsController {
   constructor(
     private readonly quotes: MarketplaceQuotesService,
     private readonly listings: TruckListingsService,
+    private readonly favorites: MarketplaceFavoritesService,
   ) {}
 
   @Post('trucks/:listingId/quotes')
@@ -73,5 +76,35 @@ export class MarketplaceActionsController {
     @Body() dto: CreateTruckReviewDto,
   ) {
     return this.listings.createReview(user, listingId, dto);
+  }
+
+  @Get('favorites')
+  @Roles(UserRole.CUSTOMER)
+  listFavorites(@CurrentUser() user: User) {
+    return this.favorites.list(user);
+  }
+
+  @Get('favorites/ids')
+  @Roles(UserRole.CUSTOMER)
+  favoriteIds(@CurrentUser() user: User) {
+    return this.favorites.listIds(user);
+  }
+
+  @Post('trucks/:listingId/favorite')
+  @Roles(UserRole.CUSTOMER)
+  addFavorite(
+    @CurrentUser() user: User,
+    @Param('listingId', ParseUUIDPipe) listingId: string,
+  ) {
+    return this.favorites.add(user, listingId);
+  }
+
+  @Delete('trucks/:listingId/favorite')
+  @Roles(UserRole.CUSTOMER)
+  removeFavorite(
+    @CurrentUser() user: User,
+    @Param('listingId', ParseUUIDPipe) listingId: string,
+  ) {
+    return this.favorites.remove(user, listingId);
   }
 }
