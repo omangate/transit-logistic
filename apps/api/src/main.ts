@@ -10,6 +10,18 @@ import helmet from 'helmet';
 import { AppModule } from './app.module';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 
+function registerRailwayProbeRoutes(app: NestExpressApplication) {
+  const expressApp = app.getHttpAdapter().getInstance();
+  const ok = (_req: unknown, res: { status: (code: number) => { json: (body: unknown) => void } }) => {
+    res.status(200).json({ status: 'ok' });
+  };
+
+  expressApp.get('/', ok);
+  expressApp.get('/health', ok);
+  expressApp.get('/health/live', ok);
+  expressApp.get('/api/v1/health/live', ok);
+}
+
 async function bootstrap() {
   console.log(
     `[bootstrap] PORT=${process.env.PORT ?? '(unset)'} API_PORT=${process.env.API_PORT ?? '(unset)'} NODE_ENV=${process.env.NODE_ENV ?? '(unset)'}`,
@@ -71,8 +83,10 @@ async function bootstrap() {
     }),
   );
 
+  registerRailwayProbeRoutes(app);
+
   await app.listen(port, '0.0.0.0');
-  console.log(`API listening on port ${port}`);
+  console.log(`API listening on 0.0.0.0:${port}`);
 }
 
 void bootstrap().catch((error: unknown) => {
