@@ -9,7 +9,7 @@
     "prestart": "pnpm db:generate",
     "dev": "ts-node src/main.ts",
     "start": "node dist/main.js",
-    "start:prod": "node scripts/start-production.cjs",
+    "start:prod": "node dist/main.js",
     "lint": "eslint \"{src,test}/**/*.ts\"",
     "test": "jest && jest --config test/jest-e2e.json --runInBand",
     "typecheck": "tsc -p tsconfig.json --noEmit",
