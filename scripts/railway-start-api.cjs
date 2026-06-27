@@ -43,10 +43,14 @@ if (!existsSync(mainPath)) {
   process.exit(1);
 }
 
-execSync(`npx prisma migrate deploy --schema="${schemaPath}"`, {
-  cwd: apiRoot,
-  stdio: 'inherit',
-  env: process.env,
-});
+try {
+  execSync(`npx prisma migrate deploy --schema="${schemaPath}"`, {
+    cwd: apiRoot,
+    stdio: 'inherit',
+    env: process.env,
+  });
+} catch (error) {
+  console.error('[railway-start] WARNING: prisma migrate deploy failed; starting API anyway.');
+}
 
 execSync('node dist/main.js', { cwd: apiRoot, stdio: 'inherit', env: process.env });
