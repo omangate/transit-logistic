@@ -1,0 +1,7 @@
+[build]
+buildCommand = "pnpm install --frozen-lockfile && pnpm --filter @transit-logistic/shared build && pnpm --filter @transit-logistic/api exec prisma generate && pnpm --filter @transit-logistic/api build"
+
+[deploy]
+startCommand = "pnpm --filter @transit-logistic/api run start:prod"
+healthcheckPath = "/api/v1/health/live"
+healthcheckTimeout = 300
