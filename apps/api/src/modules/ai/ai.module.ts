@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 
 import { AdminModule } from '../admin/admin.module';
 import { AuthModule } from '../auth/auth.module';
+import { LogisticsModule } from '../logistics/logistics.module';
 import { MarketplaceModule } from '../marketplace/marketplace.module';
 
 import { AiController } from './ai.controller';
@@ -10,7 +11,7 @@ import { MockAiProvider, OpenAiProvider } from './ai-providers.service';
 import { AiToolsService } from './ai-tools.service';
 
 @Module({
-  imports: [AuthModule, MarketplaceModule, AdminModule],
+  imports: [AuthModule, MarketplaceModule, AdminModule, LogisticsModule],
   controllers: [AiController],
   providers: [AiChatService, AiToolsService, MockAiProvider, OpenAiProvider],
   exports: [AiChatService],

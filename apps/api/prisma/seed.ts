@@ -259,6 +259,36 @@ async function main() {
     });
   }
 
+  const defaultChecklistItems = [
+    'commercial_invoice',
+    'packing_list',
+    'bill_of_lading',
+    'certificate_of_origin',
+  ] as const;
+
+  for (const transactionType of ['import', 'export'] as const) {
+    const existing = await prisma.documentChecklistTemplate.findFirst({
+      where: { transactionType, isActive: true },
+    });
+    if (existing) continue;
+
+    const template = await prisma.documentChecklistTemplate.create({
+      data: {
+        nameEn: `${transactionType} customs checklist`,
+        nameAr: transactionType === 'import' ? 'قائمة مستندات الاستيراد' : 'قائمة مستندات التصدير',
+        transactionType,
+        items: {
+          create: defaultChecklistItems.map((documentCategory, index) => ({
+            documentCategory,
+            required: true,
+            sortOrder: index,
+          })),
+        },
+      },
+    });
+    console.log(`Seeded checklist template: ${template.nameEn}`);
+  }
+
   console.log('Seed complete.');
   if (seededAccounts.length > 0) {
     console.log('Demo accounts (passwords from SEED_* env — never logged):');

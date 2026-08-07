@@ -17,6 +17,10 @@ export const NOTIFICATION_TYPES = {
   BOOKING_CONFIRMED: 'booking_confirmed',
   BOOKING_CANCELLED: 'booking_cancelled',
   NEW_MESSAGE: 'new_message',
+  CUSTOMS_STATUS: 'customs_status',
+  FREIGHT_STATUS: 'freight_status',
+  LOGISTICS_QUOTE: 'logistics_quote',
+  DOCUMENT_MISSING: 'document_missing',
 } as const;
 
 export type NotificationType = (typeof NOTIFICATION_TYPES)[keyof typeof NOTIFICATION_TYPES];

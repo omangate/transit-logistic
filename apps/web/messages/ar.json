@@ -46,7 +46,11 @@
     "logout": "تسجيل الخروج",
     "nav": {
       "dashboard": "لوحة التحكم",
+      "logistics": "خدماتي اللوجستية",
+      "customs": "التخليص الجمركي",
+      "freight": "الشحن",
       "shipments": "الشحنات",
+      "marketplace": "سوق الشاحنات",
       "newShipment": "شحنة جديدة",
       "notifications": "الإشعارات"
     },
@@ -249,7 +253,8 @@
       "payments": "المدفوعات",
       "payouts": "السحوبات",
       "ratings": "التقييمات",
-      "settings": "الإعدادات"
+      "settings": "الإعدادات",
+      "logistics": "العمليات اللوجستية"
     },
     "errors": {
       "generic": "حدث خطأ ما. يرجى المحاولة مرة أخرى."
@@ -983,6 +988,151 @@
       "approve": "موافقة",
       "reject": "رفض",
       "feature": "تمييز"
+    }
+  },
+  "logistics": {
+    "loading": "جارٍ التحميل...",
+    "errors": { "generic": "حدث خطأ ما. يرجى المحاولة مرة أخرى." },
+    "wizard": { "back": "رجوع", "next": "التالي" },
+    "home": {
+      "servicesTitle": "خدمات ترانزيت لوجستك",
+      "completeService": "طلب خدمة لوجستية متكاملة"
+    },
+    "services": {
+      "trucks": "تأجير الشاحنات",
+      "trucksDesc": "ابحث عن الشاحنة المناسبة واحجزها",
+      "customs": "التخليص الجمركي",
+      "customsDesc": "استيراد وتصدير وعبور",
+      "freight": "الشحن",
+      "freightDesc": "بحري وجوي وبري",
+      "tracking": "تتبع الشحنات",
+      "trackingDesc": "تابع شحنتك لحظة بلحظة",
+      "shipments": "الشحنات"
+    },
+    "dashboard": {
+      "title": "لوحة الخدمات اللوجستية",
+      "subtitle": "جميع معاملاتك النشطة في مكان واحد",
+      "newOrder": "طلب لوجستي جديد",
+      "defaultOrderTitle": "طلب لوجستي متكامل",
+      "recentOrders": "الطلبات الأخيرة",
+      "metrics": {
+        "orders": "طلبات لوجستية",
+        "customs": "تخليص جمركي",
+        "freight": "شحن",
+        "shipments": "شحنات",
+        "bookings": "حجوزات شاحنات",
+        "pendingQuotes": "عروض معلقة"
+      }
+    },
+    "order": {
+      "title": "طلب لوجستي",
+      "timeline": "الجدول الزمني الموحد",
+      "services": "الخدمات المرتبطة",
+      "customsLink": "طلبات التخليص",
+      "freightLink": "طلبات الشحن"
+    },
+    "customs": {
+      "title": "التخليص الجمركي",
+      "landingSubtitle": "خدمات تخليص احترافية — المنصة وسيط خدمات وليست جهة جمركية",
+      "newRequest": "طلب تخليص جديد",
+      "myRequests": "طلباتي",
+      "myRequestsSubtitle": "تابع حالة التخليص والمستندات",
+      "empty": "لا توجد طلبات تخليص بعد.",
+      "submit": "إرسال الطلب",
+      "shipmentInfo": "معلومات الشحنة",
+      "timeline": "الجدول الزمني",
+      "documentsHint": "ارفع الفاتورة التجارية أو بوليصة الشحن",
+      "reviewHint": "راجع البيانات قبل الإرسال",
+      "viewDraft": "عرض المسودة",
+      "addCargoLine": "إضافة بضاعة",
+      "transactionTypes": {
+        "import": "استيراد",
+        "export": "تصدير",
+        "transit": "عبور",
+        "re_export": "إعادة تصدير",
+        "temporary_import": "استيراد مؤقت",
+        "temporary_export": "تصدير مؤقت",
+        "free_zone": "منطقة حرة"
+      },
+      "steps": {
+        "type": "نوع المعاملة",
+        "shipment": "معلومات الشحنة",
+        "cargo": "البضاعة",
+        "documents": "المستندات",
+        "review": "مراجعة"
+      },
+      "fields": {
+        "shipmentReference": "مرجع الشحنة",
+        "blNumber": "رقم بوليصة الشحن",
+        "shippingLine": "خط الشحن",
+        "portOfLoading": "ميناء التحميل",
+        "portOfDischarge": "ميناء التفريغ",
+        "finalDestination": "الوجهة النهائية",
+        "cargoDescription": "وصف البضاعة",
+        "hsCode": "رمز HS",
+        "grossWeight": "الوزن الإجمالي (كغ)"
+      },
+      "status": {
+        "draft": "مسودة",
+        "submitted": "مُرسل",
+        "documents_under_review": "مراجعة المستندات",
+        "documents_missing": "مستندات ناقصة",
+        "quotation_sent": "عرض سعر مُرسل",
+        "quotation_accepted": "عرض مقبول",
+        "clearance_in_progress": "تخليص جاري",
+        "customs_released": "إفراج جمركي",
+        "completed": "مكتمل",
+        "cancelled": "ملغى"
+      }
+    },
+    "freight": {
+      "title": "الشحن",
+      "subtitle": "شحن بحري وجوي وبري متعدد الوسائط",
+      "requestQuote": "طلب عرض سعر",
+      "myShipments": "شحناتي",
+      "newRequest": "طلب شحن جديد",
+      "submit": "إرسال الطلب",
+      "modes": { "sea": "بحري", "air": "جوي", "road": "بري", "multimodal": "متعدد" },
+      "fields": {
+        "mode": "وسيلة النقل",
+        "origin": "المنشأ",
+        "destination": "الوجهة",
+        "cargo": "البضاعة",
+        "weight": "الوزن (كغ)",
+        "customsRequired": "يتطلب تخليص جمركي"
+      },
+      "status": {
+        "draft": "مسودة",
+        "submitted": "مُرسل",
+        "quotation_sent": "عرض مُرسل",
+        "in_transit": "في الطريق",
+        "completed": "مكتمل"
+      }
+    },
+    "documents": {
+      "checklist": "قائمة المستندات",
+      "status": {
+        "required": "مطلوب",
+        "uploaded": "مرفوع",
+        "missing": "ناقص",
+        "under_review": "قيد المراجعة",
+        "approved": "معتمد",
+        "rejected": "مرفوض",
+        "expired": "منتهي"
+      },
+      "categories": {
+        "commercial_invoice": "فاتورة تجارية",
+        "packing_list": "قائمة التعبئة",
+        "bill_of_lading": "بوليصة شحن",
+        "certificate_of_origin": "شهادة منشأ",
+        "other": "أخرى"
+      }
+    },
+    "quotes": { "latest": "آخر عرض سعر", "accept": "قبول العرض" },
+    "admin": {
+      "title": "لوحة العمليات اللوجستية",
+      "awaitingDocs": "{count} طلبات بانتظار المستندات",
+      "startClearance": "بدء التخليص"
     }
   },
   "ai": {

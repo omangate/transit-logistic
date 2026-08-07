@@ -10,11 +10,19 @@ describe('AiToolsService RBAC', () => {
   };
   const listings = { browsePublic: jest.fn(), getPublicBySlug: jest.fn() };
   const adminDashboard = { getMetrics: jest.fn() };
+  const customs = { createDraftForUser: jest.fn(), getForUser: jest.fn() };
+  const freight = { createDraftForUser: jest.fn(), getForUser: jest.fn() };
+  const logisticsOrders = { getForUser: jest.fn(), getTimelineForUser: jest.fn() };
+  const logisticsDocuments = { listMissingForUser: jest.fn() };
 
   const service = new AiToolsService(
     prisma as never,
     listings as never,
     adminDashboard as never,
+    customs as never,
+    freight as never,
+    logisticsOrders as never,
+    logisticsDocuments as never,
   );
 
   beforeEach(() => jest.clearAllMocks());

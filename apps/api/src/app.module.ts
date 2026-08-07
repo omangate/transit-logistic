@@ -13,6 +13,7 @@ import { FleetModule } from './modules/fleet/fleet.module';
 import { HealthModule } from './modules/health/health.module';
 import { GeographyModule } from './modules/geography/geography.module';
 import { MarketplaceModule } from './modules/marketplace/marketplace.module';
+import { LogisticsModule } from './modules/logistics/logistics.module';
 import { MessagingModule } from './modules/messaging/messaging.module';
 import { AiModule } from './modules/ai/ai.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
@@ -56,6 +57,7 @@ import { RedisModule } from './redis/redis.module';
     MessagingModule,
     SupportModule,
     AiModule,
+    LogisticsModule,
     PricingModule,
     PaymentsModule,
     PayoutsModule,

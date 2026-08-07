@@ -46,7 +46,11 @@
     "logout": "Log out",
     "nav": {
       "dashboard": "Dashboard",
+      "logistics": "My logistics",
+      "customs": "Customs clearance",
+      "freight": "Freight forwarding",
       "shipments": "Shipments",
+      "marketplace": "Truck marketplace",
       "newShipment": "New shipment",
       "notifications": "Notifications"
     },
@@ -249,7 +253,8 @@
       "payments": "Payments",
       "payouts": "Payouts",
       "ratings": "Ratings",
-      "settings": "Settings"
+      "settings": "Settings",
+      "logistics": "Logistics operations"
     },
     "errors": {
       "generic": "Something went wrong. Please try again."
@@ -986,6 +991,151 @@
       "approve": "Approve",
       "reject": "Reject",
       "feature": "Feature"
+    }
+  },
+  "logistics": {
+    "loading": "Loading...",
+    "errors": { "generic": "Something went wrong. Please try again." },
+    "wizard": { "back": "Back", "next": "Next" },
+    "home": {
+      "servicesTitle": "Transit Logistic services",
+      "completeService": "Request complete logistics service"
+    },
+    "services": {
+      "trucks": "Truck rental",
+      "trucksDesc": "Find and book the right truck",
+      "customs": "Customs clearance",
+      "customsDesc": "Import, export, and transit",
+      "freight": "Freight forwarding",
+      "freightDesc": "Sea, air, and road",
+      "tracking": "Shipment tracking",
+      "trackingDesc": "Track your cargo in real time",
+      "shipments": "Shipments"
+    },
+    "dashboard": {
+      "title": "Logistics dashboard",
+      "subtitle": "All your active transactions in one place",
+      "newOrder": "New logistics order",
+      "defaultOrderTitle": "Complete logistics order",
+      "recentOrders": "Recent orders",
+      "metrics": {
+        "orders": "Logistics orders",
+        "customs": "Customs clearance",
+        "freight": "Freight",
+        "shipments": "Shipments",
+        "bookings": "Truck bookings",
+        "pendingQuotes": "Pending quotes"
+      }
+    },
+    "order": {
+      "title": "Logistics order",
+      "timeline": "Master timeline",
+      "services": "Linked services",
+      "customsLink": "Customs requests",
+      "freightLink": "Freight requests"
+    },
+    "customs": {
+      "title": "Customs clearance",
+      "landingSubtitle": "Professional clearance services — the platform is a service facilitator, not a customs authority",
+      "newRequest": "New clearance request",
+      "myRequests": "My requests",
+      "myRequestsSubtitle": "Track clearance status and documents",
+      "empty": "No clearance requests yet.",
+      "submit": "Submit request",
+      "shipmentInfo": "Shipment information",
+      "timeline": "Status timeline",
+      "documentsHint": "Upload commercial invoice or bill of lading",
+      "reviewHint": "Review details before submitting",
+      "viewDraft": "View draft",
+      "addCargoLine": "Add cargo line",
+      "transactionTypes": {
+        "import": "Import",
+        "export": "Export",
+        "transit": "Transit",
+        "re_export": "Re-export",
+        "temporary_import": "Temporary import",
+        "temporary_export": "Temporary export",
+        "free_zone": "Free zone"
+      },
+      "steps": {
+        "type": "Transaction type",
+        "shipment": "Shipment information",
+        "cargo": "Cargo",
+        "documents": "Documents",
+        "review": "Review"
+      },
+      "fields": {
+        "shipmentReference": "Shipment reference",
+        "blNumber": "Bill of lading number",
+        "shippingLine": "Shipping line",
+        "portOfLoading": "Port of loading",
+        "portOfDischarge": "Port of discharge",
+        "finalDestination": "Final destination",
+        "cargoDescription": "Cargo description",
+        "hsCode": "HS code",
+        "grossWeight": "Gross weight (kg)"
+      },
+      "status": {
+        "draft": "Draft",
+        "submitted": "Submitted",
+        "documents_under_review": "Documents under review",
+        "documents_missing": "Documents missing",
+        "quotation_sent": "Quotation sent",
+        "quotation_accepted": "Quotation accepted",
+        "clearance_in_progress": "Clearance in progress",
+        "customs_released": "Customs released",
+        "completed": "Completed",
+        "cancelled": "Cancelled"
+      }
+    },
+    "freight": {
+      "title": "Freight forwarding",
+      "subtitle": "Sea, air, road, and multimodal freight",
+      "requestQuote": "Request a quote",
+      "myShipments": "My freight requests",
+      "newRequest": "New freight request",
+      "submit": "Submit request",
+      "modes": { "sea": "Sea", "air": "Air", "road": "Road", "multimodal": "Multimodal" },
+      "fields": {
+        "mode": "Transport mode",
+        "origin": "Origin",
+        "destination": "Destination",
+        "cargo": "Cargo",
+        "weight": "Weight (kg)",
+        "customsRequired": "Customs clearance required"
+      },
+      "status": {
+        "draft": "Draft",
+        "submitted": "Submitted",
+        "quotation_sent": "Quotation sent",
+        "in_transit": "In transit",
+        "completed": "Completed"
+      }
+    },
+    "documents": {
+      "checklist": "Document checklist",
+      "status": {
+        "required": "Required",
+        "uploaded": "Uploaded",
+        "missing": "Missing",
+        "under_review": "Under review",
+        "approved": "Approved",
+        "rejected": "Rejected",
+        "expired": "Expired"
+      },
+      "categories": {
+        "commercial_invoice": "Commercial invoice",
+        "packing_list": "Packing list",
+        "bill_of_lading": "Bill of lading",
+        "certificate_of_origin": "Certificate of origin",
+        "other": "Other"
+      }
+    },
+    "quotes": { "latest": "Latest quotation", "accept": "Accept quote" },
+    "admin": {
+      "title": "Logistics operations",
+      "awaitingDocs": "{count} requests awaiting documents",
+      "startClearance": "Start clearance"
     }
   },
   "ai": {

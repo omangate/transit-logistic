@@ -168,10 +168,22 @@ record('Marketplace browse trucks', trucks.code === 200, `${trucks.json?.items?.
 const gov = await req('GET', '/geography/countries/OM/governorates');
 record('Oman governorates', gov.code === 200, `${gov.json?.length ?? 0} governorates`);
 
-if (admin) {
-  const mpMetrics = await req('GET', '/admin/marketplace/metrics', null, admin);
-  record('Admin marketplace metrics', mpMetrics.code === 200);
+if (customer) {
+  const logisticsDash = await req('GET', '/logistics/orders/dashboard', null, customer);
+  record('Logistics customer dashboard', logisticsDash.code === 200);
+
+  const customsList = await req('GET', '/customs/requests', null, customer);
+  record('Customs requests list', customsList.code === 200);
+
+  const freightList = await req('GET', '/freight/shipments', null, customer);
+  record('Freight shipments list', freightList.code === 200);
 }
+
+if (admin) {
+  const customsOps = await req('GET', '/admin/customs/dashboard', null, admin);
+  record('Admin customs dashboard', customsOps.code === 200);
+}
+
 
 if (customer) {
   const favIds = await req('GET', '/marketplace/favorites/ids', null, customer);
@@ -198,6 +210,11 @@ await webPage('/ar/marketplace');
 await webPage('/en/marketplace');
 await webPage('/ar/marketplace/favorites');
 await webPage('/en/marketplace/quotes');
+await webPage('/en/customs');
+await webPage('/ar/customs');
+await webPage('/en/freight');
+await webPage('/en/logistics');
+await webPage('/en/admin/logistics');
 
 const passed = results.filter((r) => r.ok).length;
 const failed = results.filter((r) => !r.ok).length;

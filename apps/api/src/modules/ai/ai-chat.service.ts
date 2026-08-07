@@ -39,6 +39,41 @@ const TOOLS = [
     description: 'Admin platform metrics',
     parameters: { type: 'object', properties: {} },
   },
+  {
+    name: 'createCustomsDraft',
+    description: 'Create a customs clearance draft request',
+    parameters: { type: 'object', properties: { transactionType: { type: 'string' }, logisticsOrderId: { type: 'string' } } },
+  },
+  {
+    name: 'getCustomsRequestStatus',
+    description: 'Get customs clearance request status',
+    parameters: { type: 'object', properties: { requestId: { type: 'string' } }, required: ['requestId'] },
+  },
+  {
+    name: 'listMissingDocuments',
+    description: 'List missing documents for customs or freight request',
+    parameters: { type: 'object', properties: { customsRequestId: { type: 'string' }, freightRequestId: { type: 'string' } } },
+  },
+  {
+    name: 'createFreightDraft',
+    description: 'Create a freight forwarding draft request',
+    parameters: { type: 'object', properties: { transportMode: { type: 'string' }, serviceType: { type: 'string' }, logisticsOrderId: { type: 'string' } } },
+  },
+  {
+    name: 'getFreightQuoteStatus',
+    description: 'Get logistics/freight quote status',
+    parameters: { type: 'object', properties: { quoteId: { type: 'string' } }, required: ['quoteId'] },
+  },
+  {
+    name: 'getLogisticsOrderStatus',
+    description: 'Get master logistics order status',
+    parameters: { type: 'object', properties: { orderId: { type: 'string' } }, required: ['orderId'] },
+  },
+  {
+    name: 'getContainerStatus',
+    description: 'Get container status by container number',
+    parameters: { type: 'object', properties: { containerNumber: { type: 'string' } }, required: ['containerNumber'] },
+  },
 ];
 
 @Injectable()

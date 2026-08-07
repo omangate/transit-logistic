@@ -9,8 +9,12 @@ import { getUnreadNotificationsCount } from '@/lib/api';
 
 const NAV_ITEMS = [
   { href: '/dashboard', labelKey: 'nav.dashboard' as const },
+  { href: '/logistics', labelKey: 'nav.logistics' as const },
+  { href: '/customs/requests', labelKey: 'nav.customs' as const },
+  { href: '/freight/shipments', labelKey: 'nav.freight' as const },
   { href: '/shipments', labelKey: 'nav.shipments' as const },
   { href: '/shipments/new', labelKey: 'nav.newShipment' as const },
+  { href: '/marketplace', labelKey: 'nav.marketplace' as const },
   { href: '/notifications', labelKey: 'nav.notifications' as const, isBell: true },
 ];
 

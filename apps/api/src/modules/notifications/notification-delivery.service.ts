@@ -500,22 +500,22 @@ export class NotificationDeliveryService {
     }
   }
 
-  async safeNotifyDocumentUploaded(userId: string, documentId: string) {
+  async safeNotifyDocumentUploaded(userId: string, documentId: string, category?: string) {
     try {
       await this.notifications.createInApp({
         userId,
         titleEn: 'Document uploaded',
         titleAr: 'تم رفع المستند',
-        bodyEn: 'Your document is pending review.',
+        bodyEn: category ? `${category} uploaded and pending review.` : 'Your document is pending review.',
         bodyAr: 'مستندك قيد المراجعة.',
-        data: { type: NOTIFICATION_TYPES.UPLOAD_COMPLETED, documentId },
+        data: { type: NOTIFICATION_TYPES.UPLOAD_COMPLETED, documentId, category },
       });
     } catch (error) {
       this.logger.warn(`Document upload notification failed: ${String(error)}`);
     }
   }
 
-  async safeNotifyDocumentReviewed(userId: string, status: string, reviewNote?: string) {
+  async safeNotifyDocumentReviewed(userId: string, documentId: string, status: string, reviewNote?: string) {
     try {
       await this.notifications.createInApp({
         userId,
@@ -523,10 +523,55 @@ export class NotificationDeliveryService {
         titleAr: status === 'approved' ? 'تم اعتماد المستند' : 'تم رفض المستند',
         bodyEn: reviewNote ?? `Your document was ${status}.`,
         bodyAr: reviewNote ?? (status === 'approved' ? 'تم اعتماد مستندك.' : 'تم رفض مستندك.'),
-        data: { type: NOTIFICATION_TYPES.DOCUMENT_REVIEWED, status, reviewNote },
+        data: { type: NOTIFICATION_TYPES.DOCUMENT_REVIEWED, documentId, status, reviewNote },
       });
     } catch (error) {
       this.logger.warn(`Document review notification failed: ${String(error)}`);
+    }
+  }
+
+  async safeNotifyCustomsStatusChanged(userId: string, requestId: string, status: string) {
+    try {
+      await this.notifications.createInApp({
+        userId,
+        titleEn: 'Customs status updated',
+        titleAr: 'تحديث حالة التخليص الجمركي',
+        bodyEn: `Your customs request status is now: ${status.replace(/_/g, ' ')}.`,
+        bodyAr: `حالة طلب التخليص الجمركي: ${status.replace(/_/g, ' ')}.`,
+        data: { type: NOTIFICATION_TYPES.CUSTOMS_STATUS, requestId, status },
+      });
+    } catch (error) {
+      this.logger.warn(`Customs status notification failed: ${String(error)}`);
+    }
+  }
+
+  async safeNotifyFreightStatusChanged(userId: string, requestId: string, status: string) {
+    try {
+      await this.notifications.createInApp({
+        userId,
+        titleEn: 'Freight status updated',
+        titleAr: 'تحديث حالة الشحن',
+        bodyEn: `Your freight request status is now: ${status.replace(/_/g, ' ')}.`,
+        bodyAr: `حالة طلب الشحن: ${status.replace(/_/g, ' ')}.`,
+        data: { type: NOTIFICATION_TYPES.FREIGHT_STATUS, requestId, status },
+      });
+    } catch (error) {
+      this.logger.warn(`Freight status notification failed: ${String(error)}`);
+    }
+  }
+
+  async safeNotifyLogisticsQuoteIssued(userId: string, quoteId: string) {
+    try {
+      await this.notifications.createInApp({
+        userId,
+        titleEn: 'New logistics quotation',
+        titleAr: 'عرض سعر لوجستي جديد',
+        bodyEn: 'A quotation is ready for your review.',
+        bodyAr: 'عرض السعر جاهز للمراجعة.',
+        data: { type: NOTIFICATION_TYPES.LOGISTICS_QUOTE, quoteId },
+      });
+    } catch (error) {
+      this.logger.warn(`Logistics quote notification failed: ${String(error)}`);
     }
   }
 }

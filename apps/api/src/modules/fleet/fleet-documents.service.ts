@@ -131,7 +131,7 @@ export class FleetDocumentsService {
       include: { fleetOwner: { select: { userId: true } } },
     });
 
-    void this.notifications.safeNotifyDocumentReviewed(doc.fleetOwner.userId, status, reviewNote);
+    void this.notifications.safeNotifyDocumentReviewed(doc.fleetOwner.userId, doc.id, status, reviewNote);
     return doc;
   }
 }

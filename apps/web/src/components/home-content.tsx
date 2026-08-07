@@ -6,78 +6,53 @@ import { LocaleSwitcher } from '@/components/locale-switcher';
 import { HomeMarketplaceSections } from '@/components/marketplace/home-marketplace-sections';
 import { Link } from '@/i18n/navigation';
 
+const SERVICES = [
+  { href: '/marketplace', icon: '🚛', titleKey: 'services.trucks', descKey: 'services.trucksDesc' },
+  { href: '/customs', icon: '🛃', titleKey: 'services.customs', descKey: 'services.customsDesc' },
+  { href: '/freight', icon: '🚢', titleKey: 'services.freight', descKey: 'services.freightDesc' },
+  { href: '/track', icon: '📍', titleKey: 'services.tracking', descKey: 'services.trackingDesc' },
+] as const;
+
 export function HomeContent() {
   const t = useTranslations('home');
+  const logistics = useTranslations('logistics');
   const common = useTranslations('common');
   const marketplace = useTranslations('marketplace');
 
   return (
     <main>
-      <header
-        style={{
-          borderBottom: '1px solid var(--color-border)',
-          paddingBlock: '1rem',
-        }}
-      >
-        <div
-          className="container"
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            gap: '1rem',
-          }}
-        >
+      <header className="home-header">
+        <div className="container home-header__inner">
           <strong>{common('appName')}</strong>
-          <nav style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+          <nav className="home-header__nav">
             <Link href="/marketplace">{marketplace('nav.browse')}</Link>
+            <Link href="/customs">{logistics('services.customs')}</Link>
+            <Link href="/freight">{logistics('services.freight')}</Link>
             <LocaleSwitcher />
           </nav>
         </div>
       </header>
 
-      <section className="container" style={{ paddingBlock: '4rem' }}>
-        <p
-          style={{
-            color: 'var(--color-muted)',
-            fontSize: '0.875rem',
-            marginBlockEnd: '0.75rem',
-          }}
-        >
-          {t('phase')}
-        </p>
-        <h1 style={{ fontSize: 'clamp(2rem, 5vw, 3rem)', marginBlock: '0 1rem' }}>
-          {t('title')}
-        </h1>
-        <p style={{ color: 'var(--color-muted)', maxWidth: '52ch', marginBlockEnd: '2rem' }}>
-          {t('description')}
-        </p>
-        <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-          <Link
-            href="/marketplace"
-            style={{
-              display: 'inline-block',
-              background: 'var(--color-primary)',
-              color: 'var(--color-primary-foreground)',
-              borderRadius: '0.5rem',
-              padding: '0.75rem 1.25rem',
-              fontWeight: 600,
-            }}
-          >
-            {marketplace('home.browseCta')}
-          </Link>
-          <Link
-            href="/login"
-            style={{
-              display: 'inline-block',
-              border: '1px solid var(--color-border)',
-              borderRadius: '0.5rem',
-              padding: '0.75rem 1.25rem',
-              fontWeight: 600,
-            }}
-          >
-            {t('getStarted')}
-          </Link>
+      <section className="home-hero container">
+        <p className="home-hero__phase">{t('phase')}</p>
+        <h1>{t('title')}</h1>
+        <p className="home-hero__desc">{t('description')}</p>
+        <div className="home-hero__actions">
+          <Link href="/logistics" className="rental-btn rental-btn--primary">{logistics('home.completeService')}</Link>
+          <Link href="/login" className="rental-btn rental-btn--ghost">{t('getStarted')}</Link>
+        </div>
+      </section>
+
+      <section className="container home-services">
+        <h2>{logistics('home.servicesTitle')}</h2>
+        <div className="home-services__grid">
+          {SERVICES.map((service) => (
+            <Link key={service.href} href={service.href} className="home-service-card">
+              <span className="home-service-card__icon" aria-hidden>{service.icon}</span>
+              <strong>{logistics(service.titleKey)}</strong>
+              <p>{logistics(service.descKey)}</p>
+            </Link>
+          ))}
         </div>
       </section>
 

@@ -27,6 +27,15 @@ import type { AuthTokensResponse, LoginRequest, RegisterRequest } from '@/types/
 import type { AcceptShipmentInput } from '@/types/fleet';
 import type { GeoRegion, GovernorateWithWilayats } from '@/types/geography';
 import type {
+  AdminCustomsDashboard,
+  CustomsClearanceRequest,
+  FreightForwardingRequest,
+  LogisticsDashboard,
+  LogisticsOrder,
+  LogisticsQuote,
+  StatusHistoryEntry,
+} from '@/types/logistics';
+import type {
   CreateQuoteRequestInput,
   CreateTruckListingInput,
   FleetTruckListing,
@@ -974,6 +983,97 @@ export async function sendAiChat(input: {
   return authRequest<AiChatResponse>('/ai/chat', {
     method: 'POST',
     body: JSON.stringify(input),
+  });
+}
+
+export async function getLogisticsDashboard(): Promise<LogisticsDashboard> {
+  return authRequest<LogisticsDashboard>('/logistics/orders/dashboard');
+}
+
+export async function listLogisticsOrders(): Promise<LogisticsOrder[]> {
+  return authRequest<LogisticsOrder[]>('/logistics/orders');
+}
+
+export async function getLogisticsOrder(id: string): Promise<LogisticsOrder> {
+  return authRequest<LogisticsOrder>(`/logistics/orders/${id}`);
+}
+
+export async function getLogisticsOrderTimeline(id: string): Promise<StatusHistoryEntry[]> {
+  return authRequest<StatusHistoryEntry[]>(`/logistics/orders/${id}/timeline`);
+}
+
+export async function createLogisticsOrder(input: { title?: string; description?: string }): Promise<LogisticsOrder> {
+  return authRequest<LogisticsOrder>('/logistics/orders', { method: 'POST', body: JSON.stringify(input) });
+}
+
+export async function listCustomsRequests(): Promise<CustomsClearanceRequest[]> {
+  return authRequest<CustomsClearanceRequest[]>('/customs/requests');
+}
+
+export async function getCustomsRequest(id: string): Promise<CustomsClearanceRequest> {
+  return authRequest<CustomsClearanceRequest>(`/customs/requests/${id}`);
+}
+
+export async function createCustomsRequest(input: { transactionType: string; logisticsOrderId?: string }): Promise<CustomsClearanceRequest> {
+  return authRequest<CustomsClearanceRequest>('/customs/requests', { method: 'POST', body: JSON.stringify(input) });
+}
+
+export async function updateCustomsRequest(id: string, input: Record<string, unknown>): Promise<CustomsClearanceRequest> {
+  return authRequest<CustomsClearanceRequest>(`/customs/requests/${id}`, { method: 'PATCH', body: JSON.stringify(input) });
+}
+
+export async function submitCustomsRequest(id: string): Promise<CustomsClearanceRequest> {
+  return authRequest<CustomsClearanceRequest>(`/customs/requests/${id}/submit`, { method: 'POST' });
+}
+
+export async function listFreightShipments(): Promise<FreightForwardingRequest[]> {
+  return authRequest<FreightForwardingRequest[]>('/freight/shipments');
+}
+
+export async function getFreightShipment(id: string): Promise<FreightForwardingRequest> {
+  return authRequest<FreightForwardingRequest>(`/freight/shipments/${id}`);
+}
+
+export async function createFreightRequest(input: Record<string, unknown>): Promise<FreightForwardingRequest> {
+  return authRequest<FreightForwardingRequest>('/freight/requests', { method: 'POST', body: JSON.stringify(input) });
+}
+
+export async function updateFreightShipment(id: string, input: Record<string, unknown>): Promise<FreightForwardingRequest> {
+  return authRequest<FreightForwardingRequest>(`/freight/shipments/${id}`, { method: 'PATCH', body: JSON.stringify(input) });
+}
+
+export async function submitFreightShipment(id: string): Promise<FreightForwardingRequest> {
+  return authRequest<FreightForwardingRequest>(`/freight/shipments/${id}/submit`, { method: 'POST' });
+}
+
+export async function uploadLogisticsDocument(
+  file: File,
+  input: { category: string; customsRequestId?: string; freightRequestId?: string; logisticsOrderId?: string },
+) {
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('category', input.category);
+  if (input.customsRequestId) formData.append('customsRequestId', input.customsRequestId);
+  if (input.freightRequestId) formData.append('freightRequestId', input.freightRequestId);
+  if (input.logisticsOrderId) formData.append('logisticsOrderId', input.logisticsOrderId);
+  return authMultipartRequest('/logistics/documents', formData);
+}
+
+export async function respondLogisticsQuote(id: string, action: 'accept' | 'reject' | 'counter' | 'amend', customerNote?: string): Promise<LogisticsQuote> {
+  return authRequest<LogisticsQuote>(`/logistics/quotes/${id}/respond`, {
+    method: 'POST',
+    body: JSON.stringify({ action, customerNote }),
+  });
+}
+
+export async function getAdminCustomsDashboard(): Promise<AdminCustomsDashboard> {
+  return authRequest<AdminCustomsDashboard>('/admin/customs/dashboard');
+}
+
+export async function updateAdminCustomsStatus(id: string, status: string, note?: string) {
+  return authRequest(`/admin/customs/requests/${id}/status`, {
+    method: 'PATCH',
+    body: JSON.stringify({ status, note }),
   });
 }
 
