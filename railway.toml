@@ -1,0 +1,4 @@
+# Applied only to the API service (repo root). Web uses apps/web and ignores this file.
+[deploy]
+healthcheckPath = "/health/live"
+healthcheckTimeout = 300

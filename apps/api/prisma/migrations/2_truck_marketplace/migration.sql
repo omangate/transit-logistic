@@ -1,5 +1,8 @@
 -- Truck Marketplace module
 
+CREATE TYPE "cargo_type" AS ENUM ('dry', 'refrigerated', 'special');
+CREATE TYPE "shipping_method" AS ENUM ('standard', 'express', 'cross_border');
+
 CREATE TYPE "vehicle_category" AS ENUM ('light_truck', 'medium_truck', 'heavy_truck', 'trailer', 'van', 'specialized');
 CREATE TYPE "truck_listing_status" AS ENUM ('draft', 'pending_approval', 'approved', 'rejected', 'suspended');
 CREATE TYPE "truck_availability_status" AS ENUM ('available', 'busy', 'maintenance');

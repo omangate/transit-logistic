@@ -1,5 +1,8 @@
-const BASE = process.env.API_URL ?? 'http://127.0.0.1:3001/api/v1';
-const WEB = process.env.WEB_URL ?? 'http://127.0.0.1:3000';
+const PRODUCTION_API = 'https://transit-logistic-production.up.railway.app/api/v1';
+const PRODUCTION_WEB = 'https://insightful-forgiveness-production-6c81.up.railway.app';
+
+const BASE = process.env.API_URL ?? PRODUCTION_API;
+const WEB = process.env.WEB_URL ?? PRODUCTION_WEB;
 const results = [];
 
 function record(name, ok, detail = '') {

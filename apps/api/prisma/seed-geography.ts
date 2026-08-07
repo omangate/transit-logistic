@@ -1,6 +1,6 @@
 import type { PrismaClient } from '@prisma/client';
 
-import { OMAN_COUNTRY, OMAN_REGIONS } from '../data/oman-geography';
+import { OMAN_COUNTRY, OMAN_REGIONS } from './data/oman-geography';
 
 type RegionNode = (typeof OMAN_REGIONS)[number];
 
