@@ -1,6 +1,7 @@
 -- V1: bookings, availability calendar, quote enhancements, messaging, support, auth hardening
+-- prisma:disable-transaction
 
--- Quote status enum extensions
+-- Quote status enum extensions (must run outside transaction on PostgreSQL)
 ALTER TYPE "quote_request_status" ADD VALUE IF NOT EXISTS 'countered';
 ALTER TYPE "quote_request_status" ADD VALUE IF NOT EXISTS 'cancelled';
 

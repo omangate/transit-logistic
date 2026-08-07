@@ -22,6 +22,16 @@ export class AvailabilityService {
   ) {}
 
   async listForListing(listingId: string, from?: string, to?: string) {
+    const uuidPattern =
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+    if (!uuidPattern.test(listingId)) {
+      throw new NotFoundException({
+        code: 'LISTING_NOT_FOUND',
+        message_en: 'Truck listing not found.',
+        message_ar: 'إعلان الشاحنة غير موجود.',
+      });
+    }
+
     const where: Prisma.TruckAvailabilityBlockWhereInput = { truckListingId: listingId };
     if (from || to) {
       where.AND = [
