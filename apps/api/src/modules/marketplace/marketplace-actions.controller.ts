@@ -23,6 +23,7 @@ import {
   CreateTruckReviewDto,
   RespondQuoteDto,
 } from './dto/marketplace.dto';
+import { QuoteCustomerActionDto, QuoteFleetActionDto } from '../bookings/dto/booking.dto';
 import { MarketplaceFavoritesService } from './marketplace-favorites.service';
 import { MarketplaceQuotesService } from './marketplace-quotes.service';
 import { TruckListingsService } from './truck-listings.service';
@@ -66,6 +67,35 @@ export class MarketplaceActionsController {
     @Body() dto: RespondQuoteDto,
   ) {
     return this.quotes.respond(user, id, dto);
+  }
+
+  @Patch('quotes/:id/fleet-action')
+  @Roles(UserRole.FLEET_OWNER, UserRole.ADMIN)
+  fleetQuoteAction(
+    @CurrentUser() user: User,
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: QuoteFleetActionDto,
+  ) {
+    return this.quotes.fleetAction(user, id, dto);
+  }
+
+  @Patch('quotes/:id/customer-action')
+  @Roles(UserRole.CUSTOMER)
+  customerQuoteAction(
+    @CurrentUser() user: User,
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: QuoteCustomerActionDto,
+  ) {
+    return this.quotes.customerAction(user, id, dto);
+  }
+
+  @Post('quotes/:id/convert-booking')
+  @Roles(UserRole.CUSTOMER, UserRole.ADMIN)
+  convertQuoteToBooking(
+    @CurrentUser() user: User,
+    @Param('id', ParseUUIDPipe) id: string,
+  ) {
+    return this.quotes.convertToBooking(user, id);
   }
 
   @Post('trucks/:listingId/reviews')

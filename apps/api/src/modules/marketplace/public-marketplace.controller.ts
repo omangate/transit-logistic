@@ -9,13 +9,18 @@ import {
 
 import { Public } from '../../common/decorators/public.decorator';
 
+import { AvailabilityService } from '../bookings/availability.service';
+
 import { MarketplaceBrowseQueryDto } from './dto/marketplace.dto';
 import { TruckListingsService } from './truck-listings.service';
 
 @Controller('marketplace')
 @Public()
 export class PublicMarketplaceController {
-  constructor(private readonly listings: TruckListingsService) {}
+  constructor(
+    private readonly listings: TruckListingsService,
+    private readonly availability: AvailabilityService,
+  ) {}
 
   @Get('trucks')
   browse(@Query() query: MarketplaceBrowseQueryDto) {
@@ -38,5 +43,14 @@ export class PublicMarketplaceController {
   @Get('home')
   homeSections() {
     return this.listings.getHomeSections();
+  }
+
+  @Get('listings/:listingId/availability')
+  listingAvailability(
+    @Param('listingId') listingId: string,
+    @Query('from') from?: string,
+    @Query('to') to?: string,
+  ) {
+    return this.availability.listForListing(listingId, from, to);
   }
 }

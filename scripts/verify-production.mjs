@@ -24,7 +24,22 @@ async function req(method, path, body, token) {
   return { code: res.status, text, json };
 }
 
-async function login(email, password) {
+function resolveCredential(role, emailDefault) {
+  const email = process.env[`VERIFY_${role}_EMAIL`] ?? emailDefault;
+  const password =
+    process.env[`VERIFY_${role}_PASSWORD`] ??
+    process.env[`SEED_${role}_PASSWORD`] ??
+    process.env.SEED_DEMO_PASSWORD ??
+    null;
+  return { email, password };
+}
+
+async function login(role, emailDefault) {
+  const { email, password } = resolveCredential(role, emailDefault);
+  if (!password) {
+    record(`Login ${email}`, true, 'skipped (set VERIFY_*_PASSWORD or SEED_DEMO_PASSWORD)');
+    return null;
+  }
   const r = await req('POST', '/auth/login', { email, password });
   record(`Login ${email}`, r.code === 200 || r.code === 201);
   return r.json?.accessToken ?? null;
@@ -48,11 +63,11 @@ record('Health full (DB+Redis)', health.code === 200, `HTTP ${health.code}`);
 const live = await req('GET', '/health/live');
 record('Health live', live.code === 200);
 
-// Roles
-const customer = await login('phase1test@example.com', 'Password1');
-const admin = await login('admin@transit.dev', 'Admin1234');
-const fleet = await login('fleet@transit.dev', 'Fleet1234');
-const driver = await login('driver@transit.dev', 'Driver1234');
+// Roles — credentials from VERIFY_* or SEED_* env (never hardcoded in production)
+const customer = await login('CUSTOMER', 'customer@transit.dev');
+const admin = await login('ADMIN', 'admin@transit.dev');
+const fleet = await login('FLEET', 'fleet@transit.dev');
+const driver = await login('DRIVER', 'driver@transit.dev');
 
 if (customer) {
   const me = await req('GET', '/users/me', null, customer);

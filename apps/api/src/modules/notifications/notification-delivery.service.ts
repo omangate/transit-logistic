@@ -83,6 +83,36 @@ export class NotificationDeliveryService {
     }
   }
 
+  async safeNotifyPasswordReset(input: {
+    userId: string;
+    email: string;
+    resetUrl: string;
+    locale: 'en' | 'ar';
+  }) {
+    try {
+      const subject =
+        input.locale === 'ar' ? 'إعادة تعيين كلمة المرور' : 'Reset your password';
+      const html =
+        input.locale === 'ar'
+          ? `<p>اضغط على الرابط لإعادة تعيين كلمة المرور (صالح لمدة ساعة):</p><p><a href="${input.resetUrl}">${input.resetUrl}</a></p>`
+          : `<p>Use this link to reset your password (valid for 1 hour):</p><p><a href="${input.resetUrl}">${input.resetUrl}</a></p>`;
+
+      await this.email.send({ to: input.email, subject, html });
+      await this.notifications.createInApp({
+        userId: input.userId,
+        titleEn: 'Password reset requested',
+        titleAr: 'طلب إعادة تعيين كلمة المرور',
+        bodyEn: 'If you did not request this, ignore this message.',
+        bodyAr: 'إذا لم تطلب ذلك، تجاهل هذه الرسالة.',
+        data: { type: 'password_reset' },
+      });
+      return { delivered: true };
+    } catch (error) {
+      this.logger.warn(`Password reset notification failed: ${String(error)}`);
+      return { delivered: false };
+    }
+  }
+
   async notifyShipmentCreated(input: { userId: string; email: string; referenceNumber: string; locale: 'en' | 'ar' }) {
     const content = buildShipmentCreatedNotification(input.referenceNumber);
     return this.deliverToUsers(

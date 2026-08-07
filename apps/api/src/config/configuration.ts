@@ -18,6 +18,9 @@ export const configuration = () => ({
     webUrl: process.env.WEB_APP_URL ?? 'http://127.0.0.1:3000',
     uploadDir: process.env.UPLOAD_DIR ?? 'uploads',
   },
+  storage: {
+    provider: process.env.STORAGE_PROVIDER ?? 'local',
+  },
   database: {
     url: process.env.DATABASE_URL,
   },

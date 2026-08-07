@@ -13,6 +13,8 @@ import {
   Min,
   MinLength,
 } from 'class-validator';
+
+import { QueryBoolean, QueryInt, QueryNumber } from '../../../common/dto/query-transforms';
 import {
   CargoType,
   ShippingMethod,
@@ -361,14 +363,17 @@ export class MarketplaceBrowseQueryDto {
   country?: string;
 
   @IsOptional()
+  @QueryBoolean()
   @IsBoolean()
   crossBorder?: boolean;
 
   @IsOptional()
+  @QueryBoolean()
   @IsBoolean()
   refrigerated?: boolean;
 
   @IsOptional()
+  @QueryBoolean()
   @IsBoolean()
   containerTransport?: boolean;
 
@@ -393,41 +398,49 @@ export class MarketplaceBrowseQueryDto {
   availability?: 'available' | 'busy' | 'maintenance';
 
   @IsOptional()
+  @QueryNumber()
   @IsNumber()
   @Min(0)
   minCapacityKg?: number;
 
   @IsOptional()
+  @QueryNumber()
   @IsNumber()
   @Min(0)
   maxCapacityKg?: number;
 
   @IsOptional()
+  @QueryNumber()
   @IsNumber()
   @Min(0)
   minPrice?: number;
 
   @IsOptional()
+  @QueryNumber()
   @IsNumber()
   @Min(0)
   maxPrice?: number;
 
   @IsOptional()
+  @QueryNumber()
   @IsNumber()
   @Min(0)
   @Max(5)
   minRating?: number;
 
   @IsOptional()
+  @QueryBoolean()
   @IsBoolean()
   featured?: boolean;
 
   @IsOptional()
+  @QueryInt()
   @IsInt()
   @Min(1)
   page?: number;
 
   @IsOptional()
+  @QueryInt()
   @IsInt()
   @Min(1)
   @Max(50)
