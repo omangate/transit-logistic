@@ -783,7 +783,14 @@
       "destCountry": "Destination country",
       "cargoDetails": "Cargo details",
       "submitQuote": "Send quote request",
-      "quoteSent": "Quote request sent successfully."
+      "quoteSent": "Quote request sent successfully.",
+      "verified": "Verified",
+      "share": "Share",
+      "favorite": "Save",
+      "unfavorite": "Remove favorite",
+      "fullscreen": "Fullscreen",
+      "closeGallery": "Close",
+      "shareCopied": "Link copied"
     },
     "fleet": {
       "title": "Marketplace listings",
@@ -834,7 +841,48 @@
       "delivery": "Delivery location",
       "locationPlaceholder": "Search city, port, or wilayat…",
       "clearLocation": "Clear",
-      "availability": "Availability status"
+      "availability": "Availability status",
+      "uploadPhotos": "Upload photos",
+      "uploadHint": "Drag and drop or click — JPG, PNG, WEBP up to 8 MB",
+      "retryUpload": "Retry",
+      "cover": "Cover",
+      "setCover": "Set as cover",
+      "delete": "Delete",
+      "videoUpload": "Walk-around video",
+      "uploadVideo": "Upload video",
+      "videoUrlFallback": "Or paste an external video URL (optional)",
+      "draftName": "Draft listing",
+      "name": "Truck name",
+      "brand": "Brand",
+      "model": "Model",
+      "year": "Year",
+      "capacityKg": "Capacity (kg)",
+      "dailyRental": "Daily rental (OMR)",
+      "weeklyRental": "Weekly rental (OMR)",
+      "monthlyRental": "Monthly rental (OMR)",
+      "crossBorderSupport": "Cross-border support",
+      "refrigeratedSupport": "Refrigerated",
+      "containerTransportSupport": "Container transport",
+      "insuranceCoverage": "Insurance coverage"
+    },
+    "wizard": {
+      "steps": {
+        "media": "Photos & media",
+        "basic": "Basic information",
+        "specs": "Specifications",
+        "pricing": "Rental pricing",
+        "capabilities": "Capabilities",
+        "areas": "Operating areas",
+        "documents": "Documents",
+        "description": "Description",
+        "preview": "Preview & publish"
+      },
+      "mediaIntro": "Start a draft, then upload professional truck photos.",
+      "startDraft": "Start draft",
+      "documentsHint": "Upload registration and insurance from the fleet documents section.",
+      "publish": "Submit for approval",
+      "back": "Back",
+      "next": "Next"
     },
     "rental": {
       "featured": "Featured",
@@ -939,5 +987,12 @@
       "reject": "Reject",
       "feature": "Feature"
     }
+  },
+  "ai": {
+    "title": "Transit Assistant",
+    "placeholder": "Ask about trucks, shipments, or quotes…",
+    "send": "Send",
+    "typing": "Typing…",
+    "error": "Could not respond. Please try again."
   }
 }

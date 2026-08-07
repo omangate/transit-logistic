@@ -41,6 +41,11 @@ pnpm dev
 | `RESEND_API_KEY`, `EMAIL_FROM` | Email (optional) |
 | `STORAGE_PROVIDER` | `local` (default) or `s3` when configured |
 | `UPLOAD_DIR` | Local upload root |
+| `S3_BUCKET`, `S3_ENDPOINT`, `S3_REGION` | S3-compatible storage (Railway / R2 / MinIO) |
+| `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY` | S3 credentials (never commit) |
+| `S3_PUBLIC_BASE_URL` | Public CDN/base URL for public uploads |
+| `AI_PROVIDER` | `mock` (default) or `openai` |
+| `OPENAI_API_KEY`, `AI_MODEL` | OpenAI chat when `AI_PROVIDER=openai` |
 | `SEED_DEMO_ACCOUNTS` | Set `true` in production to seed demo users |
 | `SEED_DEMO_PASSWORD` or `SEED_ADMIN_PASSWORD`, etc. | Demo account passwords |
 

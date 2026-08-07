@@ -74,6 +74,7 @@ enum DocumentStatus {
   pending
   approved
   rejected
+  expired
 
   @@map("document_status")
 }
@@ -287,6 +288,7 @@ model User {
   conversationsAsFleet    Conversation[]  @relation("ConversationFleetUser")
   messagesSent       Message[]
   supportTickets     SupportTicket[]
+  aiChatSessions     AiChatSession[]
 
   @@map("users")
 }
@@ -364,13 +366,20 @@ model FleetOwnerDocument {
   fleetOwnerId String         @map("fleet_owner_id") @db.Uuid
   documentType String         @map("document_type")
   fileUrl      String         @map("file_url")
+  storageKey   String?        @map("storage_key")
+  originalName String?        @map("original_name")
+  mimeType     String?        @map("mime_type")
   status       DocumentStatus @default(pending)
+  expiresAt    DateTime?      @map("expires_at")
+  reviewNote   String?        @map("review_note")
   reviewedAt   DateTime?      @map("reviewed_at")
   createdAt    DateTime       @default(now()) @map("created_at")
+  updatedAt    DateTime       @updatedAt @map("updated_at")
 
   fleetOwner FleetOwner @relation(fields: [fleetOwnerId], references: [id], onDelete: Cascade)
 
   @@index([fleetOwnerId])
+  @@index([status])
   @@map("fleet_owner_documents")
 }
 
@@ -414,13 +423,20 @@ model VehicleDocument {
   vehicleId    String         @map("vehicle_id") @db.Uuid
   documentType String         @map("document_type")
   fileUrl      String         @map("file_url")
+  storageKey   String?        @map("storage_key")
+  originalName String?        @map("original_name")
+  mimeType     String?        @map("mime_type")
   status       DocumentStatus @default(pending)
   expiresAt    DateTime?      @map("expires_at")
+  reviewNote   String?        @map("review_note")
+  reviewedAt   DateTime?      @map("reviewed_at")
   createdAt    DateTime       @default(now()) @map("created_at")
+  updatedAt    DateTime       @updatedAt @map("updated_at")
 
   vehicle Vehicle @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
 
   @@index([vehicleId])
+  @@index([status])
   @@map("vehicle_documents")
 }
 
@@ -804,8 +820,11 @@ model TruckListing {
   operatingCountries       String[]                @default([]) @map("operating_countries")
   plateNumber              String?                 @map("plate_number")
   videoUrl                 String?                 @map("video_url")
+  videoStorageKey          String?                 @map("video_storage_key")
+  videoThumbnailUrl        String?                 @map("video_thumbnail_url")
   description              String?
   coverImageUrl            String?                 @map("cover_image_url")
+  draftData                Json?                   @map("draft_data")
   availabilityStatus       TruckAvailabilityStatus @default(available) @map("availability_status")
   listingStatus            TruckListingStatus      @default(draft) @map("listing_status")
   isFeatured               Boolean                 @default(false) @map("is_featured")
@@ -850,6 +869,11 @@ model TruckListingImage {
   id             String   @id @default(uuid()) @db.Uuid
   truckListingId String   @map("truck_listing_id") @db.Uuid
   url            String
+  thumbnailUrl   String?  @map("thumbnail_url")
+  storageKey     String?  @map("storage_key")
+  width          Int?
+  height         Int?
+  mimeType       String?  @map("mime_type")
   sortOrder      Int      @default(0) @map("sort_order")
   isCover        Boolean  @default(false) @map("is_cover")
   createdAt      DateTime @default(now()) @map("created_at")
@@ -1261,4 +1285,36 @@ model SupportTicketMessage {
 
   @@index([ticketId])
   @@map("support_ticket_messages")
+}
+
+// ── AI Assistant ────────────────────────────────────────────────────────────
+
+model AiChatSession {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  role      UserRole
+  title     String?
+  locale    Locale   @default(ar)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  user     User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages AiChatMessage[]
+
+  @@index([userId, updatedAt])
+  @@map("ai_chat_sessions")
+}
+
+model AiChatMessage {
+  id        String   @id @default(uuid()) @db.Uuid
+  sessionId String   @map("session_id") @db.Uuid
+  role      String
+  content   String
+  metadata  Json     @default("{}")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  session AiChatSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@index([sessionId, createdAt])
+  @@map("ai_chat_messages")
 }

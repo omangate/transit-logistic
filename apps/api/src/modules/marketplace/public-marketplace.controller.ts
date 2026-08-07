@@ -12,6 +12,7 @@ import { Public } from '../../common/decorators/public.decorator';
 import { AvailabilityService } from '../bookings/availability.service';
 
 import { MarketplaceBrowseQueryDto } from './dto/marketplace.dto';
+import { SmartSearchService } from './smart-search.service';
 import { TruckListingsService } from './truck-listings.service';
 
 @Controller('marketplace')
@@ -20,6 +21,7 @@ export class PublicMarketplaceController {
   constructor(
     private readonly listings: TruckListingsService,
     private readonly availability: AvailabilityService,
+    private readonly smartSearchService: SmartSearchService,
   ) {}
 
   @Get('trucks')
@@ -43,6 +45,11 @@ export class PublicMarketplaceController {
   @Get('home')
   homeSections() {
     return this.listings.getHomeSections();
+  }
+
+  @Get('smart-search')
+  smartSearch(@Query('q') q: string) {
+    return this.smartSearchService.search(q ?? '');
   }
 
   @Get('listings/:listingId/availability')

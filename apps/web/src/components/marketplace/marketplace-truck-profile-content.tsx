@@ -11,7 +11,8 @@ import { RatingStars } from '@/components/marketplace/rating-stars';
 import { TruckCard } from '@/components/marketplace/truck-card';
 import { TruckImageGallery } from '@/components/marketplace/truck-image-gallery';
 import { Link, useRouter } from '@/i18n/navigation';
-import { getMarketplaceTruck, getSimilarTrucks, requestTruckQuote } from '@/lib/api';
+import { addTruckFavorite, getMarketplaceTruck, getSimilarTrucks, listFavoriteTruckIds, removeTruckFavorite, requestTruckQuote } from '@/lib/api';
+import { buildAssetUrl } from '@/lib/api-config';
 import { getLocalizedApiMessage, isApiClientError } from '@/lib/api-error';
 import { getStoredUser } from '@/lib/auth-storage';
 import { formatOMR, getTruckTitle } from '@/lib/marketplace-utils';
@@ -41,6 +42,8 @@ export function MarketplaceTruckProfileContent({ slug }: Props) {
   const [loading, setLoading] = useState(true);
   const [quoteError, setQuoteError] = useState<string | null>(null);
   const [quoteSent, setQuoteSent] = useState(false);
+  const [favorited, setFavorited] = useState(false);
+  const [shareMsg, setShareMsg] = useState<string | null>(null);
 
   useEffect(() => {
     void (async () => {
@@ -51,6 +54,11 @@ export function MarketplaceTruckProfileContent({ slug }: Props) {
         ]);
         setTruck(detail);
         setSimilar(related);
+        const user = getStoredUser();
+        if (user) {
+          const ids = await listFavoriteTruckIds().catch(() => [] as string[]);
+          setFavorited(ids.includes(detail.id));
+        }
       } catch (err) {
         setError(
           isApiClientError(err) ? getLocalizedApiMessage(err, locale as 'en' | 'ar') : t('errors.generic'),
@@ -141,10 +149,14 @@ export function MarketplaceTruckProfileContent({ slug }: Props) {
             images={truck.images}
             coverUrl={truck.coverImageUrl}
             alt={title}
+            hero
           />
           {truck.videoUrl ? (
             <div className="rental-detail__video">
               <h2>{t('rental.video')}</h2>
+              <video controls className="rental-detail__video-player" src={buildAssetUrl(truck.videoUrl)}>
+                <track kind="captions" />
+              </video>
               <a href={truck.videoUrl} target="_blank" rel="noopener noreferrer" className="rental-btn rental-btn--ghost">
                 {t('rental.watchVideo')}
               </a>
@@ -155,10 +167,52 @@ export function MarketplaceTruckProfileContent({ slug }: Props) {
         <aside className="rental-detail__summary">
           <div className="rental-detail__summary-head">
             <AvailabilityBadge status={truck.availabilityStatus} />
+            {truck.fleetOwner.kycStatus === 'verified' ? (
+              <span className="rental-badge rental-badge--verified">{t('profile.verified')}</span>
+            ) : null}
             {truck.isFeatured ? (
               <span className="rental-card__featured">{t('rental.featured')}</span>
             ) : null}
           </div>
+          <div className="rental-detail__actions-row">
+            <button
+              type="button"
+              className="rental-btn rental-btn--ghost"
+              onClick={async () => {
+                const user = getStoredUser();
+                if (!user) {
+                  router.push('/login');
+                  return;
+                }
+                if (favorited) {
+                  await removeTruckFavorite(truck.id);
+                  setFavorited(false);
+                } else {
+                  await addTruckFavorite(truck.id);
+                  setFavorited(true);
+                }
+              }}
+            >
+              {favorited ? t('profile.unfavorite') : t('profile.favorite')}
+            </button>
+            <button
+              type="button"
+              className="rental-btn rental-btn--ghost"
+              onClick={async () => {
+                const url = window.location.href;
+                if (navigator.share) {
+                  await navigator.share({ title, url });
+                } else {
+                  await navigator.clipboard.writeText(url);
+                  setShareMsg(t('profile.shareCopied'));
+                  setTimeout(() => setShareMsg(null), 2000);
+                }
+              }}
+            >
+              {t('profile.share')}
+            </button>
+          </div>
+          {shareMsg ? <p className="form-success">{shareMsg}</p> : null}
           <p className="rental-detail__brand">{truck.brand}</p>
           <h1>{[truck.model, truck.year].filter(Boolean).join(' · ') || truck.name}</h1>
           <RatingStars rating={Number(truck.avgRating)} reviewCount={truck.reviewCount} />

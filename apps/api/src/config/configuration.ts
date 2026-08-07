@@ -20,6 +20,15 @@ export const configuration = () => ({
   },
   storage: {
     provider: process.env.STORAGE_PROVIDER ?? 'local',
+    s3: {
+      bucket: process.env.S3_BUCKET,
+      region: process.env.S3_REGION ?? 'auto',
+      endpoint: process.env.S3_ENDPOINT,
+      accessKeyId: process.env.S3_ACCESS_KEY_ID,
+      secretAccessKey: process.env.S3_SECRET_ACCESS_KEY,
+      publicBaseUrl: process.env.S3_PUBLIC_BASE_URL,
+      forcePathStyle: process.env.S3_FORCE_PATH_STYLE !== 'false',
+    },
   },
   database: {
     url: process.env.DATABASE_URL,
@@ -43,6 +52,11 @@ export const configuration = () => ({
   email: {
     resendApiKey: process.env.RESEND_API_KEY,
     from: process.env.EMAIL_FROM ?? 'Transit Logistic <noreply@transit-logistic.dev>',
+  },
+  ai: {
+    provider: process.env.AI_PROVIDER ?? 'mock',
+    openaiApiKey: process.env.OPENAI_API_KEY,
+    model: process.env.AI_MODEL ?? 'gpt-4o-mini',
   },
   payment: {
     provider: process.env.PAYMENT_PROVIDER ?? 'thawani',

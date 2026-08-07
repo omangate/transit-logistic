@@ -484,4 +484,49 @@ export class NotificationDeliveryService {
       this.logger.error(`Email delivery failed for ${job.email}`, error instanceof Error ? error.stack : undefined);
     }
   }
+
+  async safeNotifyUploadCompleted(userId: string, listingId: string, kind: 'images' | 'video') {
+    try {
+      await this.notifications.createInApp({
+        userId,
+        titleEn: kind === 'video' ? 'Video uploaded' : 'Photos uploaded',
+        titleAr: kind === 'video' ? 'تم رفع الفيديو' : 'تم رفع الصور',
+        bodyEn: 'Your listing media was uploaded successfully.',
+        bodyAr: 'تم رفع وسائط الإعلان بنجاح.',
+        data: { type: NOTIFICATION_TYPES.UPLOAD_COMPLETED, listingId, kind },
+      });
+    } catch (error) {
+      this.logger.warn(`Upload notification failed: ${String(error)}`);
+    }
+  }
+
+  async safeNotifyDocumentUploaded(userId: string, documentId: string) {
+    try {
+      await this.notifications.createInApp({
+        userId,
+        titleEn: 'Document uploaded',
+        titleAr: 'تم رفع المستند',
+        bodyEn: 'Your document is pending review.',
+        bodyAr: 'مستندك قيد المراجعة.',
+        data: { type: NOTIFICATION_TYPES.UPLOAD_COMPLETED, documentId },
+      });
+    } catch (error) {
+      this.logger.warn(`Document upload notification failed: ${String(error)}`);
+    }
+  }
+
+  async safeNotifyDocumentReviewed(userId: string, status: string, reviewNote?: string) {
+    try {
+      await this.notifications.createInApp({
+        userId,
+        titleEn: `Document ${status}`,
+        titleAr: status === 'approved' ? 'تم اعتماد المستند' : 'تم رفض المستند',
+        bodyEn: reviewNote ?? `Your document was ${status}.`,
+        bodyAr: reviewNote ?? (status === 'approved' ? 'تم اعتماد مستندك.' : 'تم رفض مستندك.'),
+        data: { type: NOTIFICATION_TYPES.DOCUMENT_REVIEWED, status, reviewNote },
+      });
+    } catch (error) {
+      this.logger.warn(`Document review notification failed: ${String(error)}`);
+    }
+  }
 }

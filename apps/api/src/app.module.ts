@@ -14,6 +14,7 @@ import { HealthModule } from './modules/health/health.module';
 import { GeographyModule } from './modules/geography/geography.module';
 import { MarketplaceModule } from './modules/marketplace/marketplace.module';
 import { MessagingModule } from './modules/messaging/messaging.module';
+import { AiModule } from './modules/ai/ai.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { PaymentsModule } from './modules/payments/payments.module';
 import { PayoutsModule } from './modules/payouts/payouts.module';
@@ -54,6 +55,7 @@ import { RedisModule } from './redis/redis.module';
     NotificationsModule,
     MessagingModule,
     SupportModule,
+    AiModule,
     PricingModule,
     PaymentsModule,
     PayoutsModule,

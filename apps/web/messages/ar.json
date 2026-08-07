@@ -780,7 +780,14 @@
       "destCountry": "دولة الوجهة",
       "cargoDetails": "تفاصيل البضاعة",
       "submitQuote": "إرسال طلب العرض",
-      "quoteSent": "تم إرسال طلب العرض بنجاح."
+      "quoteSent": "تم إرسال طلب العرض بنجاح.",
+      "verified": "موثّق",
+      "share": "مشاركة",
+      "favorite": "مفضلة",
+      "unfavorite": "إزالة من المفضلة",
+      "fullscreen": "ملء الشاشة",
+      "closeGallery": "إغلاق",
+      "shareCopied": "تم نسخ الرابط"
     },
     "fleet": {
       "title": "إعلانات السوق",
@@ -831,7 +838,48 @@
       "delivery": "موقع التسليم",
       "locationPlaceholder": "ابحث عن مدينة أو ميناء أو ولاية…",
       "clearLocation": "مسح",
-      "availability": "حالة التوفر"
+      "availability": "حالة التوفر",
+      "uploadPhotos": "رفع الصور",
+      "uploadHint": "اسحب وأفلت أو انقر للاختيار — JPG وPNG وWEBP حتى 8 م.ب",
+      "retryUpload": "إعادة المحاولة",
+      "cover": "صورة الغلاف",
+      "setCover": "تعيين كغلاف",
+      "delete": "حذف",
+      "videoUpload": "فيديو جولة حول الشاحنة",
+      "uploadVideo": "رفع فيديو",
+      "videoUrlFallback": "أو أدخل رابط فيديو خارجي (اختياري)",
+      "draftName": "مسودة إعلان",
+      "name": "اسم الشاحنة",
+      "brand": "العلامة",
+      "model": "الموديل",
+      "year": "السنة",
+      "capacityKg": "السعة (كغ)",
+      "dailyRental": "الإيجار اليومي (ر.ع)",
+      "weeklyRental": "الإيجار الأسبوعي (ر.ع)",
+      "monthlyRental": "الإيجار الشهري (ر.ع)",
+      "crossBorderSupport": "دعم عبر الحدود",
+      "refrigeratedSupport": "مبرد",
+      "containerTransportSupport": "نقل حاويات",
+      "insuranceCoverage": "تغطية تأمينية"
+    },
+    "wizard": {
+      "steps": {
+        "media": "الصور والوسائط",
+        "basic": "المعلومات الأساسية",
+        "specs": "المواصفات",
+        "pricing": "أسعار الإيجار",
+        "capabilities": "القدرات",
+        "areas": "مناطق التشغيل",
+        "documents": "المستندات",
+        "description": "الوصف",
+        "preview": "معاينة ونشر"
+      },
+      "mediaIntro": "ابدأ بإنشاء مسودة ثم ارفع صوراً احترافية للشاحنة.",
+      "startDraft": "بدء المسودة",
+      "documentsHint": "ارفع مستندات التسجيل والتأمين من قسم المستندات في لوحة الأسطول.",
+      "publish": "إرسال للموافقة",
+      "back": "رجوع",
+      "next": "التالي"
     },
     "rental": {
       "featured": "مميز",
@@ -936,5 +984,12 @@
       "reject": "رفض",
       "feature": "تمييز"
     }
+  },
+  "ai": {
+    "title": "مساعد ترانزيت",
+    "placeholder": "اسأل عن الشاحنات أو الشحنات أو العروض…",
+    "send": "إرسال",
+    "typing": "جارٍ الكتابة…",
+    "error": "تعذر الرد. حاول مرة أخرى."
   }
 }

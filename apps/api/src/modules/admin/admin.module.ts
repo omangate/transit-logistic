@@ -34,7 +34,7 @@ import { AdminRatingsController } from './admin-ratings.controller';
   ],
 
   providers: [AdminDashboardService, AdminFleetService, AdminCustomersService],
-
+  exports: [AdminDashboardService],
 })
 
 export class AdminModule {}

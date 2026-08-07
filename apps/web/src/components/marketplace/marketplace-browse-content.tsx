@@ -12,7 +12,7 @@ import { GeoLocationSearch } from '@/components/geography/geo-location-search';
 import { OmanMap } from '@/components/map/oman-map';
 import { TruckCard } from '@/components/marketplace/truck-card';
 import { Link } from '@/i18n/navigation';
-import { browseMarketplaceTrucks, listFavoriteTruckIds, listGovernorates } from '@/lib/api';
+import { browseMarketplaceTrucks, listFavoriteTruckIds, listGovernorates, smartSearchMarketplace } from '@/lib/api';
 import { getLocalizedApiMessage, isApiClientError } from '@/lib/api-error';
 import { getStoredUser } from '@/lib/auth-storage';
 import type { GeoRegion, GovernorateWithWilayats } from '@/types/geography';
@@ -201,6 +201,29 @@ export function MarketplaceBrowseContent() {
               type="search"
               value={filters.search ?? ''}
               onChange={(e) => setFilters((f) => ({ ...f, search: e.target.value, page: 1 }))}
+              onKeyDown={(e) => {
+                if (e.key !== 'Enter') return;
+                const q = filters.search?.trim();
+                if (!q || q.length < 4) return;
+                void (async () => {
+                  setLoading(true);
+                  try {
+                    const result = await smartSearchMarketplace(q);
+                    const interpreted = result.interpretedFilters as MarketplaceBrowseQuery;
+                    setFilters((f) => ({
+                      ...f,
+                      ...interpreted,
+                      search: interpreted.search ? String(interpreted.search) : f.search,
+                      page: 1,
+                    }));
+                    setItems(result.items);
+                  } catch {
+                    void load();
+                  } finally {
+                    setLoading(false);
+                  }
+                })();
+              }}
             />
           </label>
           <label>

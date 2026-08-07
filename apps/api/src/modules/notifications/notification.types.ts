@@ -9,6 +9,14 @@ export const NOTIFICATION_TYPES = {
   SHIPMENT_CREATED: 'shipment_created',
   PAYMENT_SUCCESS: 'payment_success',
   TRACKING_ALERT: 'tracking_alert',
+  UPLOAD_COMPLETED: 'upload_completed',
+  DOCUMENT_REVIEWED: 'document_reviewed',
+  LISTING_APPROVED: 'listing_approved',
+  LISTING_REJECTED: 'listing_rejected',
+  QUOTE_RECEIVED: 'quote_received',
+  BOOKING_CONFIRMED: 'booking_confirmed',
+  BOOKING_CANCELLED: 'booking_cancelled',
+  NEW_MESSAGE: 'new_message',
 } as const;
 
 export type NotificationType = (typeof NOTIFICATION_TYPES)[keyof typeof NOTIFICATION_TYPES];

@@ -35,6 +35,7 @@ import type {
   MarketplaceHomeSections,
   PaginatedTruckListings,
   TruckListingDetail,
+  TruckListingImage,
   TruckListingSummary,
   TruckQuoteRequest,
   UpdateTruckListingInput,
@@ -848,6 +849,132 @@ export async function listMyShipmentRequests(): Promise<ShipmentRequestRecord[]>
 
 export async function listFleetShipmentRequests(): Promise<ShipmentRequestRecord[]> {
   return authRequest<ShipmentRequestRecord[]>('/shipment-requests/fleet');
+}
+
+async function authMultipartRequest<T>(
+  path: string,
+  formData: FormData,
+  method = 'POST',
+): Promise<T> {
+  const token = getAccessToken();
+  if (!token) {
+    throw createUnauthorizedError();
+  }
+
+  const response = await fetch(buildApiUrl(path), {
+    method,
+    headers: { Authorization: `Bearer ${token}` },
+    body: formData,
+  });
+
+  if (!response.ok) {
+    throw await parseApiError(response);
+  }
+
+  return response.json() as Promise<T>;
+}
+
+export async function uploadTruckListingImages(
+  listingId: string,
+  files: File[],
+): Promise<TruckListingImage[]> {
+  const formData = new FormData();
+  for (const file of files) {
+    formData.append('files', file);
+  }
+  return authMultipartRequest<TruckListingImage[]>(
+    `/fleet/marketplace/trucks/${listingId}/media/images`,
+    formData,
+  );
+}
+
+export async function uploadTruckListingVideo(
+  listingId: string,
+  file: File,
+): Promise<{ videoUrl: string; key: string }> {
+  const formData = new FormData();
+  formData.append('file', file);
+  return authMultipartRequest(`/fleet/marketplace/trucks/${listingId}/media/video`, formData);
+}
+
+export async function deleteTruckListingImage(listingId: string, imageId: string): Promise<{ success: boolean }> {
+  return authRequest(`/fleet/marketplace/trucks/${listingId}/media/images/${imageId}`, {
+    method: 'DELETE',
+  });
+}
+
+export async function reorderTruckListingImages(
+  listingId: string,
+  imageIds: string[],
+): Promise<{ success: boolean }> {
+  return authRequest(`/fleet/marketplace/trucks/${listingId}/media/images/reorder`, {
+    method: 'PATCH',
+    body: JSON.stringify({ imageIds }),
+  });
+}
+
+export async function setTruckListingCover(listingId: string, imageId: string): Promise<TruckListingImage> {
+  return authRequest(`/fleet/marketplace/trucks/${listingId}/media/images/${imageId}/cover`, {
+    method: 'POST',
+  });
+}
+
+export async function saveFleetTruckListingDraft(
+  listingId: string,
+  draft: Record<string, unknown>,
+): Promise<{ success: boolean }> {
+  return authRequest(`/fleet/marketplace/trucks/${listingId}/media/draft`, {
+    method: 'PATCH',
+    body: JSON.stringify(draft),
+  });
+}
+
+export type FleetDocumentRecord = {
+  id: string;
+  documentType: string;
+  status: string;
+  originalName?: string | null;
+  expiresAt?: string | null;
+  reviewNote?: string | null;
+  createdAt: string;
+};
+
+export async function listFleetDocuments(): Promise<FleetDocumentRecord[]> {
+  return authRequest<FleetDocumentRecord[]>('/fleet/documents');
+}
+
+export async function uploadFleetDocument(
+  file: File,
+  documentType: string,
+  expiresAt?: string,
+): Promise<FleetDocumentRecord> {
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('documentType', documentType);
+  if (expiresAt) formData.append('expiresAt', expiresAt);
+  return authMultipartRequest<FleetDocumentRecord>('/fleet/documents', formData);
+}
+
+export async function smartSearchMarketplace(q: string): Promise<PaginatedTruckListings & { interpretedFilters: Record<string, unknown> }> {
+  const params = new URLSearchParams({ q });
+  return request(`/marketplace/smart-search?${params}`);
+}
+
+export type AiChatResponse = {
+  sessionId: string;
+  message: { id: string; content: string; role: string };
+  cards: Array<{ tool: string; result: unknown }>;
+};
+
+export async function sendAiChat(input: {
+  message: string;
+  sessionId?: string;
+  locale?: 'en' | 'ar';
+}): Promise<AiChatResponse> {
+  return authRequest<AiChatResponse>('/ai/chat', {
+    method: 'POST',
+    body: JSON.stringify(input),
+  });
 }
 
 export { ApiClientError } from '@/lib/api-error';

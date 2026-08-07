@@ -11,6 +11,7 @@ import type {
 export type TruckListingImage = {
   id: string;
   url: string;
+  thumbnailUrl?: string | null;
   sortOrder: number;
   isCover: boolean;
 };
