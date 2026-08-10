@@ -8,6 +8,7 @@ import { NotificationDeliveryService } from '../notifications/notification-deliv
 
 import { LogisticsAccessService } from './logistics-access.service';
 import { generateLogisticsReference } from './logistics-reference.util';
+import { LogisticsChargesService } from './logistics-charges.service';
 
 type QuoteLineInput = {
   category: LogisticsChargeCategory;
@@ -24,6 +25,7 @@ export class LogisticsQuotesService {
     private readonly prisma: PrismaService,
     private readonly access: LogisticsAccessService,
     private readonly notifications: NotificationDeliveryService,
+    private readonly charges: LogisticsChargesService,
   ) {}
 
   async createQuote(
@@ -119,6 +121,11 @@ export class LogisticsQuotesService {
           where: { id: quote.freightRequestId },
           data: { status: 'quotation_accepted' },
         });
+      }
+      try {
+        await this.charges.createFromQuote(user, quoteId);
+      } catch {
+        // Quote may not be linked to logistics order yet
       }
     }
 

@@ -1870,6 +1870,7 @@ model VehicleShipmentRecord {
   logisticsOrderId String?  @map("logistics_order_id") @db.Uuid
   customsRequestId String?  @map("customs_request_id") @db.Uuid
   vin              String?
+  chassisNumber    String?  @map("chassis_number")
   make             String?
   model            String?
   year             Int?
@@ -1880,6 +1881,7 @@ model VehicleShipmentRecord {
   containerNumber  String?  @map("container_number")
   blNumber         String?  @map("bl_number")
   customsStatus    String?  @map("customs_status")
+  notes            String?
   createdAt        DateTime @default(now()) @map("created_at")
   updatedAt        DateTime @updatedAt @map("updated_at")
 
@@ -1898,6 +1900,8 @@ model DocumentChecklistTemplate {
   nameAr          String                  @map("name_ar")
   transactionType CustomsTransactionType? @map("transaction_type")
   transportMode   FreightTransportMode?   @map("transport_mode")
+  serviceType     String?                 @map("service_type")
+  cargoType       String?                 @map("cargo_type")
   isActive        Boolean                 @default(true) @map("is_active")
   createdAt       DateTime                @default(now()) @map("created_at")
   updatedAt       DateTime                @updatedAt @map("updated_at")
@@ -1983,13 +1987,15 @@ model LogisticsConversation {
 }
 
 model LogisticsMessage {
-  id             String   @id @default(uuid()) @db.Uuid
-  conversationId String   @map("conversation_id") @db.Uuid
-  senderId       String   @map("sender_id") @db.Uuid
-  body           String
-  attachmentKey  String?  @map("attachment_key")
-  readAt         DateTime? @map("read_at")
-  createdAt      DateTime @default(now()) @map("created_at")
+  id                    String   @id @default(uuid()) @db.Uuid
+  conversationId        String   @map("conversation_id") @db.Uuid
+  senderId              String   @map("sender_id") @db.Uuid
+  body                  String
+  attachmentKey         String?  @map("attachment_key")
+  attachmentOriginalName String? @map("attachment_original_name")
+  attachmentMimeType    String?  @map("attachment_mime_type")
+  readAt                DateTime? @map("read_at")
+  createdAt             DateTime @default(now()) @map("created_at")
 
   conversation LogisticsConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
   sender       User                  @relation(fields: [senderId], references: [id], onDelete: Cascade)

@@ -28,14 +28,21 @@ import type { AcceptShipmentInput } from '@/types/fleet';
 import type { GeoRegion, GovernorateWithWilayats } from '@/types/geography';
 import type {
   AdminCustomsDashboard,
+  AdminLogisticsDashboard,
+  ChargeTotals,
+  ChecklistTemplate,
+  ContainerRecord,
   CustomsClearanceRequest,
   FreightForwardingRequest,
+  LogisticsCharge,
   LogisticsConversation,
   LogisticsDashboard,
   LogisticsMessage,
   LogisticsOrder,
   LogisticsQuote,
   StatusHistoryEntry,
+  VehicleImportPreviewRow,
+  VehicleShipmentRecord,
 } from '@/types/logistics';
 import type {
   CreateQuoteRequestInput,
@@ -1095,11 +1102,173 @@ export async function listLogisticsMessages(conversationId: string): Promise<Log
   return authRequest<LogisticsMessage[]>(`/logistics/conversations/${conversationId}/messages`);
 }
 
-export async function sendLogisticsMessage(conversationId: string, body: string): Promise<LogisticsMessage> {
+export async function sendLogisticsMessage(conversationId: string, body: string, file?: File): Promise<LogisticsMessage> {
+  if (file) {
+    const formData = new FormData();
+    formData.append('body', body);
+    formData.append('file', file);
+    return authMultipartRequest<LogisticsMessage>(`/logistics/conversations/${conversationId}/messages`, formData);
+  }
   return authRequest<LogisticsMessage>(`/logistics/conversations/${conversationId}/messages`, {
     method: 'POST',
     body: JSON.stringify({ body }),
   });
+}
+
+export async function downloadLogisticsMessageAttachment(messageId: string): Promise<Blob> {
+  const token = getAccessToken();
+  if (!token) throw createUnauthorizedError();
+  const response = await fetch(buildApiUrl(`/logistics/conversations/messages/${messageId}/attachment`), {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!response.ok) throw await parseApiError(response);
+  return response.blob();
+}
+
+export async function getAdminLogisticsDashboard(): Promise<AdminLogisticsDashboard> {
+  return authRequest<AdminLogisticsDashboard>('/admin/logistics/dashboard');
+}
+
+export async function listChecklistTemplates(): Promise<ChecklistTemplate[]> {
+  return authRequest<ChecklistTemplate[]>('/admin/logistics/checklist-templates');
+}
+
+export async function createChecklistTemplate(input: Record<string, unknown>): Promise<ChecklistTemplate> {
+  return authRequest<ChecklistTemplate>('/admin/logistics/checklist-templates', { method: 'POST', body: JSON.stringify(input) });
+}
+
+export async function updateChecklistTemplate(id: string, input: Record<string, unknown>): Promise<ChecklistTemplate> {
+  return authRequest<ChecklistTemplate>(`/admin/logistics/checklist-templates/${id}`, { method: 'PATCH', body: JSON.stringify(input) });
+}
+
+export async function setChecklistTemplateActive(id: string, isActive: boolean): Promise<ChecklistTemplate> {
+  return authRequest<ChecklistTemplate>(`/admin/logistics/checklist-templates/${id}/active`, {
+    method: 'PATCH',
+    body: JSON.stringify({ isActive }),
+  });
+}
+
+export async function replaceChecklistTemplateItems(id: string, items: Array<Record<string, unknown>>): Promise<ChecklistTemplate> {
+  return authRequest<ChecklistTemplate>(`/admin/logistics/checklist-templates/${id}/items`, {
+    method: 'PUT',
+    body: JSON.stringify({ items }),
+  });
+}
+
+export async function listLogisticsContainers(query: { logisticsOrderId?: string }): Promise<ContainerRecord[]> {
+  const params = new URLSearchParams();
+  if (query.logisticsOrderId) params.set('logisticsOrderId', query.logisticsOrderId);
+  return authRequest<ContainerRecord[]>(`/logistics/containers?${params}`);
+}
+
+export async function createLogisticsContainer(input: Record<string, unknown>): Promise<ContainerRecord> {
+  return authRequest<ContainerRecord>('/logistics/containers', { method: 'POST', body: JSON.stringify(input) });
+}
+
+export async function updateLogisticsContainer(id: string, input: Record<string, unknown>): Promise<ContainerRecord> {
+  return authRequest<ContainerRecord>(`/logistics/containers/${id}`, { method: 'PATCH', body: JSON.stringify(input) });
+}
+
+export async function archiveLogisticsContainer(id: string): Promise<ContainerRecord> {
+  return authRequest<ContainerRecord>(`/logistics/containers/${id}`, { method: 'DELETE' });
+}
+
+export async function listLogisticsVehicles(query: { logisticsOrderId?: string }): Promise<VehicleShipmentRecord[]> {
+  const params = new URLSearchParams();
+  if (query.logisticsOrderId) params.set('logisticsOrderId', query.logisticsOrderId);
+  return authRequest<VehicleShipmentRecord[]>(`/logistics/vehicles?${params}`);
+}
+
+export async function createLogisticsVehicle(input: Record<string, unknown>): Promise<VehicleShipmentRecord> {
+  return authRequest<VehicleShipmentRecord>('/logistics/vehicles', { method: 'POST', body: JSON.stringify(input) });
+}
+
+export async function updateLogisticsVehicle(id: string, input: Record<string, unknown>): Promise<VehicleShipmentRecord> {
+  return authRequest<VehicleShipmentRecord>(`/logistics/vehicles/${id}`, { method: 'PATCH', body: JSON.stringify(input) });
+}
+
+export async function deleteLogisticsVehicle(id: string): Promise<{ ok: boolean }> {
+  return authRequest(`/logistics/vehicles/${id}`, { method: 'DELETE' });
+}
+
+export async function previewVehicleImport(logisticsOrderId: string, file: File): Promise<VehicleImportPreviewRow[]> {
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('logisticsOrderId', logisticsOrderId);
+  return authMultipartRequest<VehicleImportPreviewRow[]>('/logistics/vehicles/import/file', formData);
+}
+
+export async function commitVehicleImport(logisticsOrderId: string, file: File): Promise<{ createdCount: number; failed: Array<{ row: number; errors: string[] }> }> {
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('logisticsOrderId', logisticsOrderId);
+  formData.append('commit', 'true');
+  return authMultipartRequest('/logistics/vehicles/import/file', formData);
+}
+
+export async function listLogisticsCharges(logisticsOrderId: string): Promise<LogisticsCharge[]> {
+  return authRequest<LogisticsCharge[]>(`/logistics/charges?logisticsOrderId=${logisticsOrderId}`);
+}
+
+export async function getLogisticsChargeTotals(logisticsOrderId: string): Promise<ChargeTotals> {
+  return authRequest<ChargeTotals>(`/logistics/charges/totals?logisticsOrderId=${logisticsOrderId}`);
+}
+
+export async function createLogisticsCharge(input: Record<string, unknown>): Promise<LogisticsCharge> {
+  return authRequest<LogisticsCharge>('/logistics/charges', { method: 'POST', body: JSON.stringify(input) });
+}
+
+export async function updateLogisticsCharge(id: string, input: Record<string, unknown>): Promise<LogisticsCharge> {
+  return authRequest<LogisticsCharge>(`/logistics/charges/${id}`, { method: 'PATCH', body: JSON.stringify(input) });
+}
+
+export async function deleteLogisticsCharge(id: string): Promise<{ ok: boolean }> {
+  return authRequest(`/logistics/charges/${id}`, { method: 'DELETE' });
+}
+
+async function downloadLogisticsPdf(path: string): Promise<Blob> {
+  const token = getAccessToken();
+  if (!token) throw createUnauthorizedError();
+  const response = await fetch(buildApiUrl(path), { headers: { Authorization: `Bearer ${token}` } });
+  if (!response.ok) throw await parseApiError(response);
+  return response.blob();
+}
+
+export function openLogisticsPdfBlob(blob: Blob, filename: string) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+export async function downloadLogisticsQuotePdf(quoteId: string): Promise<Blob> {
+  return downloadLogisticsPdf(`/logistics/reports/quotes/${quoteId}/pdf`);
+}
+
+export async function downloadLogisticsInvoicePdf(orderId: string): Promise<Blob> {
+  return downloadLogisticsPdf(`/logistics/reports/orders/${orderId}/invoice.pdf`);
+}
+
+export async function downloadLogisticsCostStatementPdf(orderId: string): Promise<Blob> {
+  return downloadLogisticsPdf(`/logistics/reports/orders/${orderId}/cost-statement.pdf`);
+}
+
+export async function downloadLogisticsSummaryPdf(orderId: string): Promise<Blob> {
+  return downloadLogisticsPdf(`/logistics/reports/orders/${orderId}/summary.pdf`);
+}
+
+export async function downloadLogisticsContainersPdf(orderId: string): Promise<Blob> {
+  return downloadLogisticsPdf(`/logistics/reports/orders/${orderId}/containers.pdf`);
+}
+
+export async function downloadLogisticsVehiclesPdf(orderId: string): Promise<Blob> {
+  return downloadLogisticsPdf(`/logistics/reports/orders/${orderId}/vehicles.pdf`);
+}
+
+export async function downloadLogisticsDeliveryPdf(orderId: string): Promise<Blob> {
+  return downloadLogisticsPdf(`/logistics/reports/orders/${orderId}/delivery.pdf`);
 }
 
 export { ApiClientError } from '@/lib/api-error';

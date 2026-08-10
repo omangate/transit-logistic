@@ -121,4 +121,65 @@ export class LogisticsOrdersService {
 
     return { counts: { orders, customs, freight, shipments, bookings, pendingQuotes: quotes }, recentOrders };
   }
+
+  async getAdminOpsDashboard(user: User) {
+    this.access.assertAdmin(user);
+
+    const [
+      pendingDocuments,
+      pendingQuotes,
+      customsInProgress,
+      releasedCargo,
+      transportPending,
+      completedOrders,
+      activeOrders,
+      overdueCustoms,
+      recentOrders,
+      customsStatusCounts,
+      freightStatusCounts,
+    ] = await Promise.all([
+      this.prisma.customsClearanceRequest.count({
+        where: { status: { in: ['documents_missing', 'documents_under_review'] } },
+      }),
+      this.prisma.logisticsQuote.count({ where: { status: { in: ['sent', 'countered', 'amended'] } } }),
+      this.prisma.customsClearanceRequest.count({ where: { status: 'clearance_in_progress' } }),
+      this.prisma.customsClearanceRequest.count({ where: { status: 'customs_released' } }),
+      this.prisma.shipment.count({ where: { status: { in: ['pending_assignment', 'assigned'] } } }),
+      this.prisma.logisticsOrder.count({ where: { status: 'completed' } }),
+      this.prisma.logisticsOrder.count({ where: { status: { notIn: ['completed', 'cancelled'] } } }),
+      this.prisma.customsClearanceRequest.count({
+        where: {
+          status: { notIn: ['completed', 'cancelled', 'customs_released'] },
+          updatedAt: { lt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) },
+        },
+      }),
+      this.prisma.logisticsOrder.findMany({
+        orderBy: { updatedAt: 'desc' },
+        take: 15,
+        include: {
+          customer: { select: { id: true, email: true, customerProfile: { select: { fullName: true } } } },
+          customsRequests: { select: { id: true, referenceNumber: true, status: true } },
+          freightRequests: { select: { id: true, referenceNumber: true, status: true } },
+        },
+      }),
+      this.prisma.customsClearanceRequest.groupBy({ by: ['status'], _count: { _all: true } }),
+      this.prisma.freightForwardingRequest.groupBy({ by: ['status'], _count: { _all: true } }),
+    ]);
+
+    return {
+      kpis: {
+        pendingDocuments,
+        pendingQuotes,
+        customsInProgress,
+        releasedCargo,
+        transportPending,
+        completedOrders,
+        activeOrders,
+        overdueCustoms,
+      },
+      recentOrders,
+      customsStatusCounts,
+      freightStatusCounts,
+    };
+  }
 }

@@ -5,13 +5,13 @@ import { useEffect, useState } from 'react';
 
 import { FormError } from '@/components/form-error';
 import { LogisticsConversationPanel } from '@/components/logistics/logistics-conversation-panel';
-import { LogisticsContainersPanel, LogisticsChargesPanel, LogisticsVehiclesPanel } from '@/components/logistics/logistics-order-panels';
+import { LogisticsOrderManagement } from '@/components/logistics/logistics-order-management';
 import { LogisticsStatusTimeline } from '@/components/logistics/logistics-status-timeline';
 import { LoadingState } from '@/components/portal/loading-state';
 import { PortalShell } from '@/components/portal/portal-shell';
 import { useRequireAuth } from '@/hooks/use-require-auth';
 import { Link } from '@/i18n/navigation';
-import { getLogisticsOrder, getLogisticsOrderTimeline } from '@/lib/api';
+import { getLogisticsOrder, getLogisticsOrderTimeline, respondLogisticsQuote } from '@/lib/api';
 import { getLocalizedApiMessage, isApiClientError } from '@/lib/api-error';
 import type { LogisticsOrder, StatusHistoryEntry } from '@/types/logistics';
 
@@ -23,33 +23,23 @@ export function LogisticsOrderDetailContent({ id }: { id: string }) {
   const [timeline, setTimeline] = useState<StatusHistoryEntry[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const isAdmin = user?.role === 'admin';
+
+  const reload = () => {
+    if (!user) return;
+    Promise.all([getLogisticsOrder(id), getLogisticsOrderTimeline(id)])
+      .then(([orderData, timelineData]) => {
+        setOrder(orderData);
+        setTimeline(timelineData);
+        setError(null);
+      })
+      .catch((err) => setError(isApiClientError(err) ? getLocalizedApiMessage(err, locale) : t('errors.generic')))
+      .finally(() => setIsLoading(false));
+  };
 
   useEffect(() => {
     if (!isReady || !user) return;
-
-    let cancelled = false;
-    setIsLoading(true);
-
-    Promise.all([getLogisticsOrder(id), getLogisticsOrderTimeline(id)])
-      .then(([orderData, timelineData]) => {
-        if (!cancelled) {
-          setOrder(orderData);
-          setTimeline(timelineData);
-          setError(null);
-        }
-      })
-      .catch((err) => {
-        if (!cancelled) {
-          setError(isApiClientError(err) ? getLocalizedApiMessage(err, locale) : t('errors.generic'));
-        }
-      })
-      .finally(() => {
-        if (!cancelled) setIsLoading(false);
-      });
-
-    return () => {
-      cancelled = true;
-    };
+    reload();
   }, [id, isReady, locale, t, user]);
 
   if (!isReady || !user) {
@@ -78,6 +68,24 @@ export function LogisticsOrderDetailContent({ id }: { id: string }) {
             <LogisticsStatusTimeline entries={timeline.length ? timeline : order.statusHistory ?? []} />
           </section>
 
+          {(order.quotes ?? []).length ? (
+            <section className="logistics-panel">
+              <h2>{t('quotes.latest')}</h2>
+              {(order.quotes ?? []).map((quote) => (
+                <div key={quote.id} className="logistics-table__row logistics-table__row--admin">
+                  <strong>{quote.referenceNumber}</strong>
+                  <span>{Number(quote.totalAmount).toFixed(3)} {quote.currency}</span>
+                  <span className="logistics-badge">{quote.status.replace(/_/g, ' ')}</span>
+                  {quote.status === 'sent' && user.role === 'customer' ? (
+                    <button type="button" className="rental-btn rental-btn--primary" onClick={() => void respondLogisticsQuote(quote.id, 'accept').then(reload)}>
+                      {t('quotes.accept')}
+                    </button>
+                  ) : null}
+                </div>
+              ))}
+            </section>
+          ) : null}
+
           <section className="logistics-panel">
             <h2>{t('order.services')}</h2>
             <h3>{t('order.customsLink')}</h3>
@@ -100,9 +108,13 @@ export function LogisticsOrderDetailContent({ id }: { id: string }) {
             </div>
           </section>
 
-          <LogisticsContainersPanel items={order.containers ?? []} />
-          <LogisticsVehiclesPanel items={order.vehicleShipments ?? []} />
-          <LogisticsChargesPanel items={order.charges ?? []} />
+          <LogisticsOrderManagement
+            orderId={id}
+            isAdmin={isAdmin}
+            initialContainers={order.containers}
+            initialVehicles={order.vehicleShipments}
+            initialCharges={order.charges}
+          />
           <LogisticsConversationPanel context={{ logisticsOrderId: id }} />
         </div>
       ) : null}

@@ -1,10 +1,11 @@
 'use client';
 
 import { useLocale, useTranslations } from 'next-intl';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { FormError } from '@/components/form-error';
 import {
+  downloadLogisticsMessageAttachment,
   listLogisticsMessages,
   openLogisticsConversation,
   sendLogisticsMessage,
@@ -29,8 +30,11 @@ export function LogisticsConversationPanel({ context }: Props) {
   const [conversation, setConversation] = useState<LogisticsConversation | null>(null);
   const [messages, setMessages] = useState<LogisticsMessage[]>([]);
   const [draft, setDraft] = useState('');
+  const [attachment, setAttachment] = useState<File | null>(null);
+  const [uploadProgress, setUploadProgress] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const reloadMessages = useCallback(async (conversationId: string) => {
     const items = await listLogisticsMessages(conversationId);
@@ -61,18 +65,38 @@ export function LogisticsConversationPanel({ context }: Props) {
 
   async function handleSend(e: React.FormEvent) {
     e.preventDefault();
-    if (!conversation || !draft.trim()) return;
+    if (!conversation || (!draft.trim() && !attachment)) return;
     setSending(true);
     setError(null);
+    setUploadProgress(attachment ? 30 : null);
     try {
-      await sendLogisticsMessage(conversation.id, draft.trim());
+      await sendLogisticsMessage(conversation.id, draft.trim(), attachment ?? undefined);
       setDraft('');
+      setAttachment(null);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+      setUploadProgress(100);
       await reloadMessages(conversation.id);
     } catch (err) {
       setError(isApiClientError(err) ? getLocalizedApiMessage(err, locale) : t('errors.generic'));
     } finally {
       setSending(false);
+      setUploadProgress(null);
     }
+  }
+
+  async function handleDownload(message: LogisticsMessage) {
+    if (!message.attachmentKey) return;
+    const blob = await downloadLogisticsMessageAttachment(message.id);
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = message.attachmentOriginalName ?? 'attachment';
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  function isImage(mime?: string | null) {
+    return mime?.startsWith('image/');
   }
 
   return (
@@ -87,7 +111,19 @@ export function LogisticsConversationPanel({ context }: Props) {
         {messages.map((message) => (
           <article key={message.id} className={`logistics-chat__message${message.readAt ? '' : ' logistics-chat__message--unread'}`}>
             <time>{new Date(message.createdAt).toLocaleString(locale)}</time>
-            <p>{message.body}</p>
+            {message.body && message.body !== '(attachment)' ? <p>{message.body}</p> : null}
+            {message.attachmentKey ? (
+              <div className="logistics-chat__attachment">
+                {isImage(message.attachmentMimeType) ? (
+                  <span>{t('messages.imageAttachment')}: {message.attachmentOriginalName}</span>
+                ) : (
+                  <span>{t('messages.pdfAttachment')}: {message.attachmentOriginalName}</span>
+                )}
+                <button type="button" className="rental-btn rental-btn--ghost" onClick={() => void handleDownload(message)}>
+                  {t('messages.downloadAttachment')}
+                </button>
+              </div>
+            ) : null}
           </article>
         ))}
       </div>
@@ -98,7 +134,15 @@ export function LogisticsConversationPanel({ context }: Props) {
           placeholder={t('messages.placeholder')}
           rows={3}
         />
-        <button type="submit" className="rental-btn rental-btn--primary" disabled={sending || !draft.trim()}>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png"
+          onChange={(e) => setAttachment(e.target.files?.[0] ?? null)}
+        />
+        {attachment ? <p className="logistics-chat__hint">{t('messages.selectedFile', { name: attachment.name })}</p> : null}
+        {uploadProgress !== null ? <progress value={uploadProgress} max={100} /> : null}
+        <button type="submit" className="rental-btn rental-btn--primary" disabled={sending || (!draft.trim() && !attachment)}>
           {t('messages.send')}
         </button>
       </form>

@@ -2,15 +2,19 @@ import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/commo
 import type { User } from '@/types/user';
 import { UserRole } from '@transit-logistic/shared';
 
+import { StorageService } from '../../common/storage/storage.service';
 import { PrismaService } from '../../database/prisma.service';
 
 import { LogisticsAccessService } from './logistics-access.service';
+
+type UploadFile = { buffer: Buffer; mimetype: string; size: number; originalname?: string };
 
 @Injectable()
 export class LogisticsConversationsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly access: LogisticsAccessService,
+    private readonly storage: StorageService,
   ) {}
 
   async getOrCreate(
@@ -59,18 +63,55 @@ export class LogisticsConversationsService {
 
   async listMessages(user: User, conversationId: string) {
     await this.assertAccess(user, conversationId);
-    return this.prisma.logisticsMessage.findMany({
+    const messages = await this.prisma.logisticsMessage.findMany({
       where: { conversationId },
       orderBy: { createdAt: 'asc' },
       take: 100,
+      include: { sender: { select: { id: true, email: true, role: true } } },
     });
+
+    if (user.role === UserRole.CUSTOMER) {
+      await this.prisma.logisticsMessage.updateMany({
+        where: { conversationId, readAt: null, senderId: { not: user.id } },
+        data: { readAt: new Date() },
+      });
+    }
+
+    return messages;
   }
 
-  async sendMessage(user: User, conversationId: string, body: string) {
+  async sendMessage(user: User, conversationId: string, body: string, file?: UploadFile) {
     await this.assertAccess(user, conversationId);
 
+    let attachmentKey: string | undefined;
+    let attachmentOriginalName: string | undefined;
+    let attachmentMimeType: string | undefined;
+
+    if (file) {
+      const detected = this.storage.validateAndDetect(
+        { buffer: file.buffer, mimetype: file.mimetype, size: file.size, originalName: file.originalname },
+        { maxBytes: 8 * 1024 * 1024, allowedKinds: ['application/pdf', 'image/jpeg', 'image/png'] },
+      );
+      const stored = await this.storage.store(
+        `logistics/conversations/${conversationId}/attachments`,
+        { buffer: file.buffer, mimetype: detected, size: file.size, originalName: file.originalname },
+        { visibility: 'private', allowedKinds: ['application/pdf', 'image/jpeg', 'image/png'] },
+      );
+      attachmentKey = stored.key;
+      attachmentOriginalName = file.originalname;
+      attachmentMimeType = stored.mimeType;
+    }
+
     const message = await this.prisma.logisticsMessage.create({
-      data: { conversationId, senderId: user.id, body },
+      data: {
+        conversationId,
+        senderId: user.id,
+        body: body || (file ? '(attachment)' : ''),
+        attachmentKey,
+        attachmentOriginalName,
+        attachmentMimeType,
+      },
+      include: { sender: { select: { id: true, email: true, role: true } } },
     });
 
     await this.prisma.logisticsConversation.update({
@@ -79,6 +120,21 @@ export class LogisticsConversationsService {
     });
 
     return message;
+  }
+
+  async downloadAttachment(user: User, messageId: string) {
+    const message = await this.prisma.logisticsMessage.findUnique({ where: { id: messageId } });
+    if (!message?.attachmentKey) {
+      throw new NotFoundException({ code: 'NOT_FOUND', message_en: 'Attachment not found.', message_ar: 'المرفق غير موجود.' });
+    }
+
+    await this.assertAccess(user, message.conversationId);
+    const file = await this.storage.read(message.attachmentKey);
+    return {
+      buffer: file.buffer,
+      mimeType: message.attachmentMimeType ?? file.mimeType,
+      filename: message.attachmentOriginalName ?? 'attachment',
+    };
   }
 
   private async assertAccess(user: User, conversationId: string) {

@@ -44,3 +44,15 @@ export class LogisticsOrdersController {
     return this.orders.create(user, body);
   }
 }
+
+@Controller('admin/logistics')
+@UseGuards(JwtAuthGuard, RolesGuard)
+@Roles(UserRole.ADMIN)
+export class AdminLogisticsOpsController {
+  constructor(private readonly orders: LogisticsOrdersService) {}
+
+  @Get('dashboard')
+  opsDashboard(@CurrentUser() user: User) {
+    return this.orders.getAdminOpsDashboard(user);
+  }
+}

@@ -89,6 +89,17 @@ export function LogisticsDashboardContent() {
             <Link href="/freight/shipments" className="logistics-service-card">{t('services.freight')}</Link>
             <Link href="/shipments" className="logistics-service-card">{t('services.shipments')}</Link>
             <Link href="/marketplace" className="logistics-service-card">{t('services.trucks')}</Link>
+            <Link href="/notifications" className="logistics-service-card">{t('portal.notifications')}</Link>
+          </section>
+
+          <section className="logistics-panel" style={{ marginTop: '1.5rem' }}>
+            <h2>{t('portal.quickLinks')}</h2>
+            <div className="logistics-hero__actions">
+              <Link href="/customs/new" className="rental-btn rental-btn--ghost">{t('customs.newRequest')}</Link>
+              <Link href="/freight/request" className="rental-btn rental-btn--ghost">{t('freight.newRequest')}</Link>
+              <Link href="/marketplace/quotes" className="rental-btn rental-btn--ghost">{t('portal.quotes')}</Link>
+              <Link href="/payments" className="rental-btn rental-btn--ghost">{t('portal.payments')}</Link>
+            </div>
           </section>
 
           {data.recentOrders.length ? (

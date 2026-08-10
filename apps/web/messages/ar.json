@@ -1040,16 +1040,100 @@
       "placeholder": "اكتب رسالة…",
       "send": "إرسال",
       "unread": "{count} غير مقروء",
-      "attachmentsHint": "ارفع المستندات من قسم المستندات واذكرها في رسالتك."
+      "attachmentsHint": "أرفق ملفات PDF أو JPG أو PNG (حد أقصى 8 ميجابايت).",
+      "selectedFile": "المحدد: {name}",
+      "downloadAttachment": "تنزيل",
+      "imageAttachment": "صورة",
+      "pdfAttachment": "مستند"
     },
-    "containers": { "title": "الحاويات" },
+    "portal": {
+      "notifications": "الإشعارات",
+      "quickLinks": "روابط سريعة",
+      "quotes": "عروض الأسعار",
+      "payments": "المدفوعات"
+    },
+    "reports": {
+      "title": "التقارير وملفات PDF",
+      "summary": "ملخص الشحنة",
+      "invoice": "فاتورة",
+      "costStatement": "كشف التكاليف"
+    },
+    "containers": {
+      "title": "الحاويات",
+      "number": "رقم الحاوية",
+      "size": "الحجم",
+      "type": "النوع",
+      "seal": "رقم الختم",
+      "add": "إضافة حاوية",
+      "archive": "أرشفة",
+      "empty": "لا توجد حاويات مسجلة بعد."
+    },
     "vehicles": {
       "title": "شحنات المركبات",
-      "importHint": "استيراد CSV/Excel للدفعات متاح في تحديث لاحق."
+      "vin": "رقم VIN",
+      "chassis": "رقم الشاسيه",
+      "make": "الصنع",
+      "model": "الموديل",
+      "year": "السنة",
+      "add": "إضافة مركبة",
+      "remove": "حذف",
+      "empty": "لا توجد مركبات مسجلة بعد.",
+      "importFile": "استيراد CSV أو Excel",
+      "importPreview": "{valid} من {total} صفوف صالحة",
+      "importCommit": "استيراد الصفوف الصالحة",
+      "importErrors": "فشل التحقق من {count} صفوف",
+      "valid": "صالح",
+      "importHint": "يدعم الاستيراد CSV وXLSX مع التحقق من VIN/الشاسيه."
     },
     "charges": {
       "title": "الرسوم والتكاليف",
-      "exportCsv": "تصدير CSV"
+      "exportCsv": "تصدير CSV",
+      "description": "الوصف",
+      "amount": "المبلغ (ر.ع.)",
+      "quantity": "الكمية",
+      "tax": "ضريبة/ض.ق.م",
+      "add": "إضافة رسوم",
+      "empty": "لا توجد رسوم مسجلة بعد.",
+      "total": "الإجمالي",
+      "paid": "مدفوع",
+      "unpaid": "غير مدفوع",
+      "markPaid": "تعليم كمدفوع",
+      "markUnpaid": "تعليم كغير مدفوع",
+      "customerVisible": "مرئي للعميل",
+      "categories": {
+        "freight": "شحن",
+        "customs_clearance": "تخليص جمركي",
+        "customs_duty": "رسوم جمركية",
+        "port_charges": "رسوم ميناء",
+        "terminal_handling": "مناولة محطة",
+        "storage": "تخزين",
+        "demurrage": "غرامة تأخير",
+        "detention": "احتجاز",
+        "transportation": "نقل",
+        "inspection": "فحص",
+        "documentation": "مستندات",
+        "insurance": "تأمين",
+        "other": "أخرى"
+      }
+    },
+    "checklistTemplates": {
+      "title": "قوالب قوائم المستندات",
+      "manage": "إدارة القوالب",
+      "create": "إنشاء قالب",
+      "nameEn": "الاسم بالإنجليزية",
+      "nameAr": "الاسم بالعربية",
+      "serviceType": "نوع الخدمة",
+      "cargoType": "نوع البضاعة",
+      "anyTransaction": "أي نوع معاملة",
+      "save": "حفظ القالب",
+      "active": "نشط",
+      "inactive": "غير نشط",
+      "activate": "تفعيل",
+      "deactivate": "إلغاء التفعيل",
+      "editItems": "تعديل المستندات",
+      "required": "مطلوب",
+      "optional": "اختياري",
+      "saveItems": "حفظ المستندات"
     },
     "customs": {
       "title": "التخليص الجمركي",
@@ -1184,7 +1268,23 @@
     "admin": {
       "title": "لوحة العمليات اللوجستية",
       "awaitingDocs": "{count} طلبات بانتظار المستندات",
-      "startClearance": "بدء التخليص"
+      "startClearance": "بدء التخليص",
+      "search": "بحث في الطلبات…",
+      "filterAll": "كل الحالات",
+      "filterDraft": "مسودة",
+      "filterInProgress": "قيد التنفيذ",
+      "filterCompleted": "مكتمل",
+      "recentCustoms": "طلبات التخليص الأخيرة",
+      "kpis": {
+        "pendingDocuments": "مستندات معلقة",
+        "pendingQuotes": "عروض معلقة",
+        "customsInProgress": "تخليص جاري",
+        "releasedCargo": "بضاعة مفرج عنها",
+        "transportPending": "نقل معلق",
+        "completedOrders": "طلبات مكتملة",
+        "activeOrders": "طلبات نشطة",
+        "overdueCustoms": "تخليص متأخر"
+      }
     }
   },
   "ai": {

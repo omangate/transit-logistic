@@ -133,11 +133,26 @@ export class LogisticsConversationsController {
 
   @Post(':id/messages')
   @Roles(UserRole.CUSTOMER, UserRole.ADMIN)
+  @UseInterceptors(FileInterceptor('file'))
   send(
     @CurrentUser() user: User,
     @Param('id', ParseUUIDPipe) id: string,
-    @Body() body: { body: string },
+    @Body('body') body: string,
+    @UploadedFile() file?: MulterFile,
   ) {
-    return this.conversations.sendMessage(user, id, body.body);
+    return this.conversations.sendMessage(user, id, body ?? '', file);
+  }
+
+  @Get('messages/:messageId/attachment')
+  @Roles(UserRole.CUSTOMER, UserRole.ADMIN)
+  async downloadAttachment(
+    @CurrentUser() user: User,
+    @Param('messageId', ParseUUIDPipe) messageId: string,
+    @Res() res: Response,
+  ) {
+    const file = await this.conversations.downloadAttachment(user, messageId);
+    res.setHeader('Content-Type', file.mimeType);
+    res.setHeader('Content-Disposition', `inline; filename="${file.filename}"`);
+    res.send(file.buffer);
   }
 }

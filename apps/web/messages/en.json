@@ -1043,16 +1043,100 @@
       "placeholder": "Write a message…",
       "send": "Send",
       "unread": "{count} unread",
-      "attachmentsHint": "Upload supporting documents from the Documents section; reference them in your message."
+      "attachmentsHint": "Attach PDF, JPG, or PNG files (max 8 MB).",
+      "selectedFile": "Selected: {name}",
+      "downloadAttachment": "Download",
+      "imageAttachment": "Image",
+      "pdfAttachment": "Document"
     },
-    "containers": { "title": "Containers" },
+    "portal": {
+      "notifications": "Notifications",
+      "quickLinks": "Quick links",
+      "quotes": "Quotes",
+      "payments": "Payments"
+    },
+    "reports": {
+      "title": "Reports & PDFs",
+      "summary": "Shipment summary",
+      "invoice": "Invoice",
+      "costStatement": "Cost statement"
+    },
+    "containers": {
+      "title": "Containers",
+      "number": "Container number",
+      "size": "Size",
+      "type": "Type",
+      "seal": "Seal number",
+      "add": "Add container",
+      "archive": "Archive",
+      "empty": "No containers recorded yet."
+    },
     "vehicles": {
       "title": "Vehicle shipments",
-      "importHint": "Bulk CSV/Excel import for vehicle batches will be available in a future update."
+      "vin": "VIN",
+      "chassis": "Chassis number",
+      "make": "Make",
+      "model": "Model",
+      "year": "Year",
+      "add": "Add vehicle",
+      "remove": "Remove",
+      "empty": "No vehicles recorded yet.",
+      "importFile": "Import CSV or Excel",
+      "importPreview": "{valid} of {total} rows valid",
+      "importCommit": "Import valid rows",
+      "importErrors": "{count} rows failed validation",
+      "valid": "Valid",
+      "importHint": "Bulk import supports CSV and XLSX with VIN/chassis validation."
     },
     "charges": {
       "title": "Charges & fees",
-      "exportCsv": "Export CSV"
+      "exportCsv": "Export CSV",
+      "description": "Description",
+      "amount": "Amount (OMR)",
+      "quantity": "Quantity",
+      "tax": "VAT/tax",
+      "add": "Add charge",
+      "empty": "No charges recorded yet.",
+      "total": "Total",
+      "paid": "Paid",
+      "unpaid": "Unpaid",
+      "markPaid": "Mark paid",
+      "markUnpaid": "Mark unpaid",
+      "customerVisible": "Visible to customer",
+      "categories": {
+        "freight": "Freight",
+        "customs_clearance": "Customs clearance",
+        "customs_duty": "Customs duty",
+        "port_charges": "Port charges",
+        "terminal_handling": "Terminal handling",
+        "storage": "Storage",
+        "demurrage": "Demurrage",
+        "detention": "Detention",
+        "transportation": "Transportation",
+        "inspection": "Inspection",
+        "documentation": "Documentation",
+        "insurance": "Insurance",
+        "other": "Other"
+      }
+    },
+    "checklistTemplates": {
+      "title": "Checklist templates",
+      "manage": "Manage templates",
+      "create": "Create template",
+      "nameEn": "English name",
+      "nameAr": "Arabic name",
+      "serviceType": "Service type",
+      "cargoType": "Cargo type",
+      "anyTransaction": "Any transaction type",
+      "save": "Save template",
+      "active": "Active",
+      "inactive": "Inactive",
+      "activate": "Activate",
+      "deactivate": "Deactivate",
+      "editItems": "Edit documents",
+      "required": "Required",
+      "optional": "Optional",
+      "saveItems": "Save documents"
     },
     "customs": {
       "title": "Customs clearance",
@@ -1187,7 +1271,23 @@
     "admin": {
       "title": "Logistics operations",
       "awaitingDocs": "{count} requests awaiting documents",
-      "startClearance": "Start clearance"
+      "startClearance": "Start clearance",
+      "search": "Search orders…",
+      "filterAll": "All statuses",
+      "filterDraft": "Draft",
+      "filterInProgress": "In progress",
+      "filterCompleted": "Completed",
+      "recentCustoms": "Recent customs requests",
+      "kpis": {
+        "pendingDocuments": "Pending documents",
+        "pendingQuotes": "Pending quotes",
+        "customsInProgress": "Customs in progress",
+        "releasedCargo": "Released cargo",
+        "transportPending": "Transport pending",
+        "completedOrders": "Completed orders",
+        "activeOrders": "Active orders",
+        "overdueCustoms": "Overdue customs"
+      }
     }
   },
   "ai": {

@@ -130,7 +130,12 @@ export type LogisticsCharge = {
   description: string;
   amount: string;
   currency: string;
+  quantity?: number;
+  tax?: string;
+  source?: string | null;
   paymentStatus: string;
+  isCustomerVisible?: boolean;
+  isInternal?: boolean;
 };
 
 export type ContainerRecord = {
@@ -141,6 +146,13 @@ export type ContainerRecord = {
   size?: string | null;
   containerType?: string | null;
   sealNumber?: string | null;
+  billOfLadingNumber?: string | null;
+  shippingLine?: string | null;
+  weightKg?: string | null;
+  pickupDate?: string | null;
+  returnDate?: string | null;
+  emptyReturnLocation?: string | null;
+  logisticsOrderId?: string | null;
 };
 
 export type VehicleShipmentRecord = {
@@ -172,6 +184,7 @@ export type LogisticsDashboard = {
 export type AdminCustomsDashboard = {
   recent: Array<{ id: string; referenceNumber: string; status: string }>;
   awaitingDocs: number;
+  statusCounts?: Array<{ status: string; _count: { _all: number } }>;
 };
 
 export type LogisticsConversation = {
@@ -190,6 +203,59 @@ export type LogisticsMessage = {
   senderId: string;
   body: string;
   attachmentKey?: string | null;
+  attachmentOriginalName?: string | null;
+  attachmentMimeType?: string | null;
   readAt?: string | null;
   createdAt: string;
+  sender?: { id: string; email: string; role?: string };
+};
+
+export type ChecklistTemplate = {
+  id: string;
+  nameEn: string;
+  nameAr: string;
+  transactionType?: string | null;
+  transportMode?: string | null;
+  serviceType?: string | null;
+  cargoType?: string | null;
+  isActive: boolean;
+  items?: Array<{ id: string; documentCategory: string; required: boolean; sortOrder: number }>;
+};
+
+export type AdminLogisticsDashboard = {
+  kpis: {
+    pendingDocuments: number;
+    pendingQuotes: number;
+    customsInProgress: number;
+    releasedCargo: number;
+    transportPending: number;
+    completedOrders: number;
+    activeOrders: number;
+    overdueCustoms: number;
+  };
+  recentOrders: Array<{
+    id: string;
+    referenceNumber: string;
+    status: string;
+    title?: string | null;
+    customer?: { email: string; customerProfile?: { fullName?: string } };
+    customsRequests?: Array<{ id: string; referenceNumber: string; status: string }>;
+    freightRequests?: Array<{ id: string; referenceNumber: string; status: string }>;
+  }>;
+};
+
+export type ChargeTotals = {
+  subtotal: number;
+  tax: number;
+  total: number;
+  paid: number;
+  unpaid: number;
+  currency: string;
+};
+
+export type VehicleImportPreviewRow = {
+  row: number;
+  data: Record<string, string>;
+  errors: string[];
+  valid: boolean;
 };

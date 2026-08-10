@@ -2,12 +2,22 @@ import { Module } from '@nestjs/common';
 
 import { NotificationsModule } from '../notifications/notifications.module';
 
+import { ChecklistTemplatesService } from './checklist-templates.service';
 import { AdminCustomsController, CustomsClearanceController } from './customs-clearance.controller';
 import { CustomsClearanceService } from './customs-clearance.service';
 import { AdminFreightController, FreightForwardingController } from './freight-forwarding.controller';
 import { FreightForwardingService } from './freight-forwarding.service';
+import {
+  AdminChecklistTemplatesController,
+  LogisticsChargesController,
+  LogisticsContainersController,
+  LogisticsReportsController,
+  LogisticsVehiclesController,
+} from './logistics-admin.controller';
 import { LogisticsAccessService } from './logistics-access.service';
 import { LogisticsAuditService } from './logistics-audit.service';
+import { LogisticsChargesService } from './logistics-charges.service';
+import { LogisticsContainersService } from './logistics-containers.service';
 import {
   AdminLogisticsDocumentsController,
   LogisticsConversationsController,
@@ -16,14 +26,17 @@ import {
 } from './logistics-support.controller';
 import { LogisticsConversationsService } from './logistics-conversations.service';
 import { LogisticsDocumentsService } from './logistics-documents.service';
-import { LogisticsOrdersController } from './logistics-orders.controller';
+import { LogisticsOrdersController, AdminLogisticsOpsController } from './logistics-orders.controller';
 import { LogisticsOrdersService } from './logistics-orders.service';
+import { LogisticsPdfService } from './logistics-pdf.service';
 import { LogisticsQuotesService } from './logistics-quotes.service';
+import { LogisticsVehiclesService } from './logistics-vehicles.service';
 
 @Module({
   imports: [NotificationsModule],
   controllers: [
     LogisticsOrdersController,
+    AdminLogisticsOpsController,
     CustomsClearanceController,
     AdminCustomsController,
     FreightForwardingController,
@@ -32,6 +45,11 @@ import { LogisticsQuotesService } from './logistics-quotes.service';
     AdminLogisticsDocumentsController,
     LogisticsQuotesController,
     LogisticsConversationsController,
+    AdminChecklistTemplatesController,
+    LogisticsContainersController,
+    LogisticsVehiclesController,
+    LogisticsChargesController,
+    LogisticsReportsController,
   ],
   providers: [
     LogisticsAccessService,
@@ -42,6 +60,11 @@ import { LogisticsQuotesService } from './logistics-quotes.service';
     LogisticsDocumentsService,
     LogisticsQuotesService,
     LogisticsConversationsService,
+    ChecklistTemplatesService,
+    LogisticsContainersService,
+    LogisticsVehiclesService,
+    LogisticsChargesService,
+    LogisticsPdfService,
   ],
   exports: [
     LogisticsOrdersService,
@@ -49,6 +72,9 @@ import { LogisticsQuotesService } from './logistics-quotes.service';
     FreightForwardingService,
     LogisticsDocumentsService,
     LogisticsQuotesService,
+    LogisticsContainersService,
+    LogisticsVehiclesService,
+    LogisticsChargesService,
   ],
 })
 export class LogisticsModule {}

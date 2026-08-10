@@ -182,6 +182,17 @@ if (customer) {
 if (admin) {
   const customsOps = await req('GET', '/admin/customs/dashboard', null, admin);
   record('Admin customs dashboard', customsOps.code === 200);
+
+  const logisticsOps = await req('GET', '/admin/logistics/dashboard', null, admin);
+  record('Admin logistics ops dashboard', logisticsOps.code === 200);
+
+  const templates = await req('GET', '/admin/logistics/checklist-templates', null, admin);
+  record('Admin checklist templates', templates.code === 200);
+}
+
+if (customer) {
+  const containers = await req('GET', '/logistics/containers?logisticsOrderId=00000000-0000-0000-0000-000000000000', null, customer);
+  record('Logistics containers RBAC', containers.code === 403 || containers.code === 404, `HTTP ${containers.code}`);
 }
 
 
@@ -215,6 +226,8 @@ await webPage('/ar/customs');
 await webPage('/en/freight');
 await webPage('/en/logistics');
 await webPage('/en/admin/logistics');
+await webPage('/en/admin/logistics/checklist-templates');
+await webPage('/ar/admin/logistics');
 await webPage('/health/live');
 
 const passed = results.filter((r) => r.ok).length;
