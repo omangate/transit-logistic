@@ -88,6 +88,7 @@ export type LogisticsOrder = {
   quotes?: LogisticsQuote[];
   charges?: LogisticsCharge[];
   containers?: ContainerRecord[];
+  vehicleShipments?: VehicleShipmentRecord[];
 };
 
 export type LogisticsDocument = {
@@ -137,6 +138,23 @@ export type ContainerRecord = {
   containerNumber: string;
   currentStatus: string;
   currentLocation?: string | null;
+  size?: string | null;
+  containerType?: string | null;
+  sealNumber?: string | null;
+};
+
+export type VehicleShipmentRecord = {
+  id: string;
+  vin?: string | null;
+  chassisNumber?: string | null;
+  make?: string | null;
+  model?: string | null;
+  year?: number | null;
+  color?: string | null;
+  weightKg?: string | null;
+  containerNumber?: string | null;
+  billOfLadingNumber?: string | null;
+  customsStatus?: string | null;
 };
 
 export type LogisticsDashboard = {
@@ -154,4 +172,24 @@ export type LogisticsDashboard = {
 export type AdminCustomsDashboard = {
   recent: Array<{ id: string; referenceNumber: string; status: string }>;
   awaitingDocs: number;
+};
+
+export type LogisticsConversation = {
+  id: string;
+  customerId: string;
+  logisticsOrderId?: string | null;
+  customsRequestId?: string | null;
+  freightRequestId?: string | null;
+  quoteId?: string | null;
+  lastMessageAt?: string | null;
+};
+
+export type LogisticsMessage = {
+  id: string;
+  conversationId: string;
+  senderId: string;
+  body: string;
+  attachmentKey?: string | null;
+  readAt?: string | null;
+  createdAt: string;
 };

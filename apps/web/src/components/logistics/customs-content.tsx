@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 
 import { FormError } from '@/components/form-error';
 import { DocumentChecklistPanel } from '@/components/logistics/document-checklist-panel';
+import { LogisticsConversationPanel } from '@/components/logistics/logistics-conversation-panel';
 import { LogisticsStatusTimeline } from '@/components/logistics/logistics-status-timeline';
 import { LoadingState } from '@/components/portal/loading-state';
 import { PortalShell } from '@/components/portal/portal-shell';
@@ -166,6 +167,8 @@ export function CustomsRequestDetailContent({ id }: { id: string }) {
               ) : null}
             </section>
           ) : null}
+
+          <LogisticsConversationPanel context={{ customsRequestId: id, logisticsOrderId: request.logisticsOrderId ?? undefined }} />
         </div>
       ) : null}
     </PortalShell>

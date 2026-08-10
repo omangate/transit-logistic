@@ -215,6 +215,7 @@ await webPage('/ar/customs');
 await webPage('/en/freight');
 await webPage('/en/logistics');
 await webPage('/en/admin/logistics');
+await webPage('/health/live');
 
 const passed = results.filter((r) => r.ok).length;
 const failed = results.filter((r) => !r.ok).length;

@@ -1032,7 +1032,27 @@
       "timeline": "Master timeline",
       "services": "Linked services",
       "customsLink": "Customs requests",
-      "freightLink": "Freight requests"
+      "freightLink": "Freight requests",
+      "addFreight": "Add freight",
+      "addCustoms": "Add customs",
+      "addTruck": "Book truck"
+    },
+    "messages": {
+      "title": "Messages",
+      "empty": "No messages yet. Ask our team anything about this transaction.",
+      "placeholder": "Write a message…",
+      "send": "Send",
+      "unread": "{count} unread",
+      "attachmentsHint": "Upload supporting documents from the Documents section; reference them in your message."
+    },
+    "containers": { "title": "Containers" },
+    "vehicles": {
+      "title": "Vehicle shipments",
+      "importHint": "Bulk CSV/Excel import for vehicle batches will be available in a future update."
+    },
+    "charges": {
+      "title": "Charges & fees",
+      "exportCsv": "Export CSV"
     },
     "customs": {
       "title": "Customs clearance",
@@ -1098,11 +1118,43 @@
       "modes": { "sea": "Sea", "air": "Air", "road": "Road", "multimodal": "Multimodal" },
       "fields": {
         "mode": "Transport mode",
+        "serviceType": "Service type",
+        "routeType": "Route type",
         "origin": "Origin",
         "destination": "Destination",
         "cargo": "Cargo",
+        "commodity": "Commodity",
         "weight": "Weight (kg)",
-        "customsRequired": "Customs clearance required"
+        "cbm": "Volume (CBM)",
+        "containerType": "Container type",
+        "containerQty": "Container quantity",
+        "departureDate": "Preferred departure date",
+        "pickupRequired": "Pickup required",
+        "deliveryRequired": "Delivery required",
+        "customsRequired": "Customs clearance required",
+        "insuranceRequired": "Insurance required",
+        "specialInstructions": "Special instructions"
+      },
+      "steps": {
+        "mode": "Mode",
+        "route": "Route",
+        "cargo": "Cargo",
+        "services": "Services",
+        "review": "Review"
+      },
+      "seaServices": {
+        "fcl": "FCL",
+        "lcl": "LCL",
+        "roro": "RoRo",
+        "breakbulk": "Breakbulk",
+        "project_cargo": "Project cargo",
+        "reefer": "Reefer"
+      },
+      "routeTypes": {
+        "door_to_door": "Door to door",
+        "door_to_port": "Door to port",
+        "port_to_door": "Port to door",
+        "port_to_port": "Port to port"
       },
       "status": {
         "draft": "Draft",

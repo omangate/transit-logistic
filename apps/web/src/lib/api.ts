@@ -30,7 +30,9 @@ import type {
   AdminCustomsDashboard,
   CustomsClearanceRequest,
   FreightForwardingRequest,
+  LogisticsConversation,
   LogisticsDashboard,
+  LogisticsMessage,
   LogisticsOrder,
   LogisticsQuote,
   StatusHistoryEntry,
@@ -1074,6 +1076,29 @@ export async function updateAdminCustomsStatus(id: string, status: string, note?
   return authRequest(`/admin/customs/requests/${id}/status`, {
     method: 'PATCH',
     body: JSON.stringify({ status, note }),
+  });
+}
+
+export async function openLogisticsConversation(input: {
+  logisticsOrderId?: string;
+  customsRequestId?: string;
+  freightRequestId?: string;
+  quoteId?: string;
+}): Promise<LogisticsConversation> {
+  return authRequest<LogisticsConversation>('/logistics/conversations/open', {
+    method: 'POST',
+    body: JSON.stringify(input),
+  });
+}
+
+export async function listLogisticsMessages(conversationId: string): Promise<LogisticsMessage[]> {
+  return authRequest<LogisticsMessage[]>(`/logistics/conversations/${conversationId}/messages`);
+}
+
+export async function sendLogisticsMessage(conversationId: string, body: string): Promise<LogisticsMessage> {
+  return authRequest<LogisticsMessage>(`/logistics/conversations/${conversationId}/messages`, {
+    method: 'POST',
+    body: JSON.stringify({ body }),
   });
 }
 

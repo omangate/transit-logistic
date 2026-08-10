@@ -4,6 +4,8 @@ import { useLocale, useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
 
 import { FormError } from '@/components/form-error';
+import { LogisticsConversationPanel } from '@/components/logistics/logistics-conversation-panel';
+import { LogisticsContainersPanel, LogisticsChargesPanel, LogisticsVehiclesPanel } from '@/components/logistics/logistics-order-panels';
 import { LogisticsStatusTimeline } from '@/components/logistics/logistics-status-timeline';
 import { LoadingState } from '@/components/portal/loading-state';
 import { PortalShell } from '@/components/portal/portal-shell';
@@ -64,6 +66,11 @@ export function LogisticsOrderDetailContent({ id }: { id: string }) {
           <section className="logistics-panel">
             <h2>{order.title ?? order.referenceNumber}</h2>
             <span className="logistics-badge logistics-badge--lg">{order.status.replace(/_/g, ' ')}</span>
+            <div className="logistics-hero__actions">
+              <Link href={`/freight/request?orderId=${order.id}`} className="rental-btn rental-btn--ghost">{t('order.addFreight')}</Link>
+              <Link href={`/customs/new?orderId=${order.id}`} className="rental-btn rental-btn--ghost">{t('order.addCustoms')}</Link>
+              <Link href="/marketplace" className="rental-btn rental-btn--ghost">{t('order.addTruck')}</Link>
+            </div>
           </section>
 
           <section className="logistics-panel">
@@ -92,6 +99,11 @@ export function LogisticsOrderDetailContent({ id }: { id: string }) {
               ))}
             </div>
           </section>
+
+          <LogisticsContainersPanel items={order.containers ?? []} />
+          <LogisticsVehiclesPanel items={order.vehicleShipments ?? []} />
+          <LogisticsChargesPanel items={order.charges ?? []} />
+          <LogisticsConversationPanel context={{ logisticsOrderId: id }} />
         </div>
       ) : null}
     </PortalShell>

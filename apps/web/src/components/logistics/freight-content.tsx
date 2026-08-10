@@ -4,6 +4,7 @@ import { useLocale, useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
 
 import { FormError } from '@/components/form-error';
+import { LogisticsConversationPanel } from '@/components/logistics/logistics-conversation-panel';
 import { LogisticsStatusTimeline } from '@/components/logistics/logistics-status-timeline';
 import { LoadingState } from '@/components/portal/loading-state';
 import { PortalShell } from '@/components/portal/portal-shell';
@@ -152,12 +153,15 @@ export function FreightShipmentDetailContent({ id }: { id: string }) {
       {isLoading ? (
         <LoadingState message={t('loading')} />
       ) : item ? (
-        <>
+        <div className="logistics-detail-grid">
           {item.logisticsOrder ? (
             <Link href={`/logistics/orders/${item.logisticsOrder.id}`}>{item.logisticsOrder.referenceNumber}</Link>
           ) : null}
-          <LogisticsStatusTimeline entries={item.statusHistory ?? []} />
-        </>
+          <section className="logistics-panel">
+            <LogisticsStatusTimeline entries={item.statusHistory ?? []} />
+          </section>
+          <LogisticsConversationPanel context={{ freightRequestId: id, logisticsOrderId: item.logisticsOrderId ?? undefined }} />
+        </div>
       ) : (
         <p>{t('loading')}</p>
       )}

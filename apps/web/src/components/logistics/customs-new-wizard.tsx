@@ -1,5 +1,6 @@
 'use client';
 
+import { useSearchParams } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
 import { useState } from 'react';
 
@@ -33,6 +34,8 @@ export function CustomsNewWizard() {
   const locale = useLocale() as 'en' | 'ar';
   const { user, isReady } = useRequireAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const logisticsOrderId = searchParams.get('orderId') ?? undefined;
   const [step, setStep] = useState<(typeof STEPS)[number]>('type');
   const [requestId, setRequestId] = useState<string>();
   const [transactionType, setTransactionType] = useState<string>('import');
@@ -45,7 +48,7 @@ export function CustomsNewWizard() {
 
   const ensureRequest = async () => {
     if (requestId) return requestId;
-    const created = await createCustomsRequest({ transactionType });
+    const created = await createCustomsRequest({ transactionType, logisticsOrderId });
     setRequestId(created.id);
     return created.id;
   };
@@ -81,7 +84,7 @@ export function CustomsNewWizard() {
     setSaving(true);
     try {
       await submitCustomsRequest(requestId);
-      router.push(`/customs/requests/${requestId}`);
+      router.push(logisticsOrderId ? `/logistics/orders/${logisticsOrderId}` : `/customs/requests/${requestId}`);
     } catch (err) {
       setError(isApiClientError(err) ? getLocalizedApiMessage(err, locale) : t('errors.generic'));
     } finally {

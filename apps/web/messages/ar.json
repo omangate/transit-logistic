@@ -1029,7 +1029,27 @@
       "timeline": "الجدول الزمني الموحد",
       "services": "الخدمات المرتبطة",
       "customsLink": "طلبات التخليص",
-      "freightLink": "طلبات الشحن"
+      "freightLink": "طلبات الشحن",
+      "addFreight": "إضافة شحن",
+      "addCustoms": "إضافة تخليص",
+      "addTruck": "حجز شاحنة"
+    },
+    "messages": {
+      "title": "الرسائل",
+      "empty": "لا توجد رسائل بعد. تواصل مع فريق العمليات بخصوص هذه المعاملة.",
+      "placeholder": "اكتب رسالة…",
+      "send": "إرسال",
+      "unread": "{count} غير مقروء",
+      "attachmentsHint": "ارفع المستندات من قسم المستندات واذكرها في رسالتك."
+    },
+    "containers": { "title": "الحاويات" },
+    "vehicles": {
+      "title": "شحنات المركبات",
+      "importHint": "استيراد CSV/Excel للدفعات متاح في تحديث لاحق."
+    },
+    "charges": {
+      "title": "الرسوم والتكاليف",
+      "exportCsv": "تصدير CSV"
     },
     "customs": {
       "title": "التخليص الجمركي",
@@ -1095,11 +1115,43 @@
       "modes": { "sea": "بحري", "air": "جوي", "road": "بري", "multimodal": "متعدد" },
       "fields": {
         "mode": "وسيلة النقل",
+        "serviceType": "نوع الخدمة",
+        "routeType": "نوع المسار",
         "origin": "المنشأ",
         "destination": "الوجهة",
         "cargo": "البضاعة",
+        "commodity": "السلعة",
         "weight": "الوزن (كغ)",
-        "customsRequired": "يتطلب تخليص جمركي"
+        "cbm": "الحجم (م³)",
+        "containerType": "نوع الحاوية",
+        "containerQty": "عدد الحاويات",
+        "departureDate": "تاريخ المغادرة المفضل",
+        "pickupRequired": "يتطلب استلام",
+        "deliveryRequired": "يتطلب تسليم",
+        "customsRequired": "يتطلب تخليص جمركي",
+        "insuranceRequired": "يتطلب تأمين",
+        "specialInstructions": "تعليمات خاصة"
+      },
+      "steps": {
+        "mode": "الوسيلة",
+        "route": "المسار",
+        "cargo": "البضاعة",
+        "services": "الخدمات",
+        "review": "مراجعة"
+      },
+      "seaServices": {
+        "fcl": "FCL",
+        "lcl": "LCL",
+        "roro": "RoRo",
+        "breakbulk": "Breakbulk",
+        "project_cargo": "شحن مشروع",
+        "reefer": "Reefer"
+      },
+      "routeTypes": {
+        "door_to_door": "باب إلى باب",
+        "door_to_port": "باب إلى ميناء",
+        "port_to_door": "ميناء إلى باب",
+        "port_to_port": "ميناء إلى ميناء"
       },
       "status": {
         "draft": "مسودة",
