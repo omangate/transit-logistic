@@ -1,0 +1,4 @@
+# Web service (insightful-forgiveness) — set Root Directory to apps/web in Railway.
+[deploy]
+healthcheckPath = "/health/live"
+healthcheckTimeout = 300
