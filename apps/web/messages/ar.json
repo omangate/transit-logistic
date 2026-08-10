@@ -465,7 +465,19 @@
       "marketplace": "السوق",
       "wallet": "المحفظة",
       "payouts": "السحوبات",
-      "ratings": "التقييمات"
+      "ratings": "التقييمات",
+      "logistics": "المهام اللوجستية"
+    },
+    "logistics": {
+      "title": "المهام اللوجستية",
+      "subtitle": "أعمال النقل والحجز المرتبطة بأسطولك",
+      "assignedShipments": "شحنات معينة",
+      "activeBookings": "حجوزات شاحنات نشطة",
+      "linkedOrders": "طلبات لوجستية مرتبطة",
+      "recentShipments": "أحدث الشحنات",
+      "recentBookings": "أحدث حجوزات الشاحنات",
+      "noBookings": "لا توجد حجوزات شاحنات بعد.",
+      "linkedOrdersHint": "عرض مرجعي فقط للطلبات اللوجستية المرتبطة بمهام أسطولك."
     },
     "dashboard": {
       "title": "لوحة تحكم الأسطول",

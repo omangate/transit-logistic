@@ -25,7 +25,7 @@ export function PortalShell({ children, user, title, subtitle, action }: PortalS
 
   return (
     <div className="portal-layout">
-      <Sidebar />
+      <Sidebar role={user.role} />
       <div className="portal-main">
         <header className="portal-header">
           <div className="portal-header__titles">

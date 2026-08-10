@@ -9,7 +9,7 @@ import { LogisticsConversationPanel } from '@/components/logistics/logistics-con
 import { LogisticsStatusTimeline } from '@/components/logistics/logistics-status-timeline';
 import { LoadingState } from '@/components/portal/loading-state';
 import { PortalShell } from '@/components/portal/portal-shell';
-import { useRequireAuth } from '@/hooks/use-require-auth';
+import { useRequireCustomerAuth } from '@/hooks/use-require-customer-auth';
 import { Link } from '@/i18n/navigation';
 import { getCustomsRequest, listCustomsRequests, respondLogisticsQuote } from '@/lib/api';
 import { getLocalizedApiMessage, isApiClientError } from '@/lib/api-error';
@@ -18,7 +18,7 @@ import type { CustomsClearanceRequest } from '@/types/logistics';
 export function CustomsRequestsContent() {
   const t = useTranslations('logistics');
   const locale = useLocale() as 'en' | 'ar';
-  const { user, isReady } = useRequireAuth();
+  const { user, isReady } = useRequireCustomerAuth();
   const [items, setItems] = useState<CustomsClearanceRequest[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -85,7 +85,7 @@ export function CustomsRequestsContent() {
 export function CustomsRequestDetailContent({ id }: { id: string }) {
   const t = useTranslations('logistics');
   const locale = useLocale() as 'en' | 'ar';
-  const { user, isReady } = useRequireAuth();
+  const { user, isReady } = useRequireCustomerAuth();
   const [request, setRequest] = useState<CustomsClearanceRequest | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);

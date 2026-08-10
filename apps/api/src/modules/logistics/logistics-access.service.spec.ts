@@ -13,6 +13,7 @@ describe('LogisticsAccessService RBAC', () => {
 
   const customerA = { id: 'aaa', role: 'customer' } as never;
   const customerB = { id: 'bbb', role: 'customer' } as never;
+  const fleet = { id: 'fff', role: 'fleet_owner' } as never;
   const admin = { id: 'adm', role: 'admin' } as never;
 
   beforeEach(() => jest.clearAllMocks());
@@ -30,6 +31,11 @@ describe('LogisticsAccessService RBAC', () => {
   it('forbids other customers from accessing orders', async () => {
     prisma.logisticsOrder.findUnique.mockResolvedValue({ id: 'o1', customerId: customerA.id });
     await expect(service.assertOrderAccess(customerB, 'o1')).rejects.toBeInstanceOf(ForbiddenException);
+  });
+
+  it('forbids fleet owner from accessing customer orders', async () => {
+    prisma.logisticsOrder.findUnique.mockResolvedValue({ id: 'o1', customerId: customerA.id });
+    await expect(service.assertOrderAccess(fleet, 'o1')).rejects.toBeInstanceOf(ForbiddenException);
   });
 
   it('forbids non-admin non-owner from customs request', async () => {

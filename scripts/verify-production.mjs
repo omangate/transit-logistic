@@ -135,6 +135,12 @@ if (fleet) {
   record('Fleet shipments paginated', available.code === 200);
   const profile = await req('GET', '/fleet/profile', null, fleet);
   record('Fleet profile', profile.code === 200);
+
+  const fleetLogistics = await req('GET', '/fleet/logistics/dashboard', null, fleet);
+  record('Fleet logistics dashboard', fleetLogistics.code === 200);
+
+  const fleetDeniedCustomerLogistics = await req('GET', '/logistics/orders/dashboard', null, fleet);
+  record('Fleet denied customer logistics dashboard', fleetDeniedCustomerLogistics.code === 403, `HTTP ${fleetDeniedCustomerLogistics.code}`);
 }
 
 if (driver) {
@@ -215,6 +221,8 @@ await webPage('/en/dashboard');
 await webPage('/ar/dashboard');
 await webPage('/en/admin/dashboard');
 await webPage('/en/fleet/dashboard');
+await webPage('/en/fleet/logistics');
+await webPage('/ar/fleet/logistics');
 await webPage('/en/driver/dashboard');
 await webPage('/en/track');
 await webPage('/ar/marketplace');

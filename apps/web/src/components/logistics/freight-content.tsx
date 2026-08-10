@@ -8,7 +8,7 @@ import { LogisticsConversationPanel } from '@/components/logistics/logistics-con
 import { LogisticsStatusTimeline } from '@/components/logistics/logistics-status-timeline';
 import { LoadingState } from '@/components/portal/loading-state';
 import { PortalShell } from '@/components/portal/portal-shell';
-import { useRequireAuth } from '@/hooks/use-require-auth';
+import { useRequireCustomerAuth } from '@/hooks/use-require-customer-auth';
 import { Link, useRouter } from '@/i18n/navigation';
 import { createFreightRequest, getFreightShipment, listFreightShipments, submitFreightShipment } from '@/lib/api';
 import { getLocalizedApiMessage, isApiClientError } from '@/lib/api-error';
@@ -34,7 +34,7 @@ export function FreightLandingContent() {
 export function FreightRequestContent() {
   const t = useTranslations('logistics');
   const locale = useLocale() as 'en' | 'ar';
-  const { user, isReady } = useRequireAuth();
+  const { user, isReady } = useRequireCustomerAuth();
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [form, setForm] = useState({
@@ -93,7 +93,7 @@ export function FreightRequestContent() {
 
 export function FreightShipmentsContent() {
   const t = useTranslations('logistics');
-  const { user, isReady } = useRequireAuth();
+  const { user, isReady } = useRequireCustomerAuth();
   const [items, setItems] = useState<FreightForwardingRequest[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -131,7 +131,7 @@ export function FreightShipmentsContent() {
 
 export function FreightShipmentDetailContent({ id }: { id: string }) {
   const t = useTranslations('logistics');
-  const { user, isReady } = useRequireAuth();
+  const { user, isReady } = useRequireCustomerAuth();
   const [item, setItem] = useState<FreightForwardingRequest | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 

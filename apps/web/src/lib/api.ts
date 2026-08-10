@@ -33,6 +33,7 @@ import type {
   ChecklistTemplate,
   ContainerRecord,
   CustomsClearanceRequest,
+  FleetLogisticsDashboard,
   FreightForwardingRequest,
   LogisticsCharge,
   LogisticsConversation,
@@ -993,6 +994,10 @@ export async function sendAiChat(input: {
     method: 'POST',
     body: JSON.stringify(input),
   });
+}
+
+export async function getFleetLogisticsDashboard(): Promise<FleetLogisticsDashboard> {
+  return authRequest<FleetLogisticsDashboard>('/fleet/logistics/dashboard');
 }
 
 export async function getLogisticsDashboard(): Promise<LogisticsDashboard> {

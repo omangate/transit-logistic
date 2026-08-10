@@ -7,7 +7,7 @@ import { useState } from 'react';
 import { FormError } from '@/components/form-error';
 import { LoadingState } from '@/components/portal/loading-state';
 import { PortalShell } from '@/components/portal/portal-shell';
-import { useRequireAuth } from '@/hooks/use-require-auth';
+import { useRequireCustomerAuth } from '@/hooks/use-require-customer-auth';
 import { useRouter } from '@/i18n/navigation';
 import { createFreightRequest, submitFreightShipment } from '@/lib/api';
 import { getLocalizedApiMessage, isApiClientError } from '@/lib/api-error';
@@ -20,7 +20,7 @@ const ROUTE_TYPES = ['door_to_door', 'door_to_port', 'port_to_door', 'port_to_po
 export function FreightNewWizard() {
   const t = useTranslations('logistics');
   const locale = useLocale() as 'en' | 'ar';
-  const { user, isReady } = useRequireAuth();
+  const { user, isReady } = useRequireCustomerAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
   const logisticsOrderId = searchParams.get('orderId') ?? undefined;

@@ -9,7 +9,7 @@ import { LogisticsOrderManagement } from '@/components/logistics/logistics-order
 import { LogisticsStatusTimeline } from '@/components/logistics/logistics-status-timeline';
 import { LoadingState } from '@/components/portal/loading-state';
 import { PortalShell } from '@/components/portal/portal-shell';
-import { useRequireAuth } from '@/hooks/use-require-auth';
+import { useRequireCustomerAuth } from '@/hooks/use-require-customer-auth';
 import { Link } from '@/i18n/navigation';
 import { getLogisticsOrder, getLogisticsOrderTimeline, respondLogisticsQuote } from '@/lib/api';
 import { getLocalizedApiMessage, isApiClientError } from '@/lib/api-error';
@@ -18,7 +18,7 @@ import type { LogisticsOrder, StatusHistoryEntry } from '@/types/logistics';
 export function LogisticsOrderDetailContent({ id }: { id: string }) {
   const t = useTranslations('logistics');
   const locale = useLocale() as 'en' | 'ar';
-  const { user, isReady } = useRequireAuth();
+  const { user, isReady } = useRequireCustomerAuth();
   const [order, setOrder] = useState<LogisticsOrder | null>(null);
   const [timeline, setTimeline] = useState<StatusHistoryEntry[]>([]);
   const [error, setError] = useState<string | null>(null);

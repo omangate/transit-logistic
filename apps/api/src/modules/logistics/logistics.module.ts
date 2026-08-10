@@ -1,8 +1,11 @@
 import { Module } from '@nestjs/common';
 
+import { FleetModule } from '../fleet/fleet.module';
 import { NotificationsModule } from '../notifications/notifications.module';
 
 import { ChecklistTemplatesService } from './checklist-templates.service';
+import { FleetLogisticsController } from './fleet-logistics.controller';
+import { FleetLogisticsService } from './fleet-logistics.service';
 import { AdminCustomsController, CustomsClearanceController } from './customs-clearance.controller';
 import { CustomsClearanceService } from './customs-clearance.service';
 import { AdminFreightController, FreightForwardingController } from './freight-forwarding.controller';
@@ -33,9 +36,10 @@ import { LogisticsQuotesService } from './logistics-quotes.service';
 import { LogisticsVehiclesService } from './logistics-vehicles.service';
 
 @Module({
-  imports: [NotificationsModule],
+  imports: [NotificationsModule, FleetModule],
   controllers: [
     LogisticsOrdersController,
+    FleetLogisticsController,
     AdminLogisticsOpsController,
     CustomsClearanceController,
     AdminCustomsController,
@@ -60,6 +64,7 @@ import { LogisticsVehiclesService } from './logistics-vehicles.service';
     LogisticsDocumentsService,
     LogisticsQuotesService,
     LogisticsConversationsService,
+    FleetLogisticsService,
     ChecklistTemplatesService,
     LogisticsContainersService,
     LogisticsVehiclesService,

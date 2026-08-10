@@ -7,7 +7,7 @@ import { useState } from 'react';
 import { FormError } from '@/components/form-error';
 import { LoadingState } from '@/components/portal/loading-state';
 import { PortalShell } from '@/components/portal/portal-shell';
-import { useRequireAuth } from '@/hooks/use-require-auth';
+import { useRequireCustomerAuth } from '@/hooks/use-require-customer-auth';
 import { Link, useRouter } from '@/i18n/navigation';
 import {
   createCustomsRequest,
@@ -32,7 +32,7 @@ const STEPS = ['type', 'shipment', 'cargo', 'documents', 'review'] as const;
 export function CustomsNewWizard() {
   const t = useTranslations('logistics');
   const locale = useLocale() as 'en' | 'ar';
-  const { user, isReady } = useRequireAuth();
+  const { user, isReady } = useRequireCustomerAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
   const logisticsOrderId = searchParams.get('orderId') ?? undefined;

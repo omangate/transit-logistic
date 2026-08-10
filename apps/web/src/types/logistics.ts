@@ -181,6 +181,34 @@ export type LogisticsDashboard = {
   recentOrders: LogisticsOrder[];
 };
 
+export type FleetLogisticsDashboard = {
+  counts: {
+    assignedShipments: number;
+    activeBookings: number;
+    linkedOrders: number;
+  };
+  recentShipments: Array<{
+    id: string;
+    referenceNumber: string;
+    status: string;
+    cargoDescription?: string | null;
+    updatedAt: string;
+  }>;
+  recentBookings: Array<{
+    id: string;
+    status: string;
+    startDate: string;
+    endDate: string;
+    truckListing?: { name?: string | null; slug?: string | null };
+  }>;
+  linkedOrders: Array<{
+    id: string;
+    referenceNumber: string;
+    status: string;
+    title?: string | null;
+  }>;
+};
+
 export type AdminCustomsDashboard = {
   recent: Array<{ id: string; referenceNumber: string; status: string }>;
   awaitingDocs: number;

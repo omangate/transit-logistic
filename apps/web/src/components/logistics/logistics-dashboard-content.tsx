@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react';
 import { FormError } from '@/components/form-error';
 import { LoadingState } from '@/components/portal/loading-state';
 import { PortalShell } from '@/components/portal/portal-shell';
-import { useRequireAuth } from '@/hooks/use-require-auth';
+import { useRequireCustomerAuth } from '@/hooks/use-require-customer-auth';
 import { Link } from '@/i18n/navigation';
 import { createLogisticsOrder, getLogisticsDashboard } from '@/lib/api';
 import { getLocalizedApiMessage, isApiClientError } from '@/lib/api-error';
@@ -15,7 +15,7 @@ import type { LogisticsDashboard } from '@/types/logistics';
 export function LogisticsDashboardContent() {
   const t = useTranslations('logistics');
   const locale = useLocale() as 'en' | 'ar';
-  const { user, isReady } = useRequireAuth();
+  const { user, isReady } = useRequireCustomerAuth();
   const [data, setData] = useState<LogisticsDashboard | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);

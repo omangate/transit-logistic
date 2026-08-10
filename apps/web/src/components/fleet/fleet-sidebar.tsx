@@ -8,6 +8,7 @@ import { Link, usePathname } from '@/i18n/navigation';
 const NAV_ITEMS = [
   { href: '/fleet/dashboard', labelKey: 'nav.dashboard' as const },
   { href: '/fleet/shipments', labelKey: 'nav.shipments' as const },
+  { href: '/fleet/logistics', labelKey: 'nav.logistics' as const },
   { href: '/fleet/drivers', labelKey: 'nav.drivers' as const },
   { href: '/fleet/vehicles', labelKey: 'nav.vehicles' as const },
   { href: '/fleet/marketplace', labelKey: 'nav.marketplace' as const },
@@ -30,7 +31,9 @@ export function FleetSidebar() {
           const isActive =
             item.href === '/fleet/shipments'
               ? pathname === '/fleet/shipments' || pathname.startsWith('/fleet/shipments/')
-              : item.href === '/fleet/wallet'
+              : item.href === '/fleet/logistics'
+                ? pathname === '/fleet/logistics'
+                : item.href === '/fleet/wallet'
                 ? pathname === '/fleet/wallet'
                 : item.href === '/fleet/payouts'
                   ? pathname === '/fleet/payouts'

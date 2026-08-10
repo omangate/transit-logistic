@@ -465,7 +465,19 @@
       "marketplace": "Marketplace",
       "wallet": "Wallet",
       "payouts": "Payouts",
-      "ratings": "Ratings"
+      "ratings": "Ratings",
+      "logistics": "Logistics jobs"
+    },
+    "logistics": {
+      "title": "Logistics jobs",
+      "subtitle": "Transport and booking work assigned to your fleet",
+      "assignedShipments": "Assigned shipments",
+      "activeBookings": "Active truck bookings",
+      "linkedOrders": "Linked logistics orders",
+      "recentShipments": "Recent shipments",
+      "recentBookings": "Recent truck bookings",
+      "noBookings": "No truck bookings yet.",
+      "linkedOrdersHint": "Reference-only view of customer logistics orders linked to your fleet jobs."
     },
     "dashboard": {
       "title": "Fleet dashboard",

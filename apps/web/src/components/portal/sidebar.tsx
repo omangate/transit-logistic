@@ -1,5 +1,6 @@
 'use client';
 
+import { UserRole } from '@transit-logistic/shared';
 import { useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
 
@@ -18,10 +19,26 @@ const NAV_ITEMS = [
   { href: '/notifications', labelKey: 'nav.notifications' as const, isBell: true },
 ];
 
-export function Sidebar() {
+const CUSTOMER_LOGISTICS_HREFS = new Set([
+  '/logistics',
+  '/customs/requests',
+  '/freight/shipments',
+  '/shipments',
+  '/shipments/new',
+]);
+
+function navItemsForRole(role?: string) {
+  if (role === UserRole.CUSTOMER || role === UserRole.ADMIN || !role) {
+    return NAV_ITEMS;
+  }
+  return NAV_ITEMS.filter((item) => !CUSTOMER_LOGISTICS_HREFS.has(item.href));
+}
+
+export function Sidebar({ role }: { role?: string }) {
   const t = useTranslations('portal');
   const pathname = usePathname();
   const [unreadCount, setUnreadCount] = useState(0);
+  const items = navItemsForRole(role);
 
   useEffect(() => {
     let cancelled = false;
@@ -52,7 +69,7 @@ export function Sidebar() {
         <BrandLogo variant="light" size="sm" />
       </div>
       <nav className="portal-sidebar__nav">
-        {NAV_ITEMS.map((item) => {
+        {items.map((item) => {
           const isActive =
             item.href === '/shipments'
               ? pathname === '/shipments' ||
