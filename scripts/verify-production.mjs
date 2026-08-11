@@ -236,7 +236,25 @@ await webPage('/en/logistics');
 await webPage('/en/admin/logistics');
 await webPage('/en/admin/logistics/checklist-templates');
 await webPage('/ar/admin/logistics');
+await webPage('/en/account/notifications');
+await webPage('/ar/account/notifications');
+await webPage('/en/verify-email');
+await webPage('/ar/verify-email');
 await webPage('/health/live');
+
+// Email API endpoints (no auth required for invalid token / webhook probe)
+const verifyEmailInvalid = await req('POST', '/auth/verify-email', { token: 'invalid-token-probe' });
+record('Auth verify-email route', verifyEmailInvalid.code !== 404, `HTTP ${verifyEmailInvalid.code}`);
+
+const resendWebhook = await req('POST', '/webhooks/resend', { type: 'email.delivered', data: { email_id: 'probe' } });
+record('Resend webhook route', resendWebhook.code !== 404, `HTTP ${resendWebhook.code}`);
+
+if (customer) {
+  const prefs = await req('GET', '/users/me/email-preferences', null, customer);
+  record('Email preferences GET', prefs.code === 200, prefs.json?.preferences ? 'has prefs' : 'defaults');
+  const resendVer = await req('POST', '/auth/resend-verification', {}, customer);
+  record('Resend verification route', resendVer.code === 200 || resendVer.code === 201 || resendVer.code === 429, `HTTP ${resendVer.code}`);
+}
 
 const passed = results.filter((r) => r.ok).length;
 const failed = results.filter((r) => !r.ok).length;

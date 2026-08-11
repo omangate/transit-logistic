@@ -9,7 +9,7 @@ CREATE TABLE "email_delivery_logs" (
     "template_event" TEXT NOT NULL,
     "entity_type" TEXT,
     "entity_id" TEXT,
-    "locale" "Locale" NOT NULL DEFAULT 'ar',
+    "locale" "locale" NOT NULL DEFAULT 'ar',
     "subject" TEXT NOT NULL,
     "status" "email_delivery_status" NOT NULL DEFAULT 'queued',
     "provider" TEXT,
