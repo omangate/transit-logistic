@@ -10,15 +10,46 @@ function log(label, value) {
   console.log(`[railway-start] ${label}=${value}`);
 }
 
+function runPrisma(args, { allowFailure = false } = {}) {
+  try {
+    const output = execSync(`npx prisma ${args} --schema="${schemaPath}"`, {
+      cwd: apiRoot,
+      encoding: 'utf8',
+      env: process.env,
+    });
+    if (output) process.stdout.write(output);
+    return { ok: true, output: output ?? '' };
+  } catch (error) {
+    const output = [
+      error instanceof Error ? error.message : String(error),
+      error?.stdout?.toString?.() ?? '',
+      error?.stderr?.toString?.() ?? '',
+    ].join('\n');
+    if (error?.stdout) process.stdout.write(error.stdout.toString());
+    if (error?.stderr) process.stderr.write(error.stderr.toString());
+    if (!allowFailure) {
+      throw error;
+    }
+    return { ok: false, output };
+  }
+}
+
+function recoverFailedMigration(output) {
+  const match = output.match(/The `([^`]+)` migration started at .* failed/);
+  if (!match) {
+    return false;
+  }
+  const migrationName = match[1];
+  console.warn(`[railway-start] Recovering failed migration "${migrationName}" (mark rolled back, then retry)...`);
+  runPrisma(`migrate resolve --rolled-back ${migrationName}`);
+  return true;
+}
+
 log('cwd', process.cwd());
 log('apiRoot', apiRoot);
 log('PORT', process.env.PORT ?? '(unset)');
-log('API_PORT', process.env.API_PORT ?? '(unset)');
-log('NODE_ENV', process.env.NODE_ENV ?? '(unset)');
 log('DATABASE_URL', process.env.DATABASE_URL ? 'set' : 'MISSING');
 log('JWT_ACCESS_SECRET', process.env.JWT_ACCESS_SECRET ? 'set' : 'MISSING');
-log('JWT_REFRESH_SECRET', process.env.JWT_REFRESH_SECRET ? 'set' : 'MISSING');
-log('REDIS_HOST', process.env.REDIS_HOST ?? '(unset)');
 
 if (!process.env.DATABASE_URL) {
   console.error('[railway-start] FATAL: DATABASE_URL is not configured on the API service.');
@@ -40,19 +71,22 @@ if (!existsSync(schemaPath)) {
   process.exit(1);
 }
 
-try {
-  console.log('[railway-start] Running prisma migrate deploy...');
-  execSync('npx prisma migrate deploy --schema=prisma/schema.prisma', {
-    cwd: apiRoot,
-    stdio: 'inherit',
-    env: process.env,
-  });
-  console.log('[railway-start] Migrations applied successfully.');
-} catch (error) {
-  const message = error instanceof Error ? error.message : String(error);
-  console.error('[railway-start] WARNING: prisma migrate deploy failed:', message);
-  console.error('[railway-start] Starting API anyway so health checks can pass; run migrate manually in Railway shell.');
+console.log('[railway-start] Running prisma migrate deploy...');
+let migrateResult = runPrisma('migrate deploy', { allowFailure: true });
+
+if (!migrateResult.ok) {
+  const recovered = recoverFailedMigration(migrateResult.output);
+  if (recovered) {
+    console.log('[railway-start] Retrying prisma migrate deploy after recovery...');
+    migrateResult = runPrisma('migrate deploy', { allowFailure: true });
+  }
 }
 
+if (!migrateResult.ok) {
+  console.error('[railway-start] FATAL: prisma migrate deploy failed after recovery attempt.');
+  process.exit(1);
+}
+
+console.log('[railway-start] Migrations applied successfully.');
 console.log('[railway-start] Starting API (node dist/main.js)...');
 execSync('node dist/main.js', { cwd: apiRoot, stdio: 'inherit', env: process.env });
