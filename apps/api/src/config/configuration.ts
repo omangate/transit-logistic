@@ -50,8 +50,11 @@ export const configuration = () => ({
     deviationThresholdM: parseInt(process.env.TRACKING_DEVIATION_THRESHOLD_M ?? '3000', 10),
   },
   email: {
+    provider: process.env.EMAIL_PROVIDER ?? 'resend',
     resendApiKey: process.env.RESEND_API_KEY,
     from: process.env.EMAIL_FROM ?? 'Transit Logistic <noreply@transit-logistic.dev>',
+    replyTo: process.env.EMAIL_REPLY_TO,
+    resendWebhookSecret: process.env.RESEND_WEBHOOK_SECRET,
   },
   ai: {
     provider: process.env.AI_PROVIDER ?? 'mock',

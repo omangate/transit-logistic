@@ -44,12 +44,18 @@ export class LogisticsQuotesService {
     const subtotal = input.lines.reduce((sum, l) => sum + l.amount * (l.quantity ?? 1), 0);
     const taxAmount = input.lines.reduce((sum, l) => sum + (l.tax ?? 0), 0);
 
+    const customerId = await this.resolveCustomerId(input);
+    const previousQuote = await this.findLatestQuoteForContext(input);
+    const nextVersion = (previousQuote?.version ?? 0) + 1;
+    const isAmendment = nextVersion > 1;
+
     const quote = await this.prisma.logisticsQuote.create({
       data: {
         referenceNumber: generateLogisticsReference('LQ'),
         logisticsOrderId: input.logisticsOrderId,
         customsRequestId: input.customsRequestId,
         freightRequestId: input.freightRequestId,
+        version: nextVersion,
         status: 'sent',
         subtotal,
         taxAmount,
@@ -72,8 +78,20 @@ export class LogisticsQuotesService {
       include: { lines: true },
     });
 
-    const customerId = await this.resolveCustomerId(input);
-    if (customerId) void this.notifications.safeNotifyLogisticsQuoteIssued(customerId, quote.id);
+    if (previousQuote && isAmendment) {
+      await this.prisma.logisticsQuote.update({
+        where: { id: previousQuote.id },
+        data: { status: 'amended' },
+      });
+    }
+
+    if (customerId) {
+      if (isAmendment) {
+        void this.notifications.safeNotifyLogisticsQuoteAmended(customerId, quote.id, previousQuote!.id);
+      } else {
+        void this.notifications.safeNotifyLogisticsQuoteIssued(customerId, quote.id);
+      }
+    }
 
     if (input.customsRequestId) {
       await this.prisma.customsClearanceRequest.update({
@@ -132,6 +150,70 @@ export class LogisticsQuotesService {
     return updated;
   }
 
+  async amendQuote(
+    user: User,
+    quoteId: string,
+    input: {
+      lines: QuoteLineInput[];
+      validUntil?: string;
+      internalNote?: string;
+    },
+  ) {
+    this.access.assertAdmin(user);
+
+    const existing = await this.prisma.logisticsQuote.findUniqueOrThrow({
+      where: { id: quoteId },
+    });
+
+    const subtotal = input.lines.reduce((sum, l) => sum + l.amount * (l.quantity ?? 1), 0);
+    const taxAmount = input.lines.reduce((sum, l) => sum + (l.tax ?? 0), 0);
+
+    await this.prisma.logisticsQuote.update({
+      where: { id: quoteId },
+      data: { status: 'amended' },
+    });
+
+    const amended = await this.prisma.logisticsQuote.create({
+      data: {
+        referenceNumber: generateLogisticsReference('LQ'),
+        logisticsOrderId: existing.logisticsOrderId,
+        customsRequestId: existing.customsRequestId,
+        freightRequestId: existing.freightRequestId,
+        version: existing.version + 1,
+        status: 'sent',
+        subtotal,
+        taxAmount,
+        totalAmount: subtotal + taxAmount,
+        validUntil: input.validUntil ? new Date(input.validUntil) : existing.validUntil ?? undefined,
+        internalNote: input.internalNote ?? existing.internalNote,
+        createdById: user.id,
+        lines: {
+          create: input.lines.map((line, index) => ({
+            category: line.category,
+            description: line.description,
+            amount: line.amount,
+            quantity: line.quantity ?? 1,
+            tax: line.tax ?? 0,
+            isCustomerVisible: line.isCustomerVisible ?? true,
+            sortOrder: index,
+          })),
+        },
+      },
+      include: { lines: true },
+    });
+
+    const customerId = await this.resolveCustomerId({
+      logisticsOrderId: existing.logisticsOrderId ?? undefined,
+      customsRequestId: existing.customsRequestId ?? undefined,
+      freightRequestId: existing.freightRequestId ?? undefined,
+    });
+    if (customerId) {
+      void this.notifications.safeNotifyLogisticsQuoteAmended(customerId, amended.id, quoteId);
+    }
+
+    return amended;
+  }
+
   async listForContext(user: User, input: { customsRequestId?: string; freightRequestId?: string; logisticsOrderId?: string }) {
     if (input.customsRequestId) await this.access.assertCustomsAccess(user, input.customsRequestId);
     if (input.freightRequestId) await this.access.assertFreightAccess(user, input.freightRequestId);
@@ -162,5 +244,21 @@ export class LogisticsQuotesService {
       return r?.customerId;
     }
     return undefined;
+  }
+
+  private async findLatestQuoteForContext(input: {
+    logisticsOrderId?: string;
+    customsRequestId?: string;
+    freightRequestId?: string;
+  }) {
+    return this.prisma.logisticsQuote.findFirst({
+      where: {
+        logisticsOrderId: input.logisticsOrderId ?? undefined,
+        customsRequestId: input.customsRequestId ?? undefined,
+        freightRequestId: input.freightRequestId ?? undefined,
+        status: { in: ['sent', 'countered', 'amended'] },
+      },
+      orderBy: { version: 'desc' },
+    });
   }
 }

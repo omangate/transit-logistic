@@ -2,12 +2,13 @@ import { Module } from '@nestjs/common';
 
 import { AuthModule } from '../auth/auth.module';
 import { FleetModule } from '../fleet/fleet.module';
+import { NotificationsModule } from '../notifications/notifications.module';
 
 import { MessagingController } from './messaging.controller';
 import { MessagingService } from './messaging.service';
 
 @Module({
-  imports: [AuthModule, FleetModule],
+  imports: [AuthModule, FleetModule, NotificationsModule],
   controllers: [MessagingController],
   providers: [MessagingService],
   exports: [MessagingService],

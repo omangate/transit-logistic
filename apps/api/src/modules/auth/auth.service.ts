@@ -13,6 +13,7 @@ import * as bcrypt from 'bcrypt';
 import { addDurationToNow, generateRefreshToken, hashToken } from '../../common/utils/token.util';
 import { PrismaService } from '../../database/prisma.service';
 import { NotificationDeliveryService } from '../notifications/notification-delivery.service';
+import { EmailVerificationService } from '../email/email-verification.service';
 
 import type { LoginDto } from './dto/login.dto';
 import type { RegisterDto } from './dto/register.dto';
@@ -45,6 +46,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly config: ConfigService,
     private readonly notificationDelivery: NotificationDeliveryService,
+    private readonly emailVerification: EmailVerificationService,
   ) {}
 
   async register(dto: RegisterDto): Promise<AuthTokensResponse> {
@@ -105,6 +107,8 @@ export class AuthService {
         locale: (user.locale as 'en' | 'ar') ?? 'en',
       });
     }
+
+    void this.emailVerification.sendVerificationEmail(user.id, (user.locale as 'en' | 'ar') ?? 'ar');
 
     return this.issueTokens(user);
   }
@@ -307,6 +311,20 @@ export class AuthService {
     ]);
 
     return { success: true };
+  }
+
+  async verifyEmail(token: string) {
+    return this.emailVerification.verifyEmail(token);
+  }
+
+  async resendVerificationEmail(userId: string) {
+    const user = await this.prisma.user.findUniqueOrThrow({ where: { id: userId } });
+    return this.emailVerification.sendVerificationEmail(userId, (user.locale as 'en' | 'ar') ?? 'ar');
+  }
+
+  async updateEmail(userId: string, newEmail: string) {
+    const user = await this.prisma.user.findUniqueOrThrow({ where: { id: userId } });
+    return this.emailVerification.requestEmailChange(userId, newEmail, (user.locale as 'en' | 'ar') ?? 'ar');
   }
 
   private async cleanupExpiredRefreshTokens() {

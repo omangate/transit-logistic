@@ -1385,6 +1385,79 @@ export class ShipmentsService {
         customerId: shipment.customerId,
       });
     }
+
+    void this.dispatchDriverJobEmails(shipment, fromStatus);
+  }
+
+  private async dispatchDriverJobEmails(
+    shipment: Prisma.ShipmentGetPayload<{ include: { fleetOwner: true } }>,
+    fromStatus: ShipmentStatus | null,
+  ) {
+    if (!shipment.driverId) return;
+
+    const full = await this.prisma.shipment.findUnique({
+      where: { id: shipment.id },
+      include: { stops: { orderBy: { sequence: 'asc' } } },
+    });
+    if (!full) return;
+
+    const pickup = full.stops.find((s) => s.stopType === 'pickup');
+    const delivery = full.stops.find((s) => s.stopType === 'delivery');
+    const formatStop = (stop: typeof pickup) =>
+      stop ? [stop.address, stop.city].filter(Boolean).join(', ') : undefined;
+
+    const base = {
+      driverUserId: shipment.driverId!,
+      shipmentId: shipment.id,
+      referenceNumber: shipment.referenceNumber,
+    };
+
+    if (shipment.status === ShipmentStatus.CANCELLED) {
+      void this.notificationDelivery.safeNotifyDriverJob({
+        ...base,
+        event: 'cancelled',
+        statusLabel: 'cancelled',
+      });
+      return;
+    }
+
+    if (shipment.status === ShipmentStatus.ASSIGNED && fromStatus === ShipmentStatus.PENDING_ASSIGNMENT) {
+      void this.notificationDelivery.safeNotifyDriverJob({
+        ...base,
+        event: 'assigned',
+        statusLabel: 'assigned',
+        instructions: formatStop(pickup),
+      });
+      if (pickup) {
+        void this.notificationDelivery.safeNotifyDriverJob({
+          ...base,
+          event: 'pickup_instructions',
+          instructions: formatStop(pickup),
+        });
+      }
+      return;
+    }
+
+    if (
+      fromStatus &&
+      fromStatus !== shipment.status &&
+      shipment.status !== ShipmentStatus.ASSIGNED
+    ) {
+      void this.notificationDelivery.safeNotifyDriverJob({
+        ...base,
+        event: 'changed',
+        statusLabel: shipment.status,
+      });
+    }
+
+    if (shipment.status === ShipmentStatus.IN_TRANSIT && delivery) {
+      void this.notificationDelivery.safeNotifyDriverJob({
+        ...base,
+        event: 'delivery_instructions',
+        instructions: formatStop(delivery),
+        statusLabel: 'in_transit',
+      });
+    }
   }
 
   private async notifyWalletByIdempotencyKey(idempotencyKey: string, userId: string) {

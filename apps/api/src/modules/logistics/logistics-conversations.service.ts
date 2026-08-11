@@ -6,6 +6,7 @@ import { StorageService } from '../../common/storage/storage.service';
 import { PrismaService } from '../../database/prisma.service';
 
 import { LogisticsAccessService } from './logistics-access.service';
+import { NotificationDeliveryService } from '../notifications/notification-delivery.service';
 
 type UploadFile = { buffer: Buffer; mimetype: string; size: number; originalname?: string };
 
@@ -15,6 +16,7 @@ export class LogisticsConversationsService {
     private readonly prisma: PrismaService,
     private readonly access: LogisticsAccessService,
     private readonly storage: StorageService,
+    private readonly notifications: NotificationDeliveryService,
   ) {}
 
   async getOrCreate(
@@ -118,6 +120,30 @@ export class LogisticsConversationsService {
       where: { id: conversationId },
       data: { lastMessageAt: new Date() },
     });
+
+    const conversation = await this.prisma.logisticsConversation.findUnique({
+      where: { id: conversationId },
+      include: {
+        logisticsOrder: { select: { referenceNumber: true } },
+        customsRequest: { select: { referenceNumber: true } },
+        freightRequest: { select: { referenceNumber: true } },
+      },
+    });
+
+    if (conversation && user.id !== conversation.customerId) {
+      const ref =
+        conversation.logisticsOrder?.referenceNumber ??
+        conversation.customsRequest?.referenceNumber ??
+        conversation.freightRequest?.referenceNumber ??
+        'TL';
+      void this.notifications.safeNotifyLogisticsMessage({
+        conversationId,
+        recipientUserId: conversation.customerId,
+        senderUserId: user.id,
+        orderReference: ref,
+        conversationPath: `/${user.locale ?? 'ar'}/logistics/conversations/${conversationId}`,
+      });
+    }
 
     return message;
   }

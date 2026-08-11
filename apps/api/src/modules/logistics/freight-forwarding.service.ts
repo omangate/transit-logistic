@@ -78,6 +78,8 @@ export class FreightForwardingService {
       logisticsOrderId: input.logisticsOrderId,
     });
 
+    void this.notifications.safeNotifyFreightCreated(user.id, request.id, request.referenceNumber);
+
     return request;
   }
 

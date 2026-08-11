@@ -9,6 +9,7 @@ import { UserRole } from '@transit-logistic/shared';
 
 import { PrismaService } from '../../database/prisma.service';
 import { FleetOwnershipService } from '../fleet/fleet-ownership.service';
+import { NotificationDeliveryService } from '../notifications/notification-delivery.service';
 
 import type { SendMessageDto } from './dto/messaging.dto';
 
@@ -17,6 +18,7 @@ export class MessagingService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly ownership: FleetOwnershipService,
+    private readonly notifications: NotificationDeliveryService,
   ) {}
 
   async listConversations(user: User) {
@@ -75,6 +77,30 @@ export class MessagingService {
       where: { id: conversationId },
       data: { lastMessageAt: new Date() },
     });
+
+    const conversation = await this.prisma.conversation.findUnique({
+      where: { id: conversationId },
+      select: { customerId: true, fleetUserId: true, shipmentId: true },
+    });
+    if (conversation) {
+      const recipientUserId =
+        user.id === conversation.customerId ? conversation.fleetUserId : conversation.customerId;
+      let reference = `Conversation`;
+      if (conversation.shipmentId) {
+        const shipment = await this.prisma.shipment.findUnique({
+          where: { id: conversation.shipmentId },
+          select: { referenceNumber: true },
+        });
+        reference = shipment?.referenceNumber ?? reference;
+      }
+      void this.notifications.safeNotifyMessagingMessage({
+        conversationId,
+        recipientUserId,
+        senderUserId: user.id,
+        reference,
+        conversationPath: `/${user.locale ?? 'ar'}/messages/${conversationId}`,
+      });
+    }
 
     return message;
   }

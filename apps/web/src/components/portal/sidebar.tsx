@@ -17,6 +17,7 @@ const NAV_ITEMS = [
   { href: '/shipments/new', labelKey: 'nav.newShipment' as const },
   { href: '/marketplace', labelKey: 'nav.marketplace' as const },
   { href: '/notifications', labelKey: 'nav.notifications' as const, isBell: true },
+  { href: '/account/notifications', labelKey: 'nav.account' as const },
 ];
 
 const CUSTOMER_LOGISTICS_HREFS = new Set([

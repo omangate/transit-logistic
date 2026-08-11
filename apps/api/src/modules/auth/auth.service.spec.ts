@@ -48,6 +48,7 @@ describe('AuthService', () => {
       jwtService as unknown as JwtService,
       config as unknown as ConfigService,
       { safeNotifyRegistrationSuccess: jest.fn() } as never,
+      { sendVerificationEmail: jest.fn().mockResolvedValue({ sent: false }) } as never,
     );
     prisma.refreshToken.deleteMany.mockResolvedValue({ count: 0 });
   });

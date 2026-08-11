@@ -457,6 +457,7 @@ model User {
   locale       Locale    @default(ar)
   isActive     Boolean   @default(true) @map("is_active")
   isVerified   Boolean   @default(false) @map("is_verified")
+  emailPreferences Json? @default("{}") @map("email_preferences")
   lastLoginAt  DateTime? @map("last_login_at")
   failedLoginAttempts Int @default(0) @map("failed_login_attempts")
   lockedUntil  DateTime? @map("locked_until")
@@ -465,6 +466,8 @@ model User {
 
   refreshTokens      RefreshToken[]
   passwordResetTokens PasswordResetToken[]
+  emailVerificationTokens EmailVerificationToken[]
+  emailDeliveryLogs     EmailDeliveryLog[]
   customerProfile    CustomerProfile?
   fleetOwner         FleetOwner?
   driverProfile      DriverProfile?
@@ -518,6 +521,63 @@ model PasswordResetToken {
   @@index([userId])
   @@index([tokenHash])
   @@map("password_reset_tokens")
+}
+
+enum EmailDeliveryStatus {
+  queued
+  sent
+  delivered
+  failed
+  skipped
+  bounced
+  complained
+
+  @@map("email_delivery_status")
+}
+
+model EmailDeliveryLog {
+  id                String               @id @default(uuid()) @db.Uuid
+  userId            String?              @map("user_id") @db.Uuid
+  recipientEmail    String               @map("recipient_email")
+  eventKey          String               @unique @map("event_key")
+  templateEvent     String               @map("template_event")
+  entityType        String?              @map("entity_type")
+  entityId          String?              @map("entity_id")
+  locale            Locale               @default(ar)
+  subject           String
+  status            EmailDeliveryStatus  @default(queued)
+  provider          String?
+  providerMessageId String?              @map("provider_message_id")
+  retryCount        Int                  @default(0) @map("retry_count")
+  errorCategory     String?              @map("error_category")
+  errorMessage      String?              @map("error_message")
+  queuedAt          DateTime             @default(now()) @map("queued_at")
+  sentAt            DateTime?            @map("sent_at")
+  deliveredAt       DateTime?            @map("delivered_at")
+  failedAt          DateTime?            @map("failed_at")
+  metadata          Json                 @default("{}")
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([recipientEmail])
+  @@index([templateEvent])
+  @@index([userId])
+  @@map("email_delivery_logs")
+}
+
+model EmailVerificationToken {
+  id        String    @id @default(uuid()) @db.Uuid
+  userId    String    @map("user_id") @db.Uuid
+  tokenHash String    @map("token_hash")
+  expiresAt DateTime  @map("expires_at")
+  usedAt    DateTime? @map("used_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([tokenHash])
+  @@map("email_verification_tokens")
 }
 
 model RefreshToken {

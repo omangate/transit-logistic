@@ -28,6 +28,12 @@ describe('NotificationDeliveryService', () => {
       prisma as unknown as PrismaService,
       notifications as unknown as NotificationsService,
       { sendWelcome: jest.fn() } as never,
+      {
+        sendTransactional: jest.fn().mockResolvedValue({ sent: false }),
+        sendWorkflowStatusEmail: jest.fn().mockResolvedValue({ sent: false }),
+        sendMilestone: jest.fn().mockResolvedValue({ sent: false }),
+        sendMessageEmailThrottled: jest.fn().mockResolvedValue({ sent: false }),
+      } as never,
       { getSection: jest.fn().mockResolvedValue({ email: false }) } as never,
     );
     notifications.createManyInApp.mockResolvedValue({ createdCount: 1 });

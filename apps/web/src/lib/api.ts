@@ -24,6 +24,7 @@ import type {
   UpdateShipmentStatusInput,
 } from '@/types/admin';
 import type { AuthTokensResponse, LoginRequest, RegisterRequest } from '@/types/auth';
+import type { EmailPreferences, UpdateEmailPreferencesInput } from '@/types/email-preferences';
 import type { AcceptShipmentInput } from '@/types/fleet';
 import type { GeoRegion, GovernorateWithWilayats } from '@/types/geography';
 import type {
@@ -1274,6 +1275,67 @@ export async function downloadLogisticsVehiclesPdf(orderId: string): Promise<Blo
 
 export async function downloadLogisticsDeliveryPdf(orderId: string): Promise<Blob> {
   return downloadLogisticsPdf(`/logistics/reports/orders/${orderId}/delivery.pdf`);
+}
+
+export interface UserMeResponse {
+  id: string;
+  email: string;
+  phone: string | null;
+  role: string;
+  locale: string;
+  isActive: boolean;
+  isVerified: boolean;
+}
+
+export async function getCurrentUser(): Promise<UserMeResponse> {
+  return authRequest<UserMeResponse>('/users/me');
+}
+
+export async function getEmailPreferences() {
+  return authRequest<EmailPreferences>('/users/me/email-preferences');
+}
+
+export async function updateEmailPreferences(input: UpdateEmailPreferencesInput) {
+  return authRequest<EmailPreferences>('/users/me/email-preferences', {
+    method: 'PATCH',
+    body: JSON.stringify(input),
+  });
+}
+
+export async function updateUserEmail(email: string) {
+  return authRequest<{ sent: boolean; alreadyVerified?: boolean }>('/users/me/email', {
+    method: 'PATCH',
+    body: JSON.stringify({ email }),
+  });
+}
+
+export async function resendVerificationEmail() {
+  return authRequest<{ sent: boolean; alreadyVerified?: boolean }>('/auth/resend-verification', { method: 'POST' });
+}
+
+export async function verifyEmailToken(token: string) {
+  return authRequest<{ success: boolean; email: string }>('/auth/verify-email', {
+    method: 'POST',
+    body: JSON.stringify({ token }),
+  });
+}
+
+export async function markChecklistItemMissing(itemId: string, input?: { dueDate?: string; note?: string }) {
+  return authRequest<{ success: boolean; itemId: string }>(
+    `/admin/logistics/documents/checklist-items/${itemId}/mark-missing`,
+    { method: 'PATCH', body: JSON.stringify(input ?? {}) },
+  );
+}
+
+export async function createLogisticsQuote(input: Record<string, unknown>): Promise<LogisticsQuote> {
+  return authRequest<LogisticsQuote>('/logistics/quotes', { method: 'POST', body: JSON.stringify(input) });
+}
+
+export async function amendLogisticsQuote(quoteId: string, input: Record<string, unknown>): Promise<LogisticsQuote> {
+  return authRequest<LogisticsQuote>(`/logistics/quotes/${quoteId}/amend`, {
+    method: 'POST',
+    body: JSON.stringify(input),
+  });
 }
 
 export { ApiClientError } from '@/lib/api-error';

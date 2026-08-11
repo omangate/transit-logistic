@@ -17,11 +17,13 @@ export class EmailService {
   private readonly logger = new Logger(EmailService.name);
   private readonly resend: Resend | null;
   private readonly fromEmail: string;
+  private readonly replyTo?: string;
   private readonly enabled: boolean;
 
   constructor(private readonly config: ConfigService) {
     const apiKey = this.config.get<string>('email.resendApiKey');
     this.fromEmail = this.config.get<string>('email.from', 'Transit Logistic <noreply@transit-logistic.dev>');
+    this.replyTo = this.config.get<string>('email.replyTo');
     this.enabled = Boolean(apiKey);
     this.resend = apiKey ? new Resend(apiKey) : null;
   }
@@ -37,9 +39,14 @@ export class EmailService {
       to: input.to,
       subject: input.subject,
       html: input.html,
+      ...(this.replyTo ? { reply_to: this.replyTo } : {}),
     });
 
     return { delivered: true, id: result.data?.id ?? null };
+  }
+
+  isConfigured(): boolean {
+    return this.enabled;
   }
 
   async sendWelcome(input: { to: string; name: string; locale: 'en' | 'ar' }) {

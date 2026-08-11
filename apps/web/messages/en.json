@@ -52,7 +52,8 @@
       "shipments": "Shipments",
       "marketplace": "Truck marketplace",
       "newShipment": "New shipment",
-      "notifications": "Notifications"
+      "notifications": "Notifications",
+      "account": "Email & account"
     },
     "errors": {
       "generic": "Something went wrong. Please try again."
@@ -1277,7 +1278,8 @@
         "bill_of_lading": "Bill of lading",
         "certificate_of_origin": "Certificate of origin",
         "other": "Other"
-      }
+      },
+      "markMissing": "Request document"
     },
     "quotes": { "latest": "Latest quotation", "accept": "Accept quote" },
     "admin": {
@@ -1308,5 +1310,40 @@
     "send": "Send",
     "typing": "Typing…",
     "error": "Could not respond. Please try again."
+  },
+  "account": {
+    "title": "Email & notifications",
+    "subtitle": "Manage verification and email preferences",
+    "loading": "Loading…",
+    "errors": {
+      "generic": "Something went wrong. Please try again."
+    },
+    "verification": {
+      "title": "Email verification",
+      "verified": "Email verified",
+      "unverified": "Email not verified",
+      "resend": "Resend verification email",
+      "sent": "Verification email sent. Check your inbox.",
+      "alreadyVerified": "Your email is already verified.",
+      "emailLabel": "Email address",
+      "updateEmail": "Update email",
+      "emailUpdated": "Email updated. Check your inbox to verify the new address.",
+      "pageTitle": "Verify your email",
+      "verifying": "Verifying…",
+      "success": "Your email has been verified successfully.",
+      "invalidToken": "Invalid or expired verification link.",
+      "goToAccount": "Go to account settings"
+    },
+    "preferences": {
+      "title": "Email preferences",
+      "hint": "Choose which optional emails you receive. Operational and security emails cannot be disabled.",
+      "generalUpdates": "General platform updates",
+      "messageEmails": "New message notifications",
+      "marketing": "Marketing and promotions",
+      "recommendations": "Recommendations",
+      "adminAlerts": "Admin operational alerts",
+      "criticalNote": "Password reset, payments, booking changes, required documents, and major transaction updates are always sent.",
+      "saved": "Preferences saved."
+    }
   }
 }

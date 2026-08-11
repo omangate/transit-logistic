@@ -79,6 +79,15 @@ export class AdminLogisticsDocumentsController {
   ) {
     return this.documents.review(user, id, body.status, body.reviewNote);
   }
+
+  @Patch('checklist-items/:itemId/mark-missing')
+  markChecklistMissing(
+    @CurrentUser() user: User,
+    @Param('itemId', ParseUUIDPipe) itemId: string,
+    @Body() body: { dueDate?: string; note?: string },
+  ) {
+    return this.documents.markChecklistItemMissing(user, itemId, body);
+  }
 }
 
 @Controller('logistics/quotes')
@@ -101,6 +110,16 @@ export class LogisticsQuotesController {
   @Roles(UserRole.ADMIN)
   create(@CurrentUser() user: User, @Body() body: Record<string, unknown>) {
     return this.quotes.createQuote(user, body as never);
+  }
+
+  @Post(':id/amend')
+  @Roles(UserRole.ADMIN)
+  amend(
+    @CurrentUser() user: User,
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() body: Record<string, unknown>,
+  ) {
+    return this.quotes.amendQuote(user, id, body as never);
   }
 
   @Post(':id/respond')

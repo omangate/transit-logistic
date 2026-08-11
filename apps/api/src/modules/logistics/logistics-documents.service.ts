@@ -123,7 +123,7 @@ export class LogisticsDocumentsService {
 
     if (doc.customsRequestId) {
       const req = await this.prisma.customsClearanceRequest.findUnique({ where: { id: doc.customsRequestId } });
-      if (req) void this.notifications.safeNotifyDocumentReviewed(req.customerId, documentId, status);
+      if (req) void this.notifications.safeNotifyDocumentReviewed(req.customerId, documentId, status, reviewNote);
     }
 
     return doc;
@@ -140,5 +140,76 @@ export class LogisticsDocumentsService {
         status: { in: ['required', 'missing'] },
       },
     });
+  }
+
+  async markChecklistItemMissing(
+    user: User,
+    itemId: string,
+    input?: { dueDate?: string; note?: string },
+  ) {
+    this.access.assertAdmin(user);
+
+    const item = await this.prisma.documentChecklistItem.findUniqueOrThrow({
+      where: { id: itemId },
+      include: {
+        customsRequest: { select: { id: true, referenceNumber: true, customerId: true, status: true } },
+        freightRequest: { select: { id: true, referenceNumber: true, customerId: true, status: true } },
+        logisticsOrder: { select: { id: true, referenceNumber: true, customerId: true } },
+      },
+    });
+
+    await this.prisma.documentChecklistItem.update({
+      where: { id: itemId },
+      data: { status: 'missing' },
+    });
+
+    const customerId =
+      item.customsRequest?.customerId ??
+      item.freightRequest?.customerId ??
+      item.logisticsOrder?.customerId;
+    const reference =
+      item.customsRequest?.referenceNumber ??
+      item.freightRequest?.referenceNumber ??
+      item.logisticsOrder?.referenceNumber ??
+      itemId;
+
+    if (item.customsRequestId && item.customsRequest?.status !== 'documents_missing') {
+      await this.prisma.customsClearanceRequest.update({
+        where: { id: item.customsRequestId },
+        data: { status: 'documents_missing' },
+      });
+    }
+
+    if (customerId) {
+      const entityType = item.customsRequestId
+        ? 'customs_clearance'
+        : item.freightRequestId
+          ? 'freight_request'
+          : 'logistics_order';
+      const entityId = item.customsRequestId ?? item.freightRequestId ?? item.logisticsOrderId ?? itemId;
+      const uploadPath = item.customsRequestId
+        ? `/customs/requests/${item.customsRequestId}`
+        : item.freightRequestId
+          ? `/freight/shipments/${item.freightRequestId}`
+          : item.logisticsOrderId
+            ? `/logistics/orders/${item.logisticsOrderId}`
+            : '/logistics';
+
+      void this.notifications.safeNotifyDocumentMissing({
+        userId: customerId,
+        documentName: item.documentCategory.replace(/_/g, ' '),
+        reference,
+        entityType,
+        entityId,
+        dueDate: input?.dueDate ? new Date(input.dueDate) : undefined,
+        uploadPath,
+      });
+
+      if (item.customsRequestId) {
+        void this.notifications.safeNotifyCustomsStatusChanged(customerId, item.customsRequestId, 'documents_missing');
+      }
+    }
+
+    return { success: true, itemId };
   }
 }

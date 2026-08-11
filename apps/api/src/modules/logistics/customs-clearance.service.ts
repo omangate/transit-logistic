@@ -93,6 +93,8 @@ export class CustomsClearanceService {
 
     await this.seedChecklist(request.id, input.transactionType);
 
+    void this.notifications.safeNotifyCustomsCreated(user.id, request.id, request.referenceNumber);
+
     return request;
   }
 

@@ -153,7 +153,11 @@ export function CustomsRequestDetailContent({ id }: { id: string }) {
           </section>
 
           <section className="logistics-panel">
-            <DocumentChecklistPanel items={request.checklistItems ?? []} />
+            <DocumentChecklistPanel
+              items={request.checklistItems ?? []}
+              isAdmin={user.role === 'admin'}
+              onUpdated={() => void getCustomsRequest(id).then(setRequest)}
+            />
           </section>
 
           {latestQuote ? (

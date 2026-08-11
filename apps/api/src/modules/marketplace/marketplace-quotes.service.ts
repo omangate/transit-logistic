@@ -12,6 +12,7 @@ import { UserRole } from '@transit-logistic/shared';
 
 import { PrismaService } from '../../database/prisma.service';
 import { FleetOwnershipService } from '../fleet/fleet-ownership.service';
+import { NotificationDeliveryService } from '../notifications/notification-delivery.service';
 import { AvailabilityService } from '../bookings/availability.service';
 import { calculateRentalPricing } from '../bookings/rental-pricing.util';
 
@@ -24,6 +25,7 @@ export class MarketplaceQuotesService {
     private readonly prisma: PrismaService,
     private readonly ownership: FleetOwnershipService,
     private readonly availability: AvailabilityService,
+    private readonly notifications: NotificationDeliveryService,
   ) {}
 
   async create(user: User, listingId: string, dto: CreateQuoteRequestDto) {
@@ -62,6 +64,21 @@ export class MarketplaceQuotesService {
     });
 
     await this.recordStatus(quote.id, 'pending', user.id, 'Quote submitted');
+
+    const fleetOwner = await this.prisma.fleetOwner.findUnique({
+      where: { id: listing.fleetOwnerId },
+      select: { userId: true },
+    });
+    if (fleetOwner?.userId) {
+      void this.notifications.safeNotifyMarketplaceQuote({
+        quoteId: quote.id,
+        customerId: user.id,
+        fleetOwnerUserId: fleetOwner.userId,
+        event: 'created',
+        listingName: listing.name,
+      });
+    }
+
     return quote;
   }
 
@@ -175,6 +192,30 @@ export class MarketplaceQuotesService {
     });
 
     await this.recordStatus(quoteId, status, user.id, dto.fleetResponse ?? dto.action);
+
+    const fleetOwner = await this.prisma.fleetOwner.findUnique({
+      where: { id: quote.truckListing.fleetOwnerId },
+      select: { userId: true },
+    });
+    if (fleetOwner?.userId) {
+      const eventMap: Partial<Record<QuoteRequestStatus, 'fleet_responded' | 'countered' | 'accepted' | 'declined'>> = {
+        accepted: 'accepted',
+        declined: 'declined',
+        countered: 'countered',
+        responded: 'fleet_responded',
+      };
+      const event = eventMap[status];
+      if (event) {
+        void this.notifications.safeNotifyMarketplaceQuote({
+          quoteId,
+          customerId: quote.customerId,
+          fleetOwnerUserId: fleetOwner.userId,
+          event,
+          listingName: quote.truckListing.name,
+        });
+      }
+    }
+
     return updated;
   }
 
@@ -198,6 +239,19 @@ export class MarketplaceQuotesService {
         data: { status: 'cancelled' },
       });
       await this.recordStatus(quoteId, 'cancelled', user.id, dto.note);
+      const fleetOwner = await this.prisma.fleetOwner.findUnique({
+        where: { id: quote.truckListing.fleetOwnerId },
+        select: { userId: true },
+      });
+      if (fleetOwner?.userId) {
+        void this.notifications.safeNotifyMarketplaceQuote({
+          quoteId,
+          customerId: quote.customerId,
+          fleetOwnerUserId: fleetOwner.userId,
+          event: 'cancelled',
+          listingName: quote.truckListing.name,
+        });
+      }
       return updated;
     }
 
@@ -223,6 +277,21 @@ export class MarketplaceQuotesService {
       data: { status: 'accepted' },
     });
     await this.recordStatus(quoteId, 'accepted', user.id, dto.note ?? 'Customer accepted');
+
+    const fleetOwner = await this.prisma.fleetOwner.findUnique({
+      where: { id: quote.truckListing.fleetOwnerId },
+      select: { userId: true },
+    });
+    if (fleetOwner?.userId) {
+      void this.notifications.safeNotifyMarketplaceQuote({
+        quoteId,
+        customerId: quote.customerId,
+        fleetOwnerUserId: fleetOwner.userId,
+        event: 'accepted',
+        listingName: quote.truckListing.name,
+      });
+    }
+
     return updated;
   }
 

@@ -6,6 +6,13 @@ import { ShipmentStatus, UserRole, WalletTransactionType } from '@transit-logist
 
 import { PrismaService } from '../../database/prisma.service';
 import { EmailService } from '../email/email.service';
+import {
+  documentRejectedEmail,
+  passwordResetEmail,
+  paymentEmail,
+  resolveWebAppUrl,
+} from '../email/email-templates';
+import { TransactionalEmailService } from '../email/transactional-email.service';
 import { SettingsService } from '../settings/settings.service';
 
 import type { BroadcastNotificationDto } from './dto/broadcast-notification.dto';
@@ -61,6 +68,7 @@ export class NotificationDeliveryService {
     private readonly prisma: PrismaService,
     private readonly notifications: NotificationsService,
     private readonly email: EmailService,
+    private readonly transactionalEmail: TransactionalEmailService,
     private readonly settings: SettingsService,
   ) {}
 
@@ -92,12 +100,19 @@ export class NotificationDeliveryService {
     try {
       const subject =
         input.locale === 'ar' ? 'إعادة تعيين كلمة المرور' : 'Reset your password';
-      const html =
-        input.locale === 'ar'
-          ? `<p>اضغط على الرابط لإعادة تعيين كلمة المرور (صالح لمدة ساعة):</p><p><a href="${input.resetUrl}">${input.resetUrl}</a></p>`
-          : `<p>Use this link to reset your password (valid for 1 hour):</p><p><a href="${input.resetUrl}">${input.resetUrl}</a></p>`;
+      const html = passwordResetEmail({ locale: input.locale, resetUrl: input.resetUrl });
 
-      await this.email.send({ to: input.email, subject, html });
+      void this.transactionalEmail.sendTransactional({
+        userId: input.userId,
+        to: input.email,
+        locale: input.locale,
+        event: 'auth.password_reset',
+        eventKey: `password-reset:${input.userId}:${Date.now()}`,
+        subject,
+        html,
+        force: true,
+      });
+
       await this.notifications.createInApp({
         userId: input.userId,
         titleEn: 'Password reset requested',
@@ -144,7 +159,7 @@ export class NotificationDeliveryService {
     }
 
     const content = buildPaymentSuccessNotification(input.referenceNumber, input.amount, input.currency);
-    return this.deliverToUsers(
+    const result = await this.deliverToUsers(
       [input.userId],
       content,
       {
@@ -162,6 +177,17 @@ export class NotificationDeliveryService {
         currency: input.currency,
       }],
     );
+
+    void this.safeNotifyPaymentEvent({
+      userId: input.userId,
+      kind: 'received',
+      reference: input.referenceNumber,
+      amount: input.amount,
+      currency: input.currency,
+      eventKey: `payment:${input.referenceNumber}:received`,
+    });
+
+    return result;
   }
 
   async safeNotifyPaymentSuccess(input: {
@@ -525,8 +551,91 @@ export class NotificationDeliveryService {
         bodyAr: reviewNote ?? (status === 'approved' ? 'تم اعتماد مستندك.' : 'تم رفض مستندك.'),
         data: { type: NOTIFICATION_TYPES.DOCUMENT_REVIEWED, documentId, status, reviewNote },
       });
+
+      if (status !== 'rejected') return;
+
+      const doc = await this.prisma.logisticsDocument.findUnique({
+        where: { id: documentId },
+        include: {
+          customsRequest: { select: { id: true, referenceNumber: true } },
+          freightRequest: { select: { id: true, referenceNumber: true } },
+        },
+      });
+      if (!doc) return;
+
+      const user = await this.prisma.user.findUnique({ where: { id: userId }, select: { email: true, locale: true } });
+      if (!user) return;
+
+      const locale = (user.locale as 'en' | 'ar') ?? 'ar';
+      const reference = doc.customsRequest?.referenceNumber ?? doc.freightRequest?.referenceNumber ?? documentId;
+      const path = doc.customsRequestId
+        ? `/${locale}/logistics/customs/${doc.customsRequestId}`
+        : doc.freightRequestId
+          ? `/${locale}/logistics/freight/${doc.freightRequestId}`
+          : `/${locale}/logistics`;
+
+      const html = documentRejectedEmail({
+        locale,
+        documentName: doc.category.replace(/_/g, ' '),
+        reference,
+        reason: reviewNote,
+        uploadUrl: resolveWebAppUrl(path),
+      });
+
+      void this.transactionalEmail.sendTransactional({
+        userId,
+        to: user.email,
+        locale,
+        event: 'document.rejected',
+        eventKey: `document:${documentId}:rejected`,
+        entityType: 'logistics_document',
+        entityId: documentId,
+        subject: locale === 'ar' ? 'تم رفض المستند' : 'Document rejected',
+        html,
+        force: true,
+      });
     } catch (error) {
       this.logger.warn(`Document review notification failed: ${String(error)}`);
+    }
+  }
+
+  async safeNotifyDocumentMissing(input: {
+    userId: string;
+    documentName: string;
+    reference: string;
+    entityType: string;
+    entityId: string;
+    dueDate?: Date;
+    uploadPath: string;
+  }) {
+    try {
+      const user = await this.prisma.user.findUnique({ where: { id: input.userId }, select: { email: true, locale: true } });
+      if (!user) return;
+
+      const locale = (user.locale as 'en' | 'ar') ?? 'ar';
+      const { documentRequestEmail } = await import('../email/email-templates');
+      const html = documentRequestEmail({
+        locale,
+        documentName: input.documentName,
+        reference: input.reference,
+        dueDate: input.dueDate,
+        uploadUrl: resolveWebAppUrl(input.uploadPath),
+      });
+
+      void this.transactionalEmail.sendTransactional({
+        userId: input.userId,
+        to: user.email,
+        locale,
+        event: 'document.missing',
+        eventKey: `document-missing:${input.entityType}:${input.entityId}:${input.documentName}`,
+        entityType: input.entityType,
+        entityId: input.entityId,
+        subject: locale === 'ar' ? 'مستند مطلوب' : 'Document required',
+        html,
+        force: true,
+      });
+    } catch (error) {
+      this.logger.warn(`Document missing notification failed: ${String(error)}`);
     }
   }
 
@@ -540,8 +649,66 @@ export class NotificationDeliveryService {
         bodyAr: `حالة طلب التخليص الجمركي: ${status.replace(/_/g, ' ')}.`,
         data: { type: NOTIFICATION_TYPES.CUSTOMS_STATUS, requestId, status },
       });
+
+      const request = await this.prisma.customsClearanceRequest.findUnique({
+        where: { id: requestId },
+        include: {
+          logisticsOrder: { select: { referenceNumber: true } },
+          customer: { select: { locale: true } },
+        },
+      });
+      if (!request) return;
+
+      const locale = (request.customer.locale as 'en' | 'ar') ?? 'ar';
+      void this.transactionalEmail.sendWorkflowStatusEmail({
+        userId,
+        domain: 'customs',
+        status,
+        entityType: 'customs_clearance',
+        entityId: requestId,
+        eventKey: `customs:${requestId}:${status}`,
+        locale,
+        path: `/${locale}/logistics/customs/${requestId}`,
+        context: {
+          orderReference: request.referenceNumber,
+          customerReference: request.customerReference ?? undefined,
+          status: status.replace(/_/g, ' '),
+          occurredAt: new Date(),
+        },
+      });
+
+      if (status === 'submitted') {
+        void this.safeNotifyAdminsOperational({
+          event: 'admin.new_customs_request',
+          titleEn: 'New customs request',
+          titleAr: 'طلب تخليص جمركي جديد',
+          bodyEn: `Request ${request.referenceNumber} was submitted.`,
+          bodyAr: `تم إرسال الطلب ${request.referenceNumber}.`,
+          path: `/admin/logistics/customs/${requestId}`,
+        });
+      }
     } catch (error) {
       this.logger.warn(`Customs status notification failed: ${String(error)}`);
+    }
+  }
+
+  async safeNotifyCustomsCreated(userId: string, requestId: string, referenceNumber: string) {
+    try {
+      const user = await this.prisma.user.findUnique({ where: { id: userId }, select: { locale: true } });
+      const locale = (user?.locale as 'en' | 'ar') ?? 'ar';
+      void this.transactionalEmail.sendWorkflowStatusEmail({
+        userId,
+        domain: 'customs',
+        status: 'draft',
+        entityType: 'customs_clearance',
+        entityId: requestId,
+        eventKey: `customs:${requestId}:created`,
+        locale,
+        path: `/${locale}/logistics/customs/${requestId}`,
+        context: { orderReference: referenceNumber, occurredAt: new Date() },
+      });
+    } catch (error) {
+      this.logger.warn(`Customs created notification failed: ${String(error)}`);
     }
   }
 
@@ -555,8 +722,54 @@ export class NotificationDeliveryService {
         bodyAr: `حالة طلب الشحن: ${status.replace(/_/g, ' ')}.`,
         data: { type: NOTIFICATION_TYPES.FREIGHT_STATUS, requestId, status },
       });
+
+      const request = await this.prisma.freightForwardingRequest.findUnique({
+        where: { id: requestId },
+        include: {
+          logisticsOrder: { select: { referenceNumber: true } },
+          customer: { select: { locale: true } },
+        },
+      });
+      if (!request) return;
+
+      const locale = (request.customer.locale as 'en' | 'ar') ?? 'ar';
+      void this.transactionalEmail.sendWorkflowStatusEmail({
+        userId,
+        domain: 'freight',
+        status,
+        entityType: 'freight_request',
+        entityId: requestId,
+        eventKey: `freight:${requestId}:${status}`,
+        locale,
+        path: `/${locale}/logistics/freight/${requestId}`,
+        context: {
+          orderReference: request.referenceNumber,
+          status: status.replace(/_/g, ' '),
+          occurredAt: new Date(),
+        },
+      });
     } catch (error) {
       this.logger.warn(`Freight status notification failed: ${String(error)}`);
+    }
+  }
+
+  async safeNotifyFreightCreated(userId: string, requestId: string, referenceNumber: string) {
+    try {
+      const user = await this.prisma.user.findUnique({ where: { id: userId }, select: { locale: true } });
+      const locale = (user?.locale as 'en' | 'ar') ?? 'ar';
+      void this.transactionalEmail.sendWorkflowStatusEmail({
+        userId,
+        domain: 'freight',
+        status: 'draft',
+        entityType: 'freight_request',
+        entityId: requestId,
+        eventKey: `freight:${requestId}:created`,
+        locale,
+        path: `/${locale}/logistics/freight/${requestId}`,
+        context: { orderReference: referenceNumber, occurredAt: new Date() },
+      });
+    } catch (error) {
+      this.logger.warn(`Freight created notification failed: ${String(error)}`);
     }
   }
 
@@ -570,8 +783,395 @@ export class NotificationDeliveryService {
         bodyAr: 'عرض السعر جاهز للمراجعة.',
         data: { type: NOTIFICATION_TYPES.LOGISTICS_QUOTE, quoteId },
       });
+
+      await this.sendLogisticsQuoteEmail(userId, quoteId, 'issued');
     } catch (error) {
       this.logger.warn(`Logistics quote notification failed: ${String(error)}`);
+    }
+  }
+
+  async safeNotifyLogisticsQuoteAmended(userId: string, quoteId: string, previousQuoteId: string) {
+    try {
+      await this.notifications.createInApp({
+        userId,
+        titleEn: 'Quotation amended',
+        titleAr: 'تم تعديل عرض السعر',
+        bodyEn: 'An updated quotation is ready for your review.',
+        bodyAr: 'عرض سعر محدّث جاهز للمراجعة.',
+        data: { type: NOTIFICATION_TYPES.LOGISTICS_QUOTE, quoteId, previousQuoteId, amended: true },
+      });
+
+      await this.sendLogisticsQuoteEmail(userId, quoteId, 'amended', previousQuoteId);
+    } catch (error) {
+      this.logger.warn(`Logistics quote amended notification failed: ${String(error)}`);
+    }
+  }
+
+  private async sendLogisticsQuoteEmail(
+    userId: string,
+    quoteId: string,
+    kind: 'issued' | 'amended',
+    previousQuoteId?: string,
+  ) {
+    const quote = await this.prisma.logisticsQuote.findUnique({
+      where: { id: quoteId },
+      include: {
+        customsRequest: { select: { referenceNumber: true, id: true } },
+        freightRequest: { select: { referenceNumber: true, id: true } },
+        logisticsOrder: { select: { referenceNumber: true } },
+      },
+    });
+    if (!quote) return;
+
+    const user = await this.prisma.user.findUnique({ where: { id: userId }, select: { locale: true } });
+    const locale = (user?.locale as 'en' | 'ar') ?? 'ar';
+    const ref =
+      quote.logisticsOrder?.referenceNumber ??
+      quote.customsRequest?.referenceNumber ??
+      quote.freightRequest?.referenceNumber ??
+      quoteId;
+
+    const isCustoms = Boolean(quote.customsRequestId);
+    const event =
+      kind === 'amended'
+        ? isCustoms
+          ? 'customs.quote_amended'
+          : 'freight.quote_amended'
+        : isCustoms
+          ? 'customs.quote_issued'
+          : 'freight.quote_issued';
+
+    void this.transactionalEmail.sendMilestone({
+      userId,
+      event,
+      eventKey: `quote:${quoteId}:${kind}:v${quote.version}${previousQuoteId ? `:${previousQuoteId}` : ''}`,
+      entityType: 'logistics_quote',
+      entityId: quoteId,
+      locale,
+      context: {
+        orderReference: ref,
+        service: isCustoms ? (locale === 'ar' ? 'التخليص الجمركي' : 'Customs Clearance') : locale === 'ar' ? 'الشحن الدولي' : 'Freight Forwarding',
+        status: kind === 'amended' ? (locale === 'ar' ? 'عرض معدّل' : 'Amended quote') : locale === 'ar' ? 'عرض سعر' : 'Quotation sent',
+        explanation:
+          kind === 'amended'
+            ? locale === 'ar'
+              ? 'تم تعديل عرض السعر. يرجى مراجعة النسخة المحدّثة.'
+              : 'Your quotation has been amended. Please review the updated version.'
+            : locale === 'ar'
+              ? 'عرض السعر جاهز للمراجعة.'
+              : 'Your quotation is ready for review.',
+        nextAction:
+          locale === 'ar' ? 'راجع واقبل عرض السعر.' : 'Review and accept the quotation.',
+        occurredAt: new Date(),
+      },
+      actionUrl: resolveWebAppUrl(
+        quote.customsRequestId
+          ? `/${locale}/customs/requests/${quote.customsRequestId}`
+          : quote.freightRequestId
+            ? `/${locale}/freight/shipments/${quote.freightRequestId}`
+            : quote.logisticsOrderId
+              ? `/${locale}/logistics/orders/${quote.logisticsOrderId}`
+              : `/${locale}/logistics`,
+      ),
+    });
+  }
+
+  async safeNotifyDriverJob(input: {
+    driverUserId: string;
+    shipmentId: string;
+    referenceNumber: string;
+    event: 'assigned' | 'changed' | 'cancelled' | 'pickup_instructions' | 'delivery_instructions';
+    instructions?: string;
+    statusLabel?: string;
+  }) {
+    try {
+      const user = await this.prisma.user.findUnique({
+        where: { id: input.driverUserId },
+        select: { email: true, locale: true },
+      });
+      if (!user) return;
+
+      const locale = (user.locale as 'en' | 'ar') ?? 'ar';
+      const { driverJobEmail } = await import('../email/email-templates');
+
+      const titles: Record<typeof input.event, { en: string; ar: string }> = {
+        assigned: { en: 'New job assigned', ar: 'مهمة جديدة' },
+        changed: { en: 'Job updated', ar: 'تحديث المهمة' },
+        cancelled: { en: 'Job cancelled', ar: 'تم إلغاء المهمة' },
+        pickup_instructions: { en: 'Pickup instructions', ar: 'تعليمات الاستلام' },
+        delivery_instructions: { en: 'Delivery instructions', ar: 'تعليمات التسليم' },
+      };
+
+      const html = driverJobEmail({
+        locale,
+        title: titles[input.event][locale === 'ar' ? 'ar' : 'en'],
+        reference: input.referenceNumber,
+        instructions: input.instructions,
+        statusLabel: input.statusLabel,
+        actionUrl: resolveWebAppUrl(`/${locale}/driver/dashboard`),
+      });
+
+      void this.transactionalEmail.sendTransactional({
+        userId: input.driverUserId,
+        to: user.email,
+        locale,
+        event: `driver.job_${input.event}`,
+        eventKey: `driver:${input.shipmentId}:${input.event}:${input.statusLabel ?? 'default'}`,
+        entityType: 'shipment',
+        entityId: input.shipmentId,
+        subject: `${titles[input.event][locale === 'ar' ? 'ar' : 'en']} — ${input.referenceNumber}`,
+        html,
+        force: input.event === 'cancelled',
+      });
+    } catch (error) {
+      this.logger.warn(`Driver job notification failed: ${String(error)}`);
+    }
+  }
+
+  async safeNotifyBookingEvent(input: {
+    customerId: string;
+    fleetOwnerId: string;
+    bookingId: string;
+    event: 'created' | 'confirmed' | 'cancelled';
+    reference?: string;
+  }) {
+    try {
+      const booking = await this.prisma.truckBooking.findUnique({
+        where: { id: input.bookingId },
+        include: {
+          truckListing: { select: { name: true } },
+          customer: { select: { locale: true, email: true } },
+          fleetOwner: { select: { userId: true, user: { select: { locale: true } } } },
+        },
+      });
+      if (!booking) return;
+
+      const ref = input.reference ?? booking.truckListing.name;
+      const customerLocale = (booking.customer.locale as 'en' | 'ar') ?? 'ar';
+      const fleetUserId = booking.fleetOwner.userId;
+
+      const events: Record<typeof input.event, { customer: string; fleet: string; critical?: boolean }> = {
+        created: { customer: 'booking.created', fleet: 'booking.new_request' },
+        confirmed: { customer: 'booking.confirmed', fleet: 'booking.confirmed' },
+        cancelled: { customer: 'booking.cancelled', fleet: 'booking.cancelled', critical: true },
+      };
+
+      const map = events[input.event];
+      const notifyUser = async (userId: string, emailEvent: string, locale: 'en' | 'ar') => {
+        void this.transactionalEmail.sendMilestone({
+          userId,
+          event: emailEvent,
+          eventKey: `booking:${input.bookingId}:${input.event}:${userId}`,
+          entityType: 'truck_booking',
+          entityId: input.bookingId,
+          locale,
+          context: {
+            orderReference: ref,
+            service: locale === 'ar' ? 'حجز شاحنة' : 'Truck booking',
+            status: input.event,
+            occurredAt: new Date(),
+          },
+          actionUrl: resolveWebAppUrl(`/${locale}/bookings/${input.bookingId}`),
+          force: map.critical,
+        });
+      };
+
+      await notifyUser(input.customerId, map.customer, customerLocale);
+      const fleetLocale = (booking.fleetOwner.user.locale as 'en' | 'ar') ?? 'ar';
+      await notifyUser(fleetUserId, map.fleet, fleetLocale);
+    } catch (error) {
+      this.logger.warn(`Booking notification failed: ${String(error)}`);
+    }
+  }
+
+  async safeNotifyMarketplaceQuote(input: {
+    quoteId: string;
+    customerId: string;
+    fleetOwnerUserId: string;
+    event: 'created' | 'fleet_responded' | 'countered' | 'accepted' | 'declined' | 'cancelled';
+    listingName: string;
+  }) {
+    try {
+      const [customer, fleet] = await Promise.all([
+        this.prisma.user.findUnique({ where: { id: input.customerId }, select: { locale: true } }),
+        this.prisma.user.findUnique({ where: { id: input.fleetOwnerUserId }, select: { locale: true } }),
+      ]);
+
+      const customerLocale = (customer?.locale as 'en' | 'ar') ?? 'ar';
+      const fleetLocale = (fleet?.locale as 'en' | 'ar') ?? 'ar';
+
+      const customerEvents = new Set(['fleet_responded', 'countered', 'accepted']);
+      const fleetEvents = new Set(['created', 'accepted', 'cancelled']);
+
+      if (customerEvents.has(input.event)) {
+        void this.transactionalEmail.sendMilestone({
+          userId: input.customerId,
+          event: `marketplace.quote_${input.event}`,
+          eventKey: `marketplace:${input.quoteId}:${input.event}:customer`,
+          entityType: 'truck_quote',
+          entityId: input.quoteId,
+          locale: customerLocale,
+          context: {
+            orderReference: input.listingName,
+            service: customerLocale === 'ar' ? 'سوق الشاحنات' : 'Truck marketplace',
+            status: input.event,
+            occurredAt: new Date(),
+          },
+          actionUrl: resolveWebAppUrl(`/${customerLocale}/marketplace/quotes/${input.quoteId}`),
+        });
+      }
+
+      if (fleetEvents.has(input.event)) {
+        void this.transactionalEmail.sendMilestone({
+          userId: input.fleetOwnerUserId,
+          event: `marketplace.quote_${input.event}`,
+          eventKey: `marketplace:${input.quoteId}:${input.event}:fleet`,
+          entityType: 'truck_quote',
+          entityId: input.quoteId,
+          locale: fleetLocale,
+          context: {
+            orderReference: input.listingName,
+            service: fleetLocale === 'ar' ? 'سوق الشاحنات' : 'Truck marketplace',
+            status: input.event,
+            occurredAt: new Date(),
+          },
+          actionUrl: resolveWebAppUrl(`/${fleetLocale}/fleet/quotes/${input.quoteId}`),
+        });
+      }
+    } catch (error) {
+      this.logger.warn(`Marketplace quote notification failed: ${String(error)}`);
+    }
+  }
+
+  async safeNotifyLogisticsMessage(input: {
+    conversationId: string;
+    recipientUserId: string;
+    senderUserId: string;
+    orderReference: string;
+    conversationPath: string;
+  }) {
+    try {
+      if (input.recipientUserId === input.senderUserId) return;
+
+      const user = await this.prisma.user.findUnique({
+        where: { id: input.recipientUserId },
+        select: { locale: true },
+      });
+      const locale = (user?.locale as 'en' | 'ar') ?? 'ar';
+
+      void this.transactionalEmail.sendMessageEmailThrottled({
+        userId: input.recipientUserId,
+        conversationKey: input.conversationId,
+        orderReference: input.orderReference,
+        conversationUrl: resolveWebAppUrl(input.conversationPath),
+        locale,
+        eventKey: `message:${input.conversationId}:${input.recipientUserId}:${Math.floor(Date.now() / 300_000)}`,
+      });
+    } catch (error) {
+      this.logger.warn(`Logistics message notification failed: ${String(error)}`);
+    }
+  }
+
+  async safeNotifyMessagingMessage(input: {
+    conversationId: string;
+    recipientUserId: string;
+    senderUserId: string;
+    reference: string;
+    conversationPath: string;
+  }) {
+    return this.safeNotifyLogisticsMessage({
+      conversationId: input.conversationId,
+      recipientUserId: input.recipientUserId,
+      senderUserId: input.senderUserId,
+      orderReference: input.reference,
+      conversationPath: input.conversationPath,
+    });
+  }
+
+  async safeNotifyPaymentEvent(input: {
+    userId: string;
+    kind: 'requested' | 'received' | 'failed' | 'refund_initiated' | 'refund_completed' | 'invoice' | 'receipt';
+    reference: string;
+    amount: string;
+    currency: string;
+    description?: string;
+    actionPath?: string;
+    eventKey?: string;
+  }) {
+    try {
+      const user = await this.prisma.user.findUnique({
+        where: { id: input.userId },
+        select: { email: true, locale: true },
+      });
+      if (!user) return;
+
+      const locale = (user.locale as 'en' | 'ar') ?? 'ar';
+      const html = paymentEmail({
+        locale,
+        kind: input.kind,
+        reference: input.reference,
+        amount: input.amount,
+        currency: input.currency,
+        description: input.description,
+        actionUrl: input.actionPath ? resolveWebAppUrl(input.actionPath) : undefined,
+      });
+
+      void this.transactionalEmail.sendTransactional({
+        userId: input.userId,
+        to: user.email,
+        locale,
+        event: `payment.${input.kind === 'invoice' ? 'invoice_issued' : input.kind === 'receipt' ? 'receipt_issued' : input.kind}`,
+        eventKey: input.eventKey ?? `payment:${input.reference}:${input.kind}`,
+        entityType: 'payment',
+        entityId: input.reference,
+        subject:
+          locale === 'ar'
+            ? `إشعار دفع — ${input.reference}`
+            : `Payment notice — ${input.reference}`,
+        html,
+        force: true,
+      });
+    } catch (error) {
+      this.logger.warn(`Payment email notification failed: ${String(error)}`);
+    }
+  }
+
+  async safeNotifyAdminsOperational(input: {
+    event: string;
+    titleEn: string;
+    titleAr: string;
+    bodyEn: string;
+    bodyAr: string;
+    path?: string;
+  }) {
+    try {
+      const admins = await this.prisma.user.findMany({
+        where: { role: 'admin', isActive: true },
+        select: { id: true, email: true, locale: true, emailPreferences: true },
+      });
+
+      for (const admin of admins) {
+        const locale = (admin.locale as 'en' | 'ar') ?? 'ar';
+        const { adminOperationalAlertEmail } = await import('../email/email-templates');
+        const html = adminOperationalAlertEmail({
+          locale,
+          title: locale === 'ar' ? input.titleAr : input.titleEn,
+          body: locale === 'ar' ? input.bodyAr : input.bodyEn,
+          actionUrl: input.path ? resolveWebAppUrl(input.path) : undefined,
+        });
+
+        void this.transactionalEmail.sendTransactional({
+          userId: admin.id,
+          to: admin.email,
+          locale,
+          event: 'admin.operational_alert',
+          eventKey: `${input.event}:${admin.id}:${Date.now()}`,
+          subject: locale === 'ar' ? input.titleAr : input.titleEn,
+          html,
+        });
+      }
+    } catch (error) {
+      this.logger.warn(`Admin operational notification failed: ${String(error)}`);
     }
   }
 }

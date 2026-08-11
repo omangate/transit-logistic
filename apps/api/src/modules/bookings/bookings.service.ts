@@ -11,6 +11,7 @@ import { UserRole } from '@transit-logistic/shared';
 
 import { PrismaService } from '../../database/prisma.service';
 import { FleetOwnershipService } from '../fleet/fleet-ownership.service';
+import { NotificationDeliveryService } from '../notifications/notification-delivery.service';
 import { generateShipmentReference } from '../shipments/shipment-reference.util';
 
 import type { BookingQueryDto, CreateBookingDto } from './dto/booking.dto';
@@ -23,6 +24,7 @@ export class BookingsService {
     private readonly prisma: PrismaService,
     private readonly availability: AvailabilityService,
     private readonly ownership: FleetOwnershipService,
+    private readonly notifications: NotificationDeliveryService,
   ) {}
 
   async create(user: User, dto: CreateBookingDto) {
@@ -105,6 +107,14 @@ export class BookingsService {
       },
     });
 
+    void this.notifications.safeNotifyBookingEvent({
+      customerId: user.id,
+      fleetOwnerId: listing.fleetOwnerId,
+      bookingId: booking.id,
+      event: 'created',
+      reference: listing.name,
+    });
+
     return booking;
   }
 
@@ -126,10 +136,19 @@ export class BookingsService {
       booking.endDate,
     );
 
-    return this.prisma.truckBooking.update({
+    const updated = await this.prisma.truckBooking.update({
       where: { id: bookingId },
       data: { status: 'confirmed', confirmedAt: new Date() },
     });
+
+    void this.notifications.safeNotifyBookingEvent({
+      customerId: booking.customerId,
+      fleetOwnerId: booking.fleetOwnerId,
+      bookingId,
+      event: 'confirmed',
+    });
+
+    return updated;
   }
 
   async cancel(user: User, bookingId: string) {
@@ -153,10 +172,19 @@ export class BookingsService {
       });
     }
 
-    return this.prisma.truckBooking.update({
+    const updated = await this.prisma.truckBooking.update({
       where: { id: bookingId },
       data: { status: 'cancelled', cancelledAt: new Date() },
     });
+
+    void this.notifications.safeNotifyBookingEvent({
+      customerId: booking.customerId,
+      fleetOwnerId: booking.fleetOwnerId,
+      bookingId,
+      event: 'cancelled',
+    });
+
+    return updated;
   }
 
   async convertToShipment(user: User, bookingId: string) {
