@@ -52,14 +52,18 @@ export class PublicTrackingController {
     } | null = null;
 
     if (LIVE_STATUSES.has(shipment.status)) {
-      const cached = await this.cache.getLivePosition(shipment.id);
-      if (cached) {
-        livePosition = {
-          latitude: Number(cached.latitude),
-          longitude: Number(cached.longitude),
-          speed: cached.speed ? Number(cached.speed) : null,
-          recordedAt: cached.recordedAt,
-        };
+      try {
+        const cached = await this.cache.getLivePosition(shipment.id);
+        if (cached) {
+          livePosition = {
+            latitude: Number(cached.latitude),
+            longitude: Number(cached.longitude),
+            speed: cached.speed ? Number(cached.speed) : null,
+            recordedAt: cached.recordedAt,
+          };
+        }
+      } catch {
+        // Redis unavailable should not break public tracking responses.
       }
     }
 
