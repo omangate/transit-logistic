@@ -2063,3 +2063,77 @@ model LogisticsMessage {
   @@index([conversationId, createdAt])
   @@map("logistics_messages")
 }
+
+enum OceanCarrierCode {
+  maersk
+  hapag_lloyd
+  msc
+  cma_cgm
+  cosco
+  one
+  evergreen
+  yang_ming
+  zim
+}
+
+enum OceanCarrierIntegrationMode {
+  live_api
+  manual_ops
+  external_tracking
+}
+
+enum OceanCarrierConnectionStatus {
+  connected
+  not_configured
+  auth_required
+  degraded
+  error
+}
+
+model OceanCarrierConfig {
+  id                          String                       @id @default(uuid()) @db.Uuid
+  carrierCode                 OceanCarrierCode             @unique @map("carrier_code")
+  displayName                 String                       @map("display_name")
+  scac                        String?
+  integrationMode             OceanCarrierIntegrationMode  @default(external_tracking) @map("integration_mode")
+  status                      OceanCarrierConnectionStatus @default(not_configured)
+  enabled                     Boolean                      @default(true)
+  supportsTracking            Boolean                      @default(true) @map("supports_tracking")
+  supportsSchedules           Boolean                      @default(false) @map("supports_schedules")
+  supportsBooking             Boolean                      @default(false) @map("supports_booking")
+  externalTrackingUrlTemplate String?                      @map("external_tracking_url_template")
+  credentialEnvKey            String?                      @map("credential_env_key")
+  lastSyncAt                  DateTime?                    @map("last_sync_at")
+  lastError                   String?                      @map("last_error")
+  createdAt                   DateTime                     @default(now()) @map("created_at")
+  updatedAt                   DateTime                     @updatedAt @map("updated_at")
+
+  @@map("ocean_carrier_configs")
+}
+
+model OceanTrackingCache {
+  id              String                       @id @default(uuid()) @db.Uuid
+  searchType      String                       @map("search_type")
+  searchValue     String                       @map("search_value")
+  carrierCode     OceanCarrierCode?            @map("carrier_code")
+  source          OceanCarrierIntegrationMode  @map("source")
+  normalizedData  Json                         @map("normalized_data")
+  containerNumber String?                      @map("container_number")
+  blNumber        String?                      @map("bl_number")
+  bookingNumber   String?                      @map("booking_number")
+  vesselName      String?                      @map("vessel_name")
+  voyage          String?
+  polUnlocode     String?                      @map("pol_unlocode")
+  podUnlocode     String?                      @map("pod_unlocode")
+  etd             DateTime?
+  eta             DateTime?
+  currentStatus   String?                      @map("current_status")
+  lastEventAt     DateTime?                    @map("last_event_at")
+  fetchedAt       DateTime                     @default(now()) @map("fetched_at")
+
+  @@index([searchValue])
+  @@index([containerNumber])
+  @@index([blNumber])
+  @@index([bookingNumber])
+  @@map("ocean_tracking_cache")
+}

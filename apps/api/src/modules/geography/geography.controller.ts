@@ -53,4 +53,9 @@ export class GeographyController {
   getRegion(@Param('id') id: string) {
     return this.geography.getRegion(id);
   }
+
+  @Get('ports/search')
+  searchPorts(@Query('q') q: string, @Query('limit') limit?: string) {
+    return this.geography.searchPorts(q, limit ? Number(limit) : 20);
+  }
 }

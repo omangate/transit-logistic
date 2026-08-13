@@ -42,3 +42,5 @@ apps/api/prisma/migrations/**/migration.sql.bak
 # Misc
 *.tsbuildinfo
 .vercel
+.env*
+.railway-config-pull-*/

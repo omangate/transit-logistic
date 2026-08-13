@@ -172,3 +172,5 @@ export const ShipmentRequestStatus = {
 
 export type ShipmentRequestStatus =
   (typeof ShipmentRequestStatus)[keyof typeof ShipmentRequestStatus];
+
+export * from './ocean-carriers';

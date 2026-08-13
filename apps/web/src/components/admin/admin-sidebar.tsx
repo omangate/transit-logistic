@@ -5,26 +5,53 @@ import { useTranslations } from 'next-intl';
 import { BrandLogo } from '@/components/brand/brand-logo';
 import { Link, usePathname } from '@/i18n/navigation';
 
-const NAV_ITEMS = [
-  { href: '/admin/dashboard', labelKey: 'nav.dashboard' as const },
-  { href: '/admin/shipments', labelKey: 'nav.shipments' as const },
-  { href: '/admin/customers', labelKey: 'nav.customers' as const },
-  { href: '/admin/fleet-owners', labelKey: 'nav.fleetOwners' as const },
-  { href: '/admin/drivers', labelKey: 'nav.drivers' as const },
-  { href: '/admin/vehicles', labelKey: 'nav.vehicles' as const },
-  { href: '/admin/marketplace', labelKey: 'nav.marketplace' as const },
-  { href: '/admin/logistics', labelKey: 'nav.logistics' as const },
-  { href: '/admin/payments', labelKey: 'nav.payments' as const },
-  { href: '/admin/payouts', labelKey: 'nav.payouts' as const },
-  { href: '/admin/ratings', labelKey: 'nav.ratings' as const },
-  { href: '/admin/settings', labelKey: 'nav.settings' as const },
+const NAV_GROUPS = [
+  {
+    id: 'operations',
+    labelKey: 'nav.groups.operations',
+    items: [
+      { href: '/admin/dashboard', labelKey: 'nav.dashboard' },
+      { href: '/admin/operations', labelKey: 'nav.operationsTower' },
+      { href: '/admin/shipments', labelKey: 'nav.shipments' },
+      { href: '/admin/logistics', labelKey: 'nav.logistics' },
+    ],
+  },
+  {
+    id: 'network',
+    labelKey: 'nav.groups.network',
+    items: [
+      { href: '/admin/customers', labelKey: 'nav.customers' },
+      { href: '/admin/fleet-owners', labelKey: 'nav.fleetOwners' },
+      { href: '/admin/drivers', labelKey: 'nav.drivers' },
+      { href: '/admin/vehicles', labelKey: 'nav.vehicles' },
+      { href: '/admin/marketplace', labelKey: 'nav.marketplace' },
+    ],
+  },
+  {
+    id: 'finance',
+    labelKey: 'nav.groups.finance',
+    items: [
+      { href: '/admin/payments', labelKey: 'nav.payments' },
+      { href: '/admin/payouts', labelKey: 'nav.payouts' },
+      { href: '/admin/ratings', labelKey: 'nav.ratings' },
+    ],
+  },
+  {
+    id: 'integrations',
+    labelKey: 'nav.groups.integrations',
+    items: [{ href: '/admin/integrations/ocean-carriers', labelKey: 'nav.oceanCarriers' }],
+  },
+  {
+    id: 'system',
+    labelKey: 'nav.groups.system',
+    items: [{ href: '/admin/settings', labelKey: 'nav.settings' }],
+  },
 ];
 
 function isNavActive(pathname: string, href: string) {
   if (href === '/admin/dashboard') {
     return pathname === href;
   }
-
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
@@ -37,18 +64,23 @@ export function AdminSidebar() {
       <div className="portal-sidebar__brand">
         <BrandLogo variant="light" size="sm" />
       </div>
-      <nav className="portal-sidebar__nav">
-        {NAV_ITEMS.map((item) => {
-          const isActive = isNavActive(pathname, item.href);
-
+      <nav className="portal-sidebar__nav" aria-label={t('nav.main')}>
+        {NAV_GROUPS.map((group) => {
           return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={`portal-sidebar__link${isActive ? ' portal-sidebar__link--active' : ''}`}
-            >
-              {t(item.labelKey)}
-            </Link>
+            <div key={group.id} className="portal-sidebar__group">
+              <div className="portal-sidebar__group-label">{t(group.labelKey)}</div>
+              <div className="portal-sidebar__group-items">
+                {group.items.map((item) => (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={`portal-sidebar__link${isNavActive(pathname, item.href) ? ' portal-sidebar__link--active' : ''}`}
+                  >
+                    {t(item.labelKey)}
+                  </Link>
+                ))}
+              </div>
+            </div>
           );
         })}
       </nav>

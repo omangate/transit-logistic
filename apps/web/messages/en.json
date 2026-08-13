@@ -45,15 +45,37 @@
     "loading": "Loading...",
     "logout": "Log out",
     "nav": {
+      "main": "Main navigation",
+      "mobile": "Mobile navigation",
       "dashboard": "Dashboard",
       "logistics": "My logistics",
+      "logisticsOrders": "Logistics orders",
       "customs": "Customs clearance",
       "freight": "Freight forwarding",
+      "oceanFreight": "Ocean freight",
       "shipments": "Shipments",
       "marketplace": "Truck marketplace",
       "newShipment": "New shipment",
+      "globalTracking": "Global tracking",
       "notifications": "Notifications",
-      "account": "Email & account"
+      "account": "Account & company",
+      "quotations": "Quotations",
+      "carriers": "Carriers",
+      "schedules": "Sailing schedules",
+      "containers": "Containers",
+      "documents": "Documents",
+      "payments": "Payments & invoices",
+      "messages": "Messages",
+      "aiAssistant": "AI assistant",
+      "groups": {
+        "overview": "Overview",
+        "shipments": "Shipments & tracking",
+        "logistics": "Logistics services",
+        "resources": "Resources",
+        "marketplace": "Marketplace",
+        "communication": "Communication",
+        "account": "Account"
+      }
     },
     "errors": {
       "generic": "Something went wrong. Please try again."
@@ -61,13 +83,59 @@
   },
   "dashboard": {
     "title": "Dashboard",
-    "subtitle": "Overview of your shipments",
+    "subtitle": "What needs your attention today",
     "loading": "Loading dashboard...",
+    "welcome": "Welcome back, {name}",
+    "todayFocus": "Track shipments, clear customs, and manage your logistics in one place.",
+    "searchPlaceholder": "Search container, B/L, booking, or reference",
+    "pipelineTitle": "Shipment journey",
+    "attentionTitle": "Requires attention",
+    "recentQuotesTitle": "Latest logistics orders",
+    "quickLinksTitle": "Quick links",
+    "emptyQuotes": "No recent logistics orders.",
+    "actions": {
+      "createShipment": "Create shipment",
+      "requestQuote": "Request quote",
+      "trackShipment": "Track shipment"
+    },
     "stats": {
       "total": "Total shipments",
       "active": "Active",
       "draft": "Draft",
+      "completed": "Completed",
+      "activeShipments": "Active shipments",
+      "inTransit": "In transit",
+      "customsClearance": "Customs clearance",
+      "awaitingDocuments": "Awaiting documents",
+      "outstandingQuotes": "Outstanding quotes",
+      "outstandingPayments": "Outstanding payments"
+    },
+    "pipeline": {
+      "booking": "Booking",
+      "confirmed": "Confirmed",
+      "origin": "Origin",
+      "loaded": "Loaded",
+      "departed": "Departed",
+      "in_transit": "In transit",
+      "arrived": "Arrived",
+      "customs": "Customs",
+      "delivery": "Delivery",
       "completed": "Completed"
+    },
+    "attention": {
+      "empty": "You're all caught up for now.",
+      "review": "Review",
+      "pendingQuotes": "{count} pending quotes",
+      "customs": "{count} customs requests",
+      "draftShipments": "{count} draft shipments"
+    },
+    "quickLinks": {
+      "carriers": "Carrier directory",
+      "schedules": "Sailing schedules",
+      "customs": "Customs clearance"
+    },
+    "table": {
+      "reference": "Reference"
     },
     "recentTitle": "Recent shipments",
     "viewAll": "View all",
@@ -244,7 +312,9 @@
     "logout": "Log out",
     "working": "Please wait...",
     "nav": {
+      "main": "Admin navigation",
       "dashboard": "Dashboard",
+      "operationsTower": "Operations tower",
       "shipments": "Shipments",
       "customers": "Customers",
       "fleetOwners": "Fleet owners",
@@ -255,7 +325,15 @@
       "payouts": "Payouts",
       "ratings": "Ratings",
       "settings": "Settings",
-      "logistics": "Logistics operations"
+      "logistics": "Logistics operations",
+      "oceanCarriers": "Ocean carriers",
+      "groups": {
+        "operations": "Operations",
+        "network": "Network",
+        "finance": "Finance",
+        "integrations": "Integrations",
+        "system": "System"
+      }
     },
     "errors": {
       "generic": "Something went wrong. Please try again."
@@ -625,10 +703,17 @@
     }
   },
   "tracking": {
-    "title": "Track your shipment",
-    "subtitle": "Enter your tracking number to see delivery status.",
+    "title": "Global shipment tracking",
+    "subtitle": "Track by container, bill of lading, booking, or shipment reference.",
+    "searchType": "Search by",
+    "searchTypes": {
+      "container": "Container number",
+      "bill_of_lading": "Bill of lading",
+      "booking": "Booking number",
+      "reference": "Shipment reference"
+    },
     "referenceLabel": "Tracking number",
-    "referencePlaceholder": "e.g. TRX-2026-0001",
+    "referencePlaceholder": "e.g. MSCU1234567 or TRX-2026-0001",
     "trackButton": "Track",
     "backToSearch": "Back to search",
     "loading": "Loading tracking details...",
@@ -637,6 +722,128 @@
     "notFound": "Tracking number not found.",
     "errors": {
       "generic": "Something went wrong. Please try again."
+    }
+  },
+  "oceanTracking": {
+    "unknownCarrier": "Carrier pending",
+    "statusUnknown": "Status unavailable",
+    "openCarrierTracking": "Open carrier tracking",
+    "timelineTitle": "Tracking timeline",
+    "viewInternalRecord": "View internal logistics record",
+    "dataSource": {
+      "live": "Live API",
+      "manual": "Manual ops",
+      "external": "External link"
+    },
+    "fields": {
+      "container": "Container",
+      "bl": "Bill of lading",
+      "vessel": "Vessel / voyage",
+      "pol": "Port of loading",
+      "pod": "Port of discharge",
+      "etd": "ETD",
+      "eta": "ETA",
+      "lastUpdate": "Last update",
+      "nextMilestone": "Next milestone"
+    }
+  },
+  "oceanCarriers": {
+    "title": "Carrier directory",
+    "subtitle": "Supported ocean carriers and integration capabilities",
+    "loading": "Loading carriers...",
+    "scac": "SCAC",
+    "tracking": "Tracking",
+    "schedules": "Schedules",
+    "booking": "Booking",
+    "mode": "Integration",
+    "yes": "Yes",
+    "no": "No",
+    "modeLabel": {
+      "live_api": "Live API",
+      "manual_ops": "Manual operations",
+      "external_tracking": "External tracking link"
+    },
+    "status": {
+      "connected": "Connected",
+      "not_configured": "Not configured",
+      "auth_required": "Credentials required",
+      "degraded": "Degraded",
+      "error": "Error"
+    }
+  },
+  "oceanSchedules": {
+    "title": "Sailing schedule search",
+    "subtitle": "Search authorized carrier schedules by UN/LOCODE ports",
+    "loading": "Loading...",
+    "origin": "Origin port (UN/LOCODE)",
+    "destination": "Destination port (UN/LOCODE)",
+    "departureDate": "Departure date",
+    "containerType": "Container type",
+    "directOnly": "Direct sailings only",
+    "search": "Search schedules",
+    "searching": "Searching...",
+    "empty": "No schedules returned for this search.",
+    "emptyHint": "Live schedule data requires carrier API credentials. Configure integrations in Admin → Ocean Carriers.",
+    "requestQuote": "Request quote",
+    "table": {
+      "carrier": "Carrier",
+      "vessel": "Vessel / voyage",
+      "pol": "POL",
+      "pod": "POD",
+      "etd": "ETD",
+      "eta": "ETA",
+      "transit": "Transit days"
+    }
+  },
+  "adminOceanCarriers": {
+    "title": "Ocean carrier integrations",
+    "subtitle": "Configure live API, manual operations, or external tracking links",
+    "loading": "Loading carrier connections...",
+    "scac": "SCAC",
+    "mode": "Mode",
+    "credentials": "Credentials",
+    "configured": "Configured",
+    "notConfigured": "Not configured",
+    "lastSync": "Last sync",
+    "lastError": "Last error",
+    "enable": "Enable",
+    "disable": "Disable",
+    "testConnection": "Test connection",
+    "setManual": "Use manual ops",
+    "modeLabel": {
+      "live_api": "Live API",
+      "manual_ops": "Manual operations",
+      "external_tracking": "External tracking"
+    },
+    "status": {
+      "connected": "Connected",
+      "not_configured": "Not configured",
+      "auth_required": "Auth required",
+      "degraded": "Degraded",
+      "error": "Error"
+    }
+  },
+  "adminOpsTower": {
+    "title": "Operations control tower",
+    "subtitle": "Exceptions, delays, and items requiring attention",
+    "loading": "Loading operations data...",
+    "recentOrders": "Recent logistics orders",
+    "carrierAlerts": "Carrier integration alerts",
+    "manage": "Manage",
+    "noCarrierAlerts": "No carrier integration errors.",
+    "viewAll": "View all",
+    "kpis": {
+      "attention": "Needs attention",
+      "customsHolds": "Customs holds",
+      "overdueCustoms": "Overdue customs",
+      "unpaid": "Transport pending",
+      "activeOrders": "Active orders",
+      "carrierFailures": "Carrier API issues"
+    },
+    "table": {
+      "reference": "Reference",
+      "status": "Status",
+      "customer": "Customer"
     }
   },
   "notifications": {
@@ -1306,11 +1513,80 @@
   },
   "ai": {
     "title": "Transit Assistant",
+    "pageTitle": "AI Logistics Assistant",
+    "pageSubtitle": "Ask about shipments, customs, documents, tracking, and quotes using your authorized platform data.",
+    "suggestions": "Suggested prompts",
+    "disclaimer": "Answers use authorized Transit Logistic tools only. Carrier live data requires configured integrations.",
+    "empty": "Ask a question to get started.",
+    "loading": "Loading assistant…",
     "placeholder": "Ask about trucks, shipments, or quotes…",
     "send": "Send",
     "typing": "Typing…",
     "error": "Could not respond. Please try again."
   },
+  "controlTower": {
+    "title": "Shipment control tower",
+    "tabsLabel": "Shipment sections",
+    "trackingUnavailable": "Live tracking is unavailable for this reference.",
+    "trackingLoading": "Loading tracking data…",
+    "noDocuments": "No documents uploaded yet.",
+    "transportHint": "Book truck transport for port pickup or final delivery.",
+    "bookTruck": "Open truck marketplace",
+    "actions": { "requestQuote": "Request quote", "track": "Track" },
+    "summary": { "carrier": "Carrier", "vessel": "Vessel / voyage", "pol": "POL", "pod": "POD", "eta": "ETA", "container": "Container" },
+    "alerts": { "missingDocs": "{count} documents require attention", "pendingQuotes": "{count} quotes awaiting response" },
+    "tabs": {
+      "overview": "Overview", "tracking": "Tracking", "containers": "Containers", "documents": "Documents",
+      "customs": "Customs", "transport": "Transport", "charges": "Charges", "quotes": "Quotes",
+      "messages": "Messages", "activity": "Activity"
+    },
+    "overview": { "timeline": "Timeline", "services": "Linked services" },
+    "quotes": { "reference": "Reference", "total": "Total", "status": "Status", "validUntil": "Valid until", "accept": "Accept" }
+  },
+  "quoteWizard": {
+    "title": "Ocean freight quote",
+    "subtitle": "Request a quotation for your international shipment",
+    "loading": "Loading…",
+    "error": "Could not submit your request.",
+    "back": "Back",
+    "next": "Next",
+    "submit": "Submit request",
+    "sailingHint": "Schedule data is shown only when authorized carrier APIs return results.",
+    "loadSchedules": "Search authorized schedules",
+    "noSchedules": "No live schedules available. Operations will provide sailing options with your quote.",
+    "preferredCarrierPlaceholder": "Optional carrier preference",
+    "reviewQuoteNote": "Formal quotes with rate breakdown will be issued by operations. No rates are fabricated here.",
+    "steps": { "route": "Route", "cargo": "Cargo", "equipment": "Equipment", "sailing": "Sailing", "documents": "Documents", "review": "Review" },
+    "fields": {
+      "origin": "Origin port", "destination": "Destination port", "departureDate": "Preferred departure",
+      "cargo": "Cargo description", "commodity": "Commodity", "weight": "Weight (kg)", "cbm": "Volume (CBM)",
+      "serviceType": "Service type", "containerType": "Container type", "containerQty": "Quantity",
+      "preferredCarrier": "Preferred carrier / sailing", "customsRequired": "Customs clearance required",
+      "insuranceRequired": "Cargo insurance required", "documentNotes": "Document notes", "specialInstructions": "Special instructions"
+    },
+    "comparison": { "carrier": "Carrier", "vessel": "Vessel", "etd": "ETD", "eta": "ETA", "transit": "Transit days" }
+  },
+  "documentCenter": {
+    "title": "Document center",
+    "subtitle": "All shipment documents and checklist status",
+    "loading": "Loading documents…",
+    "error": "Could not load documents.",
+    "categoriesTitle": "Document categories",
+    "allDocuments": "All documents",
+    "search": "Search documents…",
+    "empty": "No documents found.",
+    "table": { "reference": "Order", "category": "Category", "status": "Status", "source": "Source" }
+  },
+  "paymentsPage": {
+    "title": "Payments & invoices",
+    "subtitle": "Your payment history and shipment invoices",
+    "loading": "Loading payments…",
+    "search": "Search payments…",
+    "empty": "No payments yet.",
+    "viewShipment": "View shipment",
+    "table": { "reference": "Reference", "amount": "Amount", "status": "Status", "date": "Date", "shipment": "Shipment" }
+  },
+  "ports": { "placeholder": "Search port name or UN/LOCODE" },
   "account": {
     "title": "Email & notifications",
     "subtitle": "Manage verification and email preferences",

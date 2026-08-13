@@ -1,28 +1,51 @@
 'use client';
 
+import { OceanTrackingSearchType } from '@transit-logistic/shared';
+import { useSearchParams } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import { BrandLogo } from '@/components/brand/brand-logo';
 import { FormError } from '@/components/form-error';
 import { LocaleSwitcher } from '@/components/locale-switcher';
+import { OceanTrackingResult } from '@/components/ocean/ocean-tracking-result';
 import { StatusBadge } from '@/components/portal/status-badge';
 import { TrackingMap } from '@/components/tracking/tracking-map';
 import { Link } from '@/i18n/navigation';
-import { getPublicTracking } from '@/lib/api';
+import { getPublicTracking, trackOceanShipment } from '@/lib/api';
 import { getLocalizedApiMessage, isApiClientError } from '@/lib/api-error';
 import { formatDate } from '@/lib/shipment-utils';
+import type { NormalizedOceanTracking } from '@/types/ocean';
 import type { PublicTracking } from '@/types/tracking';
 
 type TrackDetailsContentProps = {
   reference: string;
 };
 
+function parseSearchType(value: string | null): OceanTrackingSearchType {
+  if (
+    value === OceanTrackingSearchType.CONTAINER ||
+    value === OceanTrackingSearchType.BILL_OF_LADING ||
+    value === OceanTrackingSearchType.BOOKING ||
+    value === OceanTrackingSearchType.REFERENCE
+  ) {
+    return value;
+  }
+  return OceanTrackingSearchType.REFERENCE;
+}
+
 export function TrackDetailsContent({ reference }: TrackDetailsContentProps) {
   const t = useTranslations('tracking');
   const tShipments = useTranslations('shipments');
   const locale = useLocale();
-  const [tracking, setTracking] = useState<PublicTracking | null>(null);
+  const searchParams = useSearchParams();
+  const searchType = useMemo(
+    () => parseSearchType(searchParams.get('type')),
+    [searchParams],
+  );
+
+  const [oceanTracking, setOceanTracking] = useState<NormalizedOceanTracking | null>(null);
+  const [truckTracking, setTruckTracking] = useState<PublicTracking | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -32,20 +55,28 @@ export function TrackDetailsContent({ reference }: TrackDetailsContentProps) {
     async function load() {
       setIsLoading(true);
       setError(null);
+      setOceanTracking(null);
+      setTruckTracking(null);
 
       try {
-        const data = await getPublicTracking(reference);
+        const ocean = await trackOceanShipment({ searchType, searchValue: reference });
         if (!cancelled) {
-          setTracking(data);
+          setOceanTracking(ocean);
         }
-      } catch (loadError) {
-        if (!cancelled) {
-          setTracking(null);
-          setError(
-            isApiClientError(loadError)
-              ? getLocalizedApiMessage(loadError, locale as 'en' | 'ar')
-              : t('errors.generic'),
-          );
+      } catch {
+        try {
+          const truck = await getPublicTracking(reference);
+          if (!cancelled) {
+            setTruckTracking(truck);
+          }
+        } catch (loadError) {
+          if (!cancelled) {
+            setError(
+              isApiClientError(loadError)
+                ? getLocalizedApiMessage(loadError, locale as 'en' | 'ar')
+                : t('notFound'),
+            );
+          }
         }
       } finally {
         if (!cancelled) {
@@ -57,13 +88,13 @@ export function TrackDetailsContent({ reference }: TrackDetailsContentProps) {
     void load();
     const timer = window.setInterval(() => {
       void load();
-    }, 15000);
+    }, 30000);
 
     return () => {
       cancelled = true;
       window.clearInterval(timer);
     };
-  }, [reference, locale, t]);
+  }, [reference, searchType, locale, t]);
 
   return (
     <main className="public-page">
@@ -83,7 +114,9 @@ export function TrackDetailsContent({ reference }: TrackDetailsContentProps) {
 
         {isLoading ? (
           <p className="muted-text">{t('loading')}</p>
-        ) : !tracking ? (
+        ) : oceanTracking ? (
+          <OceanTrackingResult tracking={oceanTracking} />
+        ) : !truckTracking ? (
           <div className="public-card">
             <FormError message={error ?? t('notFound')} />
           </div>
@@ -91,35 +124,35 @@ export function TrackDetailsContent({ reference }: TrackDetailsContentProps) {
           <>
             <div className="public-card">
               <div className="details-header">
-                <h1 className="public-card__title">{tracking.referenceNumber}</h1>
+                <h1 className="public-card__title">{truckTracking.referenceNumber}</h1>
                 <StatusBadge
-                  status={tracking.status}
-                  label={tShipments(`status.${tracking.status}`)}
+                  status={truckTracking.status}
+                  label={tShipments(`status.${truckTracking.status}`)}
                 />
               </div>
 
               <dl className="details-list">
                 <div>
                   <dt>{tShipments('fields.cargoDescription')}</dt>
-                  <dd>{tracking.cargoDescription ?? '—'}</dd>
+                  <dd>{truckTracking.cargoDescription ?? '—'}</dd>
                 </div>
                 <div>
                   <dt>{t('estimatedDelivery')}</dt>
-                  <dd>{formatDate(tracking.estimatedDeliveryAt, locale)}</dd>
+                  <dd>{formatDate(truckTracking.estimatedDeliveryAt, locale)}</dd>
                 </div>
-                {tracking.pickup ? (
+                {truckTracking.pickup ? (
                   <div>
                     <dt>{tShipments('sections.pickup')}</dt>
                     <dd>
-                      {tracking.pickup.address}, {tracking.pickup.city}
+                      {truckTracking.pickup.address}, {truckTracking.pickup.city}
                     </dd>
                   </div>
                 ) : null}
-                {tracking.delivery ? (
+                {truckTracking.delivery ? (
                   <div>
                     <dt>{tShipments('sections.delivery')}</dt>
                     <dd>
-                      {tracking.delivery.address}, {tracking.delivery.city}
+                      {truckTracking.delivery.address}, {truckTracking.delivery.city}
                     </dd>
                   </div>
                 ) : null}
@@ -128,15 +161,15 @@ export function TrackDetailsContent({ reference }: TrackDetailsContentProps) {
 
             {(() => {
               const center =
-                tracking.livePosition ??
-                (tracking.pickup
+                truckTracking.livePosition ??
+                (truckTracking.pickup
                   ? {
-                      latitude: Number(tracking.pickup.latitude),
-                      longitude: Number(tracking.pickup.longitude),
+                      latitude: Number(truckTracking.pickup.latitude),
+                      longitude: Number(truckTracking.pickup.longitude),
                     }
                   : null);
 
-              if (!center || ['completed', 'cancelled'].includes(tracking.status)) {
+              if (!center || ['completed', 'cancelled'].includes(truckTracking.status)) {
                 return null;
               }
 
@@ -145,11 +178,11 @@ export function TrackDetailsContent({ reference }: TrackDetailsContentProps) {
 
             <section className="panel">
               <h2 className="panel__title">{tShipments('sections.timeline')}</h2>
-              {tracking.timeline.length === 0 ? (
+              {truckTracking.timeline.length === 0 ? (
                 <p className="muted-text">{tShipments('timeline.empty')}</p>
               ) : (
                 <ul className="timeline-list">
-                  {tracking.timeline.map((entry, index) => (
+                  {truckTracking.timeline.map((entry, index) => (
                     <li key={`${entry.toStatus}-${entry.createdAt}-${index}`}>
                       <span className="timeline-list__status">
                         {entry.fromStatus

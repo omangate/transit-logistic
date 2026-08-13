@@ -45,15 +45,37 @@
     "loading": "جارٍ التحميل...",
     "logout": "تسجيل الخروج",
     "nav": {
+      "main": "القائمة الرئيسية",
+      "mobile": "قائمة الجوال",
       "dashboard": "لوحة التحكم",
       "logistics": "خدماتي اللوجستية",
+      "logisticsOrders": "الطلبات اللوجستية",
       "customs": "التخليص الجمركي",
       "freight": "الشحن",
+      "oceanFreight": "الشحن البحري",
       "shipments": "الشحنات",
       "marketplace": "سوق الشاحنات",
       "newShipment": "شحنة جديدة",
+      "globalTracking": "التتبع العالمي",
       "notifications": "الإشعارات",
-      "account": "البريد والحساب"
+      "account": "الحساب والشركة",
+      "quotations": "عروض الأسعار",
+      "carriers": "خطوط الشحن",
+      "schedules": "جداول الإبحار",
+      "containers": "الحاويات",
+      "documents": "المستندات",
+      "payments": "المدفوعات والفواتير",
+      "messages": "الرسائل",
+      "aiAssistant": "المساعد الذكي",
+      "groups": {
+        "overview": "نظرة عامة",
+        "shipments": "الشحنات والتتبع",
+        "logistics": "الخدمات اللوجستية",
+        "resources": "الموارد",
+        "marketplace": "السوق",
+        "communication": "التواصل",
+        "account": "الحساب"
+      }
     },
     "errors": {
       "generic": "حدث خطأ ما. يرجى المحاولة مرة أخرى."
@@ -61,13 +83,59 @@
   },
   "dashboard": {
     "title": "لوحة التحكم",
-    "subtitle": "نظرة عامة على شحناتك",
+    "subtitle": "ما الذي يحتاج انتباهك اليوم",
     "loading": "جارٍ تحميل لوحة التحكم...",
+    "welcome": "مرحباً، {name}",
+    "todayFocus": "تتبع الشحنات، التخليص الجمركي، وإدارة عملياتك اللوجستية من مكان واحد.",
+    "searchPlaceholder": "ابحث برقم الحاوية أو بوليصة الشحن أو الحجز أو المرجع",
+    "pipelineTitle": "مسار الشحنة",
+    "attentionTitle": "يتطلب انتباهاً",
+    "recentQuotesTitle": "أحدث الطلبات اللوجستية",
+    "quickLinksTitle": "روابط سريعة",
+    "emptyQuotes": "لا توجد طلبات لوجستية حديثة.",
+    "actions": {
+      "createShipment": "إنشاء شحنة",
+      "requestQuote": "طلب عرض سعر",
+      "trackShipment": "تتبع الشحنة"
+    },
     "stats": {
       "total": "إجمالي الشحنات",
       "active": "نشطة",
       "draft": "مسودة",
-      "completed": "مكتملة"
+      "completed": "مكتملة",
+      "activeShipments": "شحنات نشطة",
+      "inTransit": "قيد النقل",
+      "customsClearance": "تخليص جمركي",
+      "awaitingDocuments": "بانتظار المستندات",
+      "outstandingQuotes": "عروض معلقة",
+      "outstandingPayments": "مدفوعات مستحقة"
+    },
+    "pipeline": {
+      "booking": "حجز",
+      "confirmed": "مؤكد",
+      "origin": "الميناء الأصلي",
+      "loaded": "تم التحميل",
+      "departed": "غادر",
+      "in_transit": "في الطريق",
+      "arrived": "وصل",
+      "customs": "جمارك",
+      "delivery": "تسليم",
+      "completed": "مكتمل"
+    },
+    "attention": {
+      "empty": "لا توجد مهام عاجلة حالياً.",
+      "review": "مراجعة",
+      "pendingQuotes": "{count} عروض معلقة",
+      "customs": "{count} طلبات جمركية",
+      "draftShipments": "{count} شحنات مسودة"
+    },
+    "quickLinks": {
+      "carriers": "دليل خطوط الشحن",
+      "schedules": "جداول الإبحار",
+      "customs": "التخليص الجمركي"
+    },
+    "table": {
+      "reference": "المرجع"
     },
     "recentTitle": "أحدث الشحنات",
     "viewAll": "عرض الكل",
@@ -244,7 +312,9 @@
     "logout": "تسجيل الخروج",
     "working": "يرجى الانتظار...",
     "nav": {
+      "main": "قائمة الإدارة",
       "dashboard": "لوحة التحكم",
+      "operationsTower": "برج العمليات",
       "shipments": "الشحنات",
       "customers": "العملاء",
       "fleetOwners": "مالكو الأساطيل",
@@ -255,7 +325,15 @@
       "payouts": "السحوبات",
       "ratings": "التقييمات",
       "settings": "الإعدادات",
-      "logistics": "العمليات اللوجستية"
+      "logistics": "العمليات اللوجستية",
+      "oceanCarriers": "خطوط الشحن البحرية",
+      "groups": {
+        "operations": "العمليات",
+        "network": "الشبكة",
+        "finance": "المالية",
+        "integrations": "التكاملات",
+        "system": "النظام"
+      }
     },
     "errors": {
       "generic": "حدث خطأ ما. يرجى المحاولة مرة أخرى."
@@ -624,18 +702,147 @@
     }
   },
   "tracking": {
-    "title": "تتبع شحنتك",
-    "subtitle": "أدخل رقم التتبع لمعرفة حالة التسليم.",
+    "title": "التتبع العالمي للشحنات",
+    "subtitle": "تتبع برقم الحاوية أو بوليصة الشحن أو الحجز أو المرجع.",
+    "searchType": "البحث بواسطة",
+    "searchTypes": {
+      "container": "رقم الحاوية",
+      "bill_of_lading": "بوليصة الشحن",
+      "booking": "رقم الحجز",
+      "reference": "مرجع الشحنة"
+    },
     "referenceLabel": "رقم التتبع",
-    "referencePlaceholder": "مثال: TRX-2026-0001",
+    "referencePlaceholder": "مثال: MSCU1234567 أو TRX-2026-0001",
     "trackButton": "تتبع",
-    "backToSearch": "العودة للبحث",
-    "loading": "جارٍ تحميل التتبع...",
+    "backToSearch": "العودة إلى البحث",
+    "loading": "جارٍ تحميل بيانات التتبع...",
     "liveMap": "الخريطة المباشرة",
-    "estimatedDelivery": "التسليم المتوقع",
+    "estimatedDelivery": "موعد التسليم المتوقع",
     "notFound": "رقم التتبع غير موجود.",
     "errors": {
       "generic": "حدث خطأ ما. يرجى المحاولة مرة أخرى."
+    }
+  },
+  "oceanTracking": {
+    "unknownCarrier": "خط الشحن غير محدد",
+    "statusUnknown": "الحالة غير متوفرة",
+    "openCarrierTracking": "فتح تتبع خط الشحن",
+    "timelineTitle": "الجدول الزمني للتتبع",
+    "viewInternalRecord": "عرض السجل اللوجستي الداخلي",
+    "dataSource": {
+      "live": "واجهة مباشرة",
+      "manual": "تحديث يدوي",
+      "external": "رابط خارجي"
+    },
+    "fields": {
+      "container": "الحاوية",
+      "bl": "بوليصة الشحن",
+      "vessel": "السفينة / الرحلة",
+      "pol": "ميناء الشحن",
+      "pod": "ميناء الوصول",
+      "etd": "ETD",
+      "eta": "ETA",
+      "lastUpdate": "آخر تحديث",
+      "nextMilestone": "المرحلة التالية"
+    }
+  },
+  "oceanCarriers": {
+    "title": "دليل خطوط الشحن",
+    "subtitle": "خطوط الشحن المدعومة وإمكانيات التكامل",
+    "loading": "جارٍ تحميل خطوط الشحن...",
+    "scac": "SCAC",
+    "tracking": "التتبع",
+    "schedules": "الجداول",
+    "booking": "الحجز",
+    "mode": "التكامل",
+    "yes": "نعم",
+    "no": "لا",
+    "modeLabel": {
+      "live_api": "واجهة مباشرة",
+      "manual_ops": "عمليات يدوية",
+      "external_tracking": "رابط تتبع خارجي"
+    },
+    "status": {
+      "connected": "متصل",
+      "not_configured": "غير مهيأ",
+      "auth_required": "يتطلب بيانات اعتماد",
+      "degraded": "متدهور",
+      "error": "خطأ"
+    }
+  },
+  "oceanSchedules": {
+    "title": "البحث عن جداول الإبحار",
+    "subtitle": "ابحث في جداول خطوط الشحن المعتمدة عبر UN/LOCODE",
+    "loading": "جارٍ التحميل...",
+    "origin": "ميناء المغادرة (UN/LOCODE)",
+    "destination": "ميناء الوصول (UN/LOCODE)",
+    "departureDate": "تاريخ المغادرة",
+    "containerType": "نوع الحاوية",
+    "directOnly": "رحلات مباشرة فقط",
+    "search": "بحث الجداول",
+    "searching": "جارٍ البحث...",
+    "empty": "لا توجد جداول لهذا البحث.",
+    "emptyHint": "تتطلب الجداول المباشرة بيانات اعتماد واجهة خط الشحن. قم بتهيئة التكاملات من الإدارة → خطوط الشحن البحرية.",
+    "requestQuote": "طلب عرض سعر",
+    "table": {
+      "carrier": "خط الشحن",
+      "vessel": "السفينة / الرحلة",
+      "pol": "POL",
+      "pod": "POD",
+      "etd": "ETD",
+      "eta": "ETA",
+      "transit": "أيام العبور"
+    }
+  },
+  "adminOceanCarriers": {
+    "title": "تكاملات الشحن البحري",
+    "subtitle": "تهيئة الواجهة المباشرة أو العمليات اليدوية أو روابط التتبع الخارجية",
+    "loading": "جارٍ تحميل اتصالات خطوط الشحن...",
+    "scac": "SCAC",
+    "mode": "الوضع",
+    "credentials": "بيانات الاعتماد",
+    "configured": "مهيأة",
+    "notConfigured": "غير مهيأة",
+    "lastSync": "آخر مزامنة",
+    "lastError": "آخر خطأ",
+    "enable": "تفعيل",
+    "disable": "تعطيل",
+    "testConnection": "اختبار الاتصال",
+    "setManual": "استخدام العمليات اليدوية",
+    "modeLabel": {
+      "live_api": "واجهة مباشرة",
+      "manual_ops": "عمليات يدوية",
+      "external_tracking": "تتبع خارجي"
+    },
+    "status": {
+      "connected": "متصل",
+      "not_configured": "غير مهيأ",
+      "auth_required": "يتطلب اعتماد",
+      "degraded": "متدهور",
+      "error": "خطأ"
+    }
+  },
+  "adminOpsTower": {
+    "title": "برج العمليات",
+    "subtitle": "الاستثناءات والتأخيرات والمهام التي تتطلب انتباهاً",
+    "loading": "جارٍ تحميل بيانات العمليات...",
+    "recentOrders": "أحدث الطلبات اللوجستية",
+    "carrierAlerts": "تنبيهات تكامل خطوط الشحن",
+    "manage": "إدارة",
+    "noCarrierAlerts": "لا توجد أخطاء في تكامل خطوط الشحن.",
+    "viewAll": "عرض الكل",
+    "kpis": {
+      "attention": "يتطلب انتباهاً",
+      "customsHolds": "حجز جمركي",
+      "overdueCustoms": "جمارك متأخرة",
+      "unpaid": "نقل معلق",
+      "activeOrders": "طلبات نشطة",
+      "carrierFailures": "مشاكل واجهة خط الشحن"
+    },
+    "table": {
+      "reference": "المرجع",
+      "status": "الحالة",
+      "customer": "العميل"
     }
   },
   "notifications": {
@@ -1303,10 +1510,79 @@
   },
   "ai": {
     "title": "مساعد ترانزيت",
+    "pageTitle": "مساعد لوجستي ذكي",
+    "pageSubtitle": "اسأل عن الشحنات والجمارك والمستندات والتتبع والعروض باستخدام بيانات المنصة المصرح بها.",
+    "suggestions": "اقتراحات سريعة",
+    "disclaimer": "الإجابات تستخدم أدوات ترانزيت لوجستك المصرح بها فقط. بيانات خطوط الشحن المباشرة تتطلب تكاملات مفعّلة.",
+    "empty": "اطرح سؤالاً للبدء.",
+    "loading": "جارٍ تحميل المساعد…",
     "placeholder": "اسأل عن الشاحنات أو الشحنات أو العروض…",
     "send": "إرسال",
     "typing": "جارٍ الكتابة…",
     "error": "تعذر الرد. حاول مرة أخرى."
+  },
+  "ports": { "placeholder": "ابحث باسم الميناء أو UN/LOCODE" },
+  "controlTower": {
+    "title": "برج التحكم بالشحنة",
+    "tabsLabel": "أقسام الشحنة",
+    "trackingUnavailable": "التتبع المباشر غير متاح لهذا المرجع.",
+    "trackingLoading": "جارٍ تحميل بيانات التتبع…",
+    "noDocuments": "لا توجد مستندات مرفوعة بعد.",
+    "transportHint": "احجز النقل بالشاحنات للتسليم أو الاستلام من الميناء.",
+    "bookTruck": "فتح سوق الشاحنات",
+    "actions": { "requestQuote": "طلب عرض سعر", "track": "تتبع" },
+    "summary": { "carrier": "خط الشحن", "vessel": "السفينة / الرحلة", "pol": "ميناء الشحن", "pod": "ميناء الوصول", "eta": "ETA", "container": "الحاوية" },
+    "alerts": { "missingDocs": "{count} مستندات تتطلب انتباهاً", "pendingQuotes": "{count} عروض بانتظار الرد" },
+    "tabs": {
+      "overview": "نظرة عامة", "tracking": "التتبع", "containers": "الحاويات", "documents": "المستندات",
+      "customs": "الجمارك", "transport": "النقل", "charges": "الرسوم", "quotes": "العروض",
+      "messages": "الرسائل", "activity": "النشاط"
+    },
+    "overview": { "timeline": "الجدول الزمني", "services": "الخدمات المرتبطة" },
+    "quotes": { "reference": "المرجع", "total": "الإجمالي", "status": "الحالة", "validUntil": "صالح حتى", "accept": "قبول" }
+  },
+  "quoteWizard": {
+    "title": "عرض سعر الشحن البحري",
+    "subtitle": "اطلب عرض سعر لشحنتك الدولية",
+    "loading": "جارٍ التحميل…",
+    "error": "تعذر إرسال الطلب.",
+    "back": "رجوع",
+    "next": "التالي",
+    "submit": "إرسال الطلب",
+    "sailingHint": "تُعرض الجداول فقط عند توفر واجهات خطوط الشحن المعتمدة.",
+    "loadSchedules": "بحث الجداول المعتمدة",
+    "noSchedules": "لا توجد جداول مباشرة. سيوفر فريق العمليات خيارات الإبحار مع العرض.",
+    "preferredCarrierPlaceholder": "تفضيل خط الشحن (اختياري)",
+    "reviewQuoteNote": "ستصدر العروض الرسمية من العمليات. لا يتم اختلاق أسعار هنا.",
+    "steps": { "route": "المسار", "cargo": "البضاعة", "equipment": "المعدات", "sailing": "الإبحار", "documents": "المستندات", "review": "مراجعة" },
+    "fields": {
+      "origin": "ميناء المنشأ", "destination": "ميناء الوجهة", "departureDate": "تاريخ المغادرة المفضل",
+      "cargo": "وصف البضاعة", "commodity": "السلعة", "weight": "الوزن (كغ)", "cbm": "الحجم (م³)",
+      "serviceType": "نوع الخدمة", "containerType": "نوع الحاوية", "containerQty": "الكمية",
+      "preferredCarrier": "خط الشحن / رحلة مفضلة", "customsRequired": "تخليص جمركي مطلوب",
+      "insuranceRequired": "تأمين البضاعة مطلوب", "documentNotes": "ملاحظات المستندات", "specialInstructions": "تعليمات خاصة"
+    },
+    "comparison": { "carrier": "خط الشحن", "vessel": "السفينة", "etd": "ETD", "eta": "ETA", "transit": "أيام العبور" }
+  },
+  "documentCenter": {
+    "title": "مركز المستندات",
+    "subtitle": "جميع مستندات الشحنات وحالة القائمة",
+    "loading": "جارٍ تحميل المستندات…",
+    "error": "تعذر تحميل المستندات.",
+    "categoriesTitle": "فئات المستندات",
+    "allDocuments": "جميع المستندات",
+    "search": "بحث في المستندات…",
+    "empty": "لا توجد مستندات.",
+    "table": { "reference": "الطلب", "category": "الفئة", "status": "الحالة", "source": "المصدر" }
+  },
+  "paymentsPage": {
+    "title": "المدفوعات والفواتير",
+    "subtitle": "سجل المدفوعات وفواتير الشحنات",
+    "loading": "جارٍ تحميل المدفوعات…",
+    "search": "بحث في المدفوعات…",
+    "empty": "لا توجد مدفوعات بعد.",
+    "viewShipment": "عرض الشحنة",
+    "table": { "reference": "المرجع", "amount": "المبلغ", "status": "الحالة", "date": "التاريخ", "shipment": "الشحنة" }
   },
   "account": {
     "title": "البريد والإشعارات",

@@ -17,6 +17,7 @@ import { LogisticsModule } from './modules/logistics/logistics.module';
 import { MessagingModule } from './modules/messaging/messaging.module';
 import { AiModule } from './modules/ai/ai.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
+import { OceanCarriersModule } from './modules/ocean-carriers/ocean-carriers.module';
 import { PaymentsModule } from './modules/payments/payments.module';
 import { PayoutsModule } from './modules/payouts/payouts.module';
 import { PricingModule } from './modules/pricing/pricing.module';
@@ -58,6 +59,7 @@ import { RedisModule } from './redis/redis.module';
     SupportModule,
     AiModule,
     LogisticsModule,
+    OceanCarriersModule,
     PricingModule,
     PaymentsModule,
     PayoutsModule,

@@ -78,4 +78,7 @@ export const configuration = () => ({
       webhookSecret: process.env.STRIPE_WEBHOOK_SECRET,
     },
   },
+  oceanCarriers: {
+    defaultCarrier: process.env.OCEAN_DEFAULT_CARRIER ?? 'maersk',
+  },
 });

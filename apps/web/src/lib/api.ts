@@ -1,3 +1,5 @@
+import type { OceanCarrierCode, OceanCarrierIntegrationMode, OceanTrackingSearchType } from '@transit-logistic/shared';
+
 import { buildApiUrl } from '@/lib/api-config';
 import {
   createNetworkError,
@@ -34,6 +36,7 @@ import type {
   ChecklistTemplate,
   ContainerRecord,
   CustomsClearanceRequest,
+  DocumentChecklistItem,
   FleetLogisticsDashboard,
   FreightForwardingRequest,
   LogisticsCharge,
@@ -66,12 +69,20 @@ import type {
   UnreadNotificationsCount,
 } from '@/types/notification';
 import type {
+  AdminCarrierConnection,
+  CarrierDirectoryEntry,
+  NormalizedOceanTracking,
+  NormalizedSailingSchedule,
+  TestConnectionResult,
+} from '@/types/ocean';
+import type {
   ConfirmPaymentInput,
   ConfirmPaymentResponse,
   PaymentIntent,
   PaymentQuote,
 } from '@/types/payment';
 import type { FleetRatingSummary, PaginatedPayouts, PayoutRequest, PayoutSummary } from '@/types/payout';
+import type { PortSearchResult } from '@/types/port';
 import type { PlatformSettings, UpdateSettingsInput } from '@/types/settings';
 import type {
   CarrierRating,
@@ -678,6 +689,69 @@ export async function getPublicTracking(referenceNumber: string): Promise<Public
   return request<PublicTracking>(`/public/track/${encodeURIComponent(referenceNumber)}`);
 }
 
+export async function trackOceanShipment(input: {
+  searchType: OceanTrackingSearchType;
+  searchValue: string;
+  carrierCode?: OceanCarrierCode;
+}): Promise<NormalizedOceanTracking> {
+  const params = new URLSearchParams({
+    type: input.searchType,
+    value: input.searchValue,
+  });
+  if (input.carrierCode) {
+    params.set('carrier', input.carrierCode);
+  }
+  return request<NormalizedOceanTracking>(`/ocean/track?${params.toString()}`);
+}
+
+export async function listOceanCarriers(): Promise<CarrierDirectoryEntry[]> {
+  return request<CarrierDirectoryEntry[]>('/ocean/carriers');
+}
+
+export async function searchOceanSchedules(query: {
+  originUnlocode: string;
+  destinationUnlocode: string;
+  departureDate?: string;
+  containerType?: string;
+  directOnly?: boolean;
+  carrierCode?: OceanCarrierCode;
+}): Promise<NormalizedSailingSchedule[]> {
+  const params = new URLSearchParams({
+    origin: query.originUnlocode,
+    destination: query.destinationUnlocode,
+  });
+  if (query.departureDate) params.set('departureDate', query.departureDate);
+  if (query.containerType) params.set('containerType', query.containerType);
+  if (query.directOnly) params.set('directOnly', 'true');
+  if (query.carrierCode) params.set('carrier', query.carrierCode);
+  return request<NormalizedSailingSchedule[]>(`/ocean/schedules?${params.toString()}`);
+}
+
+export async function listAdminOceanCarriers(): Promise<AdminCarrierConnection[]> {
+  return authRequest<AdminCarrierConnection[]>('/admin/integrations/ocean-carriers');
+}
+
+export async function updateAdminOceanCarrier(
+  carrierCode: OceanCarrierCode,
+  input: {
+    enabled?: boolean;
+    integrationMode?: OceanCarrierIntegrationMode;
+    supportsSchedules?: boolean;
+    supportsBooking?: boolean;
+  },
+): Promise<AdminCarrierConnection> {
+  return authRequest<AdminCarrierConnection>(`/admin/integrations/ocean-carriers/${carrierCode}`, {
+    method: 'PATCH',
+    body: JSON.stringify(input),
+  });
+}
+
+export async function testAdminOceanCarrier(carrierCode: OceanCarrierCode): Promise<TestConnectionResult> {
+  return authRequest<TestConnectionResult>(`/admin/integrations/ocean-carriers/${carrierCode}/test`, {
+    method: 'POST',
+  });
+}
+
 export async function getSettings(): Promise<PlatformSettings> {
   return authRequest<PlatformSettings>('/settings');
 }
@@ -848,6 +922,21 @@ export async function searchGeoRegions(countryCode: string, q: string): Promise<
   return request<GeoRegion[]>(
     `/geography/countries/${encodeURIComponent(countryCode)}/search?${params}`,
   );
+}
+
+export async function searchPorts(q: string): Promise<PortSearchResult[]> {
+  const params = new URLSearchParams({ q });
+  return request(`/geography/ports/search?${params}`);
+}
+
+export async function listMissingDocuments(query: {
+  customsRequestId?: string;
+  freightRequestId?: string;
+}): Promise<DocumentChecklistItem[]> {
+  const params = new URLSearchParams();
+  if (query.customsRequestId) params.set('customsRequestId', query.customsRequestId);
+  if (query.freightRequestId) params.set('freightRequestId', query.freightRequestId);
+  return authRequest(`/logistics/documents/missing/list?${params.toString()}`);
 }
 
 export async function getGeoRegion(id: string): Promise<GeoRegion> {

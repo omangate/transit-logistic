@@ -5,45 +5,52 @@ import { useLocale, useTranslations } from 'next-intl';
 import { useState } from 'react';
 
 import { FormError } from '@/components/form-error';
+import { PortAutocomplete } from '@/components/geography/port-autocomplete';
 import { LoadingState } from '@/components/portal/loading-state';
 import { PortalShell } from '@/components/portal/portal-shell';
 import { useRequireCustomerAuth } from '@/hooks/use-require-customer-auth';
 import { useRouter } from '@/i18n/navigation';
-import { createFreightRequest, submitFreightShipment } from '@/lib/api';
+import { createFreightRequest, searchOceanSchedules, submitFreightShipment } from '@/lib/api';
 import { getLocalizedApiMessage, isApiClientError } from '@/lib/api-error';
+import type { NormalizedSailingSchedule } from '@/types/ocean';
+import type { PortSearchResult } from '@/types/port';
 
-const STEPS = ['mode', 'route', 'cargo', 'services', 'review'] as const;
-
+const STEPS = ['route', 'cargo', 'equipment', 'sailing', 'documents', 'review'] as const;
 const SEA_SERVICES = ['fcl', 'lcl', 'roro', 'breakbulk', 'project_cargo', 'reefer'] as const;
-const ROUTE_TYPES = ['door_to_door', 'door_to_port', 'port_to_door', 'port_to_port'] as const;
 
 export function FreightNewWizard() {
-  const t = useTranslations('logistics');
+  const t = useTranslations('quoteWizard');
   const locale = useLocale() as 'en' | 'ar';
   const { user, isReady } = useRequireCustomerAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
   const logisticsOrderId = searchParams.get('orderId') ?? undefined;
-  const [step, setStep] = useState<(typeof STEPS)[number]>('mode');
+  const [step, setStep] = useState<(typeof STEPS)[number]>('route');
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [schedules, setSchedules] = useState<NormalizedSailingSchedule[]>([]);
+  const [schedulesLoaded, setSchedulesLoaded] = useState(false);
   const [form, setForm] = useState({
     transportMode: 'sea',
     serviceType: 'fcl',
-    routeType: 'door_to_door',
+    routeType: 'port_to_port',
     origin: '',
     destination: '',
+    originUnlocode: '',
+    destinationUnlocode: '',
     cargoDescription: '',
     commodity: '',
     weightKg: '',
     volumeCbm: '',
-    containerType: '40ft',
+    containerType: '40HC',
     containerQuantity: '1',
     preferredDepartureDate: '',
+    preferredCarrier: '',
     specialInstructions: '',
+    documentNotes: '',
     customsClearanceRequired: true,
-    pickupRequired: true,
-    deliveryRequired: true,
+    pickupRequired: false,
+    deliveryRequired: false,
     insuranceRequired: false,
   });
 
@@ -53,104 +60,192 @@ export function FreightNewWizard() {
     return <LoadingState message={t('loading')} />;
   }
 
+  const loadSchedules = async () => {
+    if (!form.originUnlocode || !form.destinationUnlocode) {
+      setSchedules([]);
+      setSchedulesLoaded(true);
+      return;
+    }
+    try {
+      const rows = await searchOceanSchedules({
+        originUnlocode: form.originUnlocode,
+        destinationUnlocode: form.destinationUnlocode,
+        departureDate: form.preferredDepartureDate || undefined,
+        containerType: form.containerType,
+      });
+      setSchedules(rows);
+    } catch {
+      setSchedules([]);
+    } finally {
+      setSchedulesLoaded(true);
+    }
+  };
+
   const publish = async () => {
     setSaving(true);
     setError(null);
     try {
       const created = await createFreightRequest({
-        ...form,
+        transportMode: form.transportMode,
+        serviceType: form.serviceType,
+        routeType: form.routeType,
+        origin: form.origin,
+        destination: form.destination,
         logisticsOrderId,
+        cargoDescription: form.cargoDescription,
+        commodity: form.commodity,
         weightKg: form.weightKg ? Number(form.weightKg) : undefined,
         volumeCbm: form.volumeCbm ? Number(form.volumeCbm) : undefined,
+        containerType: form.containerType,
         containerQuantity: form.containerQuantity ? Number(form.containerQuantity) : undefined,
+        preferredDepartureDate: form.preferredDepartureDate || undefined,
+        specialInstructions: [form.specialInstructions, form.documentNotes, form.preferredCarrier ? `Preferred carrier/sailing: ${form.preferredCarrier}` : ''].filter(Boolean).join('\n'),
+        customsClearanceRequired: form.customsClearanceRequired,
+        pickupRequired: form.pickupRequired,
+        deliveryRequired: form.deliveryRequired,
+        insuranceRequired: form.insuranceRequired,
       });
       await submitFreightShipment(created.id);
       router.push(logisticsOrderId ? `/logistics/orders/${logisticsOrderId}` : `/freight/shipments/${created.id}`);
     } catch (err) {
-      setError(isApiClientError(err) ? getLocalizedApiMessage(err, locale) : t('errors.generic'));
+      setError(isApiClientError(err) ? getLocalizedApiMessage(err, locale) : t('error'));
     } finally {
       setSaving(false);
     }
   };
 
   return (
-    <PortalShell user={user} title={t('freight.newRequest')} subtitle={t('freight.subtitle')}>
+    <PortalShell user={user} title={t('title')} subtitle={t('subtitle')}>
       <div className="logistics-wizard">
         <div className="logistics-wizard__progress">
           {STEPS.map((s, i) => (
             <span key={s} className={i <= stepIndex ? 'logistics-wizard__step--active' : ''}>
-              {t(`freight.steps.${s}` as never)}
+              {t(`steps.${s}`)}
             </span>
           ))}
         </div>
         {error ? <FormError message={error} /> : null}
 
-        {step === 'mode' ? (
-          <div className="logistics-wizard__grid">
-            {(['sea', 'air', 'road', 'multimodal'] as const).map((mode) => (
-              <button key={mode} type="button" className={`logistics-type-card${form.transportMode === mode ? ' logistics-type-card--active' : ''}`} onClick={() => setForm((f) => ({ ...f, transportMode: mode }))}>
-                {t(`freight.modes.${mode}` as never)}
-              </button>
-            ))}
-            {form.transportMode === 'sea' ? (
-              <label>{t('freight.fields.serviceType')}
-                <select value={form.serviceType} onChange={(e) => setForm((f) => ({ ...f, serviceType: e.target.value }))}>
-                  {SEA_SERVICES.map((s) => <option key={s} value={s}>{t(`freight.seaServices.${s}` as never)}</option>)}
-                </select>
-              </label>
-            ) : null}
-          </div>
-        ) : null}
-
         {step === 'route' ? (
           <div className="logistics-wizard__section">
-            <label>{t('freight.fields.routeType')}
-              <select value={form.routeType} onChange={(e) => setForm((f) => ({ ...f, routeType: e.target.value }))}>
-                {ROUTE_TYPES.map((r) => <option key={r} value={r}>{t(`freight.routeTypes.${r}` as never)}</option>)}
-              </select>
-            </label>
-            <label>{t('freight.fields.origin')}<input required value={form.origin} onChange={(e) => setForm((f) => ({ ...f, origin: e.target.value }))} /></label>
-            <label>{t('freight.fields.destination')}<input required value={form.destination} onChange={(e) => setForm((f) => ({ ...f, destination: e.target.value }))} /></label>
-            <label>{t('freight.fields.departureDate')}<input type="date" value={form.preferredDepartureDate} onChange={(e) => setForm((f) => ({ ...f, preferredDepartureDate: e.target.value }))} /></label>
+            <PortAutocomplete
+              label={t('fields.origin')}
+              value={form.origin}
+              unlocode={form.originUnlocode}
+              onChange={(display, port: PortSearchResult | null) =>
+                setForm((f) => ({ ...f, origin: display, originUnlocode: port?.unlocode ?? '' }))
+              }
+              required
+            />
+            <PortAutocomplete
+              label={t('fields.destination')}
+              value={form.destination}
+              unlocode={form.destinationUnlocode}
+              onChange={(display, port: PortSearchResult | null) =>
+                setForm((f) => ({ ...f, destination: display, destinationUnlocode: port?.unlocode ?? '' }))
+              }
+              required
+            />
+            <label>{t('fields.departureDate')}<input type="date" value={form.preferredDepartureDate} onChange={(e) => setForm((f) => ({ ...f, preferredDepartureDate: e.target.value }))} /></label>
           </div>
         ) : null}
 
         {step === 'cargo' ? (
           <div className="logistics-wizard__section">
-            <label>{t('freight.fields.cargo')}<textarea value={form.cargoDescription} onChange={(e) => setForm((f) => ({ ...f, cargoDescription: e.target.value }))} /></label>
-            <label>{t('freight.fields.commodity')}<input value={form.commodity} onChange={(e) => setForm((f) => ({ ...f, commodity: e.target.value }))} /></label>
-            <label>{t('freight.fields.weight')}<input type="number" value={form.weightKg} onChange={(e) => setForm((f) => ({ ...f, weightKg: e.target.value }))} /></label>
-            <label>{t('freight.fields.cbm')}<input type="number" value={form.volumeCbm} onChange={(e) => setForm((f) => ({ ...f, volumeCbm: e.target.value }))} /></label>
-            <label>{t('freight.fields.containerType')}<input value={form.containerType} onChange={(e) => setForm((f) => ({ ...f, containerType: e.target.value }))} /></label>
-            <label>{t('freight.fields.containerQty')}<input type="number" value={form.containerQuantity} onChange={(e) => setForm((f) => ({ ...f, containerQuantity: e.target.value }))} /></label>
+            <label>{t('fields.cargo')}<textarea required value={form.cargoDescription} onChange={(e) => setForm((f) => ({ ...f, cargoDescription: e.target.value }))} /></label>
+            <label>{t('fields.commodity')}<input value={form.commodity} onChange={(e) => setForm((f) => ({ ...f, commodity: e.target.value }))} /></label>
+            <label>{t('fields.weight')}<input type="number" value={form.weightKg} onChange={(e) => setForm((f) => ({ ...f, weightKg: e.target.value }))} /></label>
+            <label>{t('fields.cbm')}<input type="number" value={form.volumeCbm} onChange={(e) => setForm((f) => ({ ...f, volumeCbm: e.target.value }))} /></label>
           </div>
         ) : null}
 
-        {step === 'services' ? (
+        {step === 'equipment' ? (
           <div className="logistics-wizard__section">
-            <label><input type="checkbox" checked={form.pickupRequired} onChange={(e) => setForm((f) => ({ ...f, pickupRequired: e.target.checked }))} /> {t('freight.fields.pickupRequired')}</label>
-            <label><input type="checkbox" checked={form.deliveryRequired} onChange={(e) => setForm((f) => ({ ...f, deliveryRequired: e.target.checked }))} /> {t('freight.fields.deliveryRequired')}</label>
-            <label><input type="checkbox" checked={form.customsClearanceRequired} onChange={(e) => setForm((f) => ({ ...f, customsClearanceRequired: e.target.checked }))} /> {t('freight.fields.customsRequired')}</label>
-            <label><input type="checkbox" checked={form.insuranceRequired} onChange={(e) => setForm((f) => ({ ...f, insuranceRequired: e.target.checked }))} /> {t('freight.fields.insuranceRequired')}</label>
-            <label>{t('freight.fields.specialInstructions')}<textarea value={form.specialInstructions} onChange={(e) => setForm((f) => ({ ...f, specialInstructions: e.target.value }))} /></label>
+            <label>{t('fields.serviceType')}
+              <select value={form.serviceType} onChange={(e) => setForm((f) => ({ ...f, serviceType: e.target.value }))}>
+                {SEA_SERVICES.map((s) => <option key={s} value={s}>{s.toUpperCase()}</option>)}
+              </select>
+            </label>
+            <label>{t('fields.containerType')}
+              <select value={form.containerType} onChange={(e) => setForm((f) => ({ ...f, containerType: e.target.value }))}>
+                <option value="20GP">20GP</option>
+                <option value="40GP">40GP</option>
+                <option value="40HC">40HC</option>
+              </select>
+            </label>
+            <label>{t('fields.containerQty')}<input type="number" min={1} value={form.containerQuantity} onChange={(e) => setForm((f) => ({ ...f, containerQuantity: e.target.value }))} /></label>
+          </div>
+        ) : null}
+
+        {step === 'sailing' ? (
+          <div className="logistics-wizard__section">
+            <p className="muted-text">{t('sailingHint')}</p>
+            <button type="button" className="portal-button portal-button--ghost" onClick={() => void loadSchedules()}>{t('loadSchedules')}</button>
+            <label>{t('fields.preferredCarrier')}<input value={form.preferredCarrier} onChange={(e) => setForm((f) => ({ ...f, preferredCarrier: e.target.value }))} placeholder={t('preferredCarrierPlaceholder')} /></label>
+            {schedulesLoaded && schedules.length === 0 ? <p className="muted-text">{t('noSchedules')}</p> : null}
+            {schedules.length > 0 ? (
+              <div className="table-wrap">
+                <table className="data-table">
+                  <thead>
+                    <tr>
+                      <th>{t('comparison.carrier')}</th>
+                      <th>{t('comparison.vessel')}</th>
+                      <th>{t('comparison.etd')}</th>
+                      <th>{t('comparison.eta')}</th>
+                      <th>{t('comparison.transit')}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {schedules.map((row, index) => (
+                      <tr key={`${row.voyage}-${index}`}>
+                        <td>{row.carrierName}</td>
+                        <td>{row.vesselName} / {row.voyage}</td>
+                        <td>{row.etd}</td>
+                        <td>{row.eta}</td>
+                        <td>{row.transitDays ?? '—'}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : null}
+          </div>
+        ) : null}
+
+        {step === 'documents' ? (
+          <div className="logistics-wizard__section">
+            <label><input type="checkbox" checked={form.customsClearanceRequired} onChange={(e) => setForm((f) => ({ ...f, customsClearanceRequired: e.target.checked }))} /> {t('fields.customsRequired')}</label>
+            <label><input type="checkbox" checked={form.insuranceRequired} onChange={(e) => setForm((f) => ({ ...f, insuranceRequired: e.target.checked }))} /> {t('fields.insuranceRequired')}</label>
+            <label>{t('fields.documentNotes')}<textarea value={form.documentNotes} onChange={(e) => setForm((f) => ({ ...f, documentNotes: e.target.value }))} /></label>
+            <label>{t('fields.specialInstructions')}<textarea value={form.specialInstructions} onChange={(e) => setForm((f) => ({ ...f, specialInstructions: e.target.value }))} /></label>
           </div>
         ) : null}
 
         {step === 'review' ? (
           <div className="logistics-wizard__review">
-            <p>{form.origin} → {form.destination}</p>
-            <p>{t(`freight.modes.${form.transportMode}` as never)} · {t(`freight.routeTypes.${form.routeType}` as never)}</p>
+            <p><strong>{form.origin}</strong> → <strong>{form.destination}</strong></p>
+            <p>{form.containerType} × {form.containerQuantity} · {form.serviceType.toUpperCase()}</p>
+            <p className="muted-text">{t('reviewQuoteNote')}</p>
           </div>
         ) : null}
 
         <div className="logistics-wizard__nav">
           {stepIndex > 0 ? (
-            <button type="button" className="rental-btn rental-btn--ghost" onClick={() => setStep(STEPS[stepIndex - 1]!)}>{t('wizard.back')}</button>
+            <button type="button" className="portal-button portal-button--ghost" onClick={() => setStep(STEPS[stepIndex - 1]!)}>{t('back')}</button>
           ) : null}
           {step !== 'review' ? (
-            <button type="button" className="rental-btn rental-btn--primary" onClick={() => setStep(STEPS[stepIndex + 1]!)}>{t('wizard.next')}</button>
+            <button
+              type="button"
+              className="portal-button portal-button--primary"
+              onClick={() => {
+                if (step === 'sailing' && !schedulesLoaded) void loadSchedules();
+                setStep(STEPS[stepIndex + 1]!);
+              }}
+            >
+              {t('next')}
+            </button>
           ) : (
-            <button type="button" className="rental-btn rental-btn--primary" disabled={saving} onClick={() => void publish()}>{t('freight.submit')}</button>
+            <button type="button" className="portal-button portal-button--primary" disabled={saving} onClick={() => void publish()}>{t('submit')}</button>
           )}
         </div>
       </div>

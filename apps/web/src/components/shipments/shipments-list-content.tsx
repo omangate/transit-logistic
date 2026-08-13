@@ -8,6 +8,7 @@ import { LoadingState } from '../portal/loading-state';
 import { PortalShell } from '../portal/portal-shell';
 import { StatusBadge } from '../portal/status-badge';
 
+import { DataTable, type DataTableColumn } from '@/components/ui/data-table';
 import { useRequireAuth } from '@/hooks/use-require-auth';
 import { Link } from '@/i18n/navigation';
 import { listShipments } from '@/lib/api';
@@ -69,6 +70,28 @@ export function ShipmentsListContent() {
     return <LoadingState message={tPortal('loading')} />;
   }
 
+  const columns: DataTableColumn<Shipment>[] = [
+    {
+      id: 'reference',
+      header: t('table.reference'),
+      accessor: (s) => s.referenceNumber,
+      render: (s) => (
+        <Link href={`/shipments/${s.id}`} className="portal-link">
+          {s.referenceNumber}
+        </Link>
+      ),
+    },
+    { id: 'route', header: t('table.route'), accessor: (s) => formatRoute(s) },
+    { id: 'cargo', header: t('table.cargo'), accessor: (s) => s.cargoDescription ?? '—' },
+    {
+      id: 'status',
+      header: t('table.status'),
+      accessor: (s) => s.status,
+      render: (s) => <StatusBadge status={s.status} label={t(`status.${s.status}`)} />,
+    },
+    { id: 'created', header: t('table.created'), accessor: (s) => formatDate(s.createdAt, locale) },
+  ];
+
   return (
     <PortalShell
       user={user}
@@ -92,39 +115,17 @@ export function ShipmentsListContent() {
           </Link>
         </div>
       ) : (
-        <div className="table-wrap">
-          <table className="data-table">
-            <thead>
-              <tr>
-                <th>{t('table.reference')}</th>
-                <th>{t('table.route')}</th>
-                <th>{t('table.cargo')}</th>
-                <th>{t('table.status')}</th>
-                <th>{t('table.created')}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {shipments.map((shipment) => (
-                <tr key={shipment.id}>
-                  <td>
-                    <Link href={`/shipments/${shipment.id}`} className="portal-link">
-                      {shipment.referenceNumber}
-                    </Link>
-                  </td>
-                  <td>{formatRoute(shipment)}</td>
-                  <td>{shipment.cargoDescription ?? '—'}</td>
-                  <td>
-                    <StatusBadge
-                      status={shipment.status}
-                      label={t(`status.${shipment.status}`)}
-                    />
-                  </td>
-                  <td>{formatDate(shipment.createdAt, locale)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <section className="panel">
+          <DataTable
+            rows={shipments}
+            columns={columns}
+            searchPlaceholder={t('listSubtitle')}
+            emptyMessage={t('emptyList')}
+            exportFileName="shipments.csv"
+            mobileCardTitle={(s) => s.referenceNumber}
+            mobileCardSubtitle={(s) => formatRoute(s)}
+          />
+        </section>
       )}
     </PortalShell>
   );

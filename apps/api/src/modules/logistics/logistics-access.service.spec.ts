@@ -1,5 +1,7 @@
 import { ForbiddenException } from '@nestjs/common';
 
+import type { User } from '@/types/user';
+
 import { LogisticsAccessService } from './logistics-access.service';
 
 describe('LogisticsAccessService RBAC', () => {
@@ -11,10 +13,10 @@ describe('LogisticsAccessService RBAC', () => {
 
   const service = new LogisticsAccessService(prisma as never);
 
-  const customerA = { id: 'aaa', role: 'customer' } as never;
-  const customerB = { id: 'bbb', role: 'customer' } as never;
-  const fleet = { id: 'fff', role: 'fleet_owner' } as never;
-  const admin = { id: 'adm', role: 'admin' } as never;
+  const customerA = { id: 'aaa', role: 'customer' } as User;
+  const customerB = { id: 'bbb', role: 'customer' } as User;
+  const fleet = { id: 'fff', role: 'fleet_owner' } as User;
+  const admin = { id: 'adm', role: 'admin' } as User;
 
   beforeEach(() => jest.clearAllMocks());
 
