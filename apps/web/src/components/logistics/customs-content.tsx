@@ -9,6 +9,8 @@ import { LogisticsConversationPanel } from '@/components/logistics/logistics-con
 import { LogisticsStatusTimeline } from '@/components/logistics/logistics-status-timeline';
 import { LoadingState } from '@/components/portal/loading-state';
 import { PortalShell } from '@/components/portal/portal-shell';
+import { DataTable, type DataTableColumn } from '@/components/ui/data-table';
+import { IntegrationStatusBadge } from '@/components/ui/premium';
 import { useRequireCustomerAuth } from '@/hooks/use-require-customer-auth';
 import { Link } from '@/i18n/navigation';
 import { getCustomsRequest, listCustomsRequests, respondLogisticsQuote } from '@/lib/api';
@@ -54,6 +56,32 @@ export function CustomsRequestsContent() {
     return <LoadingState message={t('loading')} />;
   }
 
+  const columns: DataTableColumn<CustomsClearanceRequest>[] = [
+    {
+      id: 'reference',
+      header: t('customs.fields.reference'),
+      accessor: (item) => item.referenceNumber,
+      render: (item) => (
+        <Link href={`/customs/requests/${item.id}`} className="portal-link">
+          {item.referenceNumber}
+        </Link>
+      ),
+    },
+    {
+      id: 'type',
+      header: t('customs.fields.transactionType'),
+      accessor: (item) => t(`customs.transactionTypes.${item.transactionType}` as never),
+    },
+    {
+      id: 'status',
+      header: t('customs.fields.status'),
+      accessor: (item) => item.status,
+      render: (item) => (
+        <IntegrationStatusBadge status={item.status} label={t(`customs.status.${item.status}` as never)} />
+      ),
+    },
+  ];
+
   return (
     <PortalShell
       user={user}
@@ -67,16 +95,15 @@ export function CustomsRequestsContent() {
       {isLoading ? (
         <LoadingState message={t('loading')} />
       ) : (
-        <div className="logistics-table">
-          {items.map((item) => (
-            <Link key={item.id} href={`/customs/requests/${item.id}`} className="logistics-table__row">
-              <strong>{item.referenceNumber}</strong>
-              <span>{t(`customs.transactionTypes.${item.transactionType}` as never)}</span>
-              <span className="logistics-badge">{t(`customs.status.${item.status}` as never)}</span>
-            </Link>
-          ))}
-          {!items.length && !error ? <p>{t('customs.empty')}</p> : null}
-        </div>
+        <DataTable
+          rows={items}
+          columns={columns}
+          searchPlaceholder={t('admin.search')}
+          emptyMessage={t('customs.empty')}
+          exportFileName="customs-requests.csv"
+          mobileCardTitle={(item) => item.referenceNumber}
+          mobileCardSubtitle={(item) => t(`customs.status.${item.status}` as never)}
+        />
       )}
     </PortalShell>
   );

@@ -1238,6 +1238,12 @@
       "newOrder": "New logistics order",
       "defaultOrderTitle": "Complete logistics order",
       "recentOrders": "Recent orders",
+      "noOrders": "No orders yet.",
+      "table": {
+        "reference": "Reference",
+        "title": "Title",
+        "status": "Status"
+      },
       "metrics": {
         "orders": "Logistics orders",
         "customs": "Customs clearance",
@@ -1389,6 +1395,9 @@
         "review": "Review"
       },
       "fields": {
+        "reference": "Reference",
+        "transactionType": "Type",
+        "status": "Status",
         "shipmentReference": "Shipment reference",
         "blNumber": "Bill of lading number",
         "shippingLine": "Shipping line",
@@ -1417,10 +1426,14 @@
       "subtitle": "Sea, air, road, and multimodal freight",
       "requestQuote": "Request a quote",
       "myShipments": "My freight requests",
+      "empty": "No freight requests yet.",
       "newRequest": "New freight request",
       "submit": "Submit request",
       "modes": { "sea": "Sea", "air": "Air", "road": "Road", "multimodal": "Multimodal" },
       "fields": {
+        "reference": "Reference",
+        "route": "Route",
+        "status": "Status",
         "mode": "Transport mode",
         "serviceType": "Service type",
         "routeType": "Route type",
@@ -1499,6 +1512,10 @@
       "filterInProgress": "In progress",
       "filterCompleted": "Completed",
       "recentCustoms": "Recent customs requests",
+      "table": {
+        "customer": "Customer",
+        "actions": "Actions"
+      },
       "kpis": {
         "pendingDocuments": "Pending documents",
         "pendingQuotes": "Pending quotes",

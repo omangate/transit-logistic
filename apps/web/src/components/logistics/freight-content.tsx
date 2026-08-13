@@ -8,6 +8,8 @@ import { LogisticsConversationPanel } from '@/components/logistics/logistics-con
 import { LogisticsStatusTimeline } from '@/components/logistics/logistics-status-timeline';
 import { LoadingState } from '@/components/portal/loading-state';
 import { PortalShell } from '@/components/portal/portal-shell';
+import { DataTable, type DataTableColumn } from '@/components/ui/data-table';
+import { IntegrationStatusBadge } from '@/components/ui/premium';
 import { useRequireCustomerAuth } from '@/hooks/use-require-customer-auth';
 import { Link, useRouter } from '@/i18n/navigation';
 import { createFreightRequest, getFreightShipment, listFreightShipments, submitFreightShipment } from '@/lib/api';
@@ -110,20 +112,51 @@ export function FreightShipmentsContent() {
     return <LoadingState message={t('loading')} />;
   }
 
+  const columns: DataTableColumn<FreightForwardingRequest>[] = [
+    {
+      id: 'reference',
+      header: t('freight.fields.reference'),
+      accessor: (item) => item.referenceNumber,
+      render: (item) => (
+        <Link href={`/freight/shipments/${item.id}`} className="portal-link">
+          {item.referenceNumber}
+        </Link>
+      ),
+    },
+    {
+      id: 'mode',
+      header: t('freight.fields.mode'),
+      accessor: (item) => t(`freight.modes.${item.transportMode}` as never),
+    },
+    {
+      id: 'route',
+      header: t('freight.fields.route'),
+      accessor: (item) => `${item.origin ?? '—'} → ${item.destination ?? '—'}`,
+    },
+    {
+      id: 'status',
+      header: t('freight.fields.status'),
+      accessor: (item) => item.status,
+      render: (item) => (
+        <IntegrationStatusBadge status={item.status} label={t(`freight.status.${item.status}` as never)} />
+      ),
+    },
+  ];
+
   return (
     <PortalShell user={user} title={t('freight.myShipments')} subtitle={t('freight.subtitle')}>
       {isLoading ? (
         <LoadingState message={t('loading')} />
       ) : (
-        <div className="logistics-table">
-          {items.map((item) => (
-            <Link key={item.id} href={`/freight/shipments/${item.id}`} className="logistics-table__row">
-              <strong>{item.referenceNumber}</strong>
-              <span>{t(`freight.modes.${item.transportMode}` as never)}</span>
-              <span className="logistics-badge">{t(`freight.status.${item.status}` as never)}</span>
-            </Link>
-          ))}
-        </div>
+        <DataTable
+          rows={items}
+          columns={columns}
+          searchPlaceholder={t('admin.search')}
+          emptyMessage={t('freight.empty')}
+          exportFileName="freight-shipments.csv"
+          mobileCardTitle={(item) => item.referenceNumber}
+          mobileCardSubtitle={(item) => t(`freight.status.${item.status}` as never)}
+        />
       )}
     </PortalShell>
   );

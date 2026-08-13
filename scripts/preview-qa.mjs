@@ -5,8 +5,8 @@
  */
 import { chromium } from 'playwright';
 
-const WEB = process.env.WEB_URL ?? 'https://web-rosy-rho-64.vercel.app';
-const API = process.env.API_URL ?? 'https://transit-logistic-production.up.railway.app';
+const WEB = process.env.WEB_URL ?? 'https://transit-logistic-web-staging-staging.up.railway.app';
+const API = process.env.API_URL ?? 'https://transit-logistic-api-staging-staging.up.railway.app';
 
 const VIEWPORTS = [
   { name: 'desktop', width: 1440, height: 900 },
@@ -24,7 +24,7 @@ const ROLE_ROUTES = {
 };
 
 const CREDENTIALS = {
-  customer: { email: 'alharithlap@gmail.com', password: 'Test1234' },
+  customer: { email: 'customer@transit.dev', password: 'Customer1234' },
   fleet: { email: 'fleet@transit.dev', password: 'Fleet1234' },
   driver: { email: 'driver@transit.dev', password: 'Driver1234' },
   admin: { email: 'admin@transit.dev', password: 'Admin1234' },

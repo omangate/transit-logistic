@@ -1235,6 +1235,12 @@
       "newOrder": "طلب لوجستي جديد",
       "defaultOrderTitle": "طلب لوجستي متكامل",
       "recentOrders": "الطلبات الأخيرة",
+      "noOrders": "لا توجد طلبات بعد.",
+      "table": {
+        "reference": "المرجع",
+        "title": "العنوان",
+        "status": "الحالة"
+      },
       "metrics": {
         "orders": "طلبات لوجستية",
         "customs": "تخليص جمركي",
@@ -1386,6 +1392,9 @@
         "review": "مراجعة"
       },
       "fields": {
+        "reference": "المرجع",
+        "transactionType": "النوع",
+        "status": "الحالة",
         "shipmentReference": "مرجع الشحنة",
         "blNumber": "رقم بوليصة الشحن",
         "shippingLine": "خط الشحن",
@@ -1414,10 +1423,14 @@
       "subtitle": "شحن بحري وجوي وبري متعدد الوسائط",
       "requestQuote": "طلب عرض سعر",
       "myShipments": "شحناتي",
+      "empty": "لا توجد طلبات شحن بعد.",
       "newRequest": "طلب شحن جديد",
       "submit": "إرسال الطلب",
       "modes": { "sea": "بحري", "air": "جوي", "road": "بري", "multimodal": "متعدد" },
       "fields": {
+        "reference": "المرجع",
+        "route": "المسار",
+        "status": "الحالة",
         "mode": "وسيلة النقل",
         "serviceType": "نوع الخدمة",
         "routeType": "نوع المسار",
@@ -1496,6 +1509,10 @@
       "filterInProgress": "قيد التنفيذ",
       "filterCompleted": "مكتمل",
       "recentCustoms": "طلبات التخليص الأخيرة",
+      "table": {
+        "customer": "العميل",
+        "actions": "إجراءات"
+      },
       "kpis": {
         "pendingDocuments": "مستندات معلقة",
         "pendingQuotes": "عروض معلقة",

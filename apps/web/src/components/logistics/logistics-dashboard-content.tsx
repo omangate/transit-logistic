@@ -6,11 +6,13 @@ import { useEffect, useState } from 'react';
 import { FormError } from '@/components/form-error';
 import { LoadingState } from '@/components/portal/loading-state';
 import { PortalShell } from '@/components/portal/portal-shell';
+import { DataTable } from '@/components/ui/data-table';
+import { IntegrationStatusBadge } from '@/components/ui/premium';
 import { useRequireCustomerAuth } from '@/hooks/use-require-customer-auth';
 import { Link } from '@/i18n/navigation';
 import { createLogisticsOrder, getLogisticsDashboard } from '@/lib/api';
 import { getLocalizedApiMessage, isApiClientError } from '@/lib/api-error';
-import type { LogisticsDashboard } from '@/types/logistics';
+import type { LogisticsDashboard, LogisticsOrder } from '@/types/logistics';
 
 export function LogisticsDashboardContent() {
   const t = useTranslations('logistics');
@@ -105,15 +107,35 @@ export function LogisticsDashboardContent() {
           {data.recentOrders.length ? (
             <section className="logistics-panel" style={{ marginTop: '1.5rem' }}>
               <h2>{t('dashboard.recentOrders')}</h2>
-              <div className="logistics-table">
-                {data.recentOrders.map((order) => (
-                  <Link key={order.id} href={`/logistics/orders/${order.id}`} className="logistics-table__row">
-                    <strong>{order.referenceNumber}</strong>
-                    <span>{order.title ?? '—'}</span>
-                    <span className="logistics-badge">{order.status.replace(/_/g, ' ')}</span>
-                  </Link>
-                ))}
-              </div>
+              <DataTable
+                rows={data.recentOrders as LogisticsOrder[]}
+                columns={[
+                  {
+                    id: 'reference',
+                    header: t('dashboard.table.reference'),
+                    accessor: (order) => order.referenceNumber,
+                    render: (order) => (
+                      <Link href={`/logistics/orders/${order.id}`} className="portal-link">
+                        {order.referenceNumber}
+                      </Link>
+                    ),
+                  },
+                  { id: 'title', header: t('dashboard.table.title'), accessor: (order) => order.title ?? '—' },
+                  {
+                    id: 'status',
+                    header: t('dashboard.table.status'),
+                    accessor: (order) => order.status,
+                    render: (order) => (
+                      <IntegrationStatusBadge status={order.status} label={order.status.replace(/_/g, ' ')} />
+                    ),
+                  },
+                ]}
+                searchPlaceholder={t('admin.search')}
+                emptyMessage={t('dashboard.noOrders')}
+                exportFileName="logistics-orders.csv"
+                mobileCardTitle={(order) => order.referenceNumber}
+                mobileCardSubtitle={(order) => order.title ?? order.status}
+              />
             </section>
           ) : null}
         </>

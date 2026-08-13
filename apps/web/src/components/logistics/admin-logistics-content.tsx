@@ -1,25 +1,28 @@
 'use client';
 
 import { useLocale, useTranslations } from 'next-intl';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { AdminShell } from '@/components/admin/admin-shell';
 import { FormError } from '@/components/form-error';
 import { LoadingState } from '@/components/portal/loading-state';
+import { DataTable, type DataTableColumn } from '@/components/ui/data-table';
+import { IntegrationStatusBadge } from '@/components/ui/premium';
 import { useRequireAdminAuth } from '@/hooks/use-require-admin-auth';
 import { Link } from '@/i18n/navigation';
 import { getAdminCustomsDashboard, getAdminLogisticsDashboard, updateAdminCustomsStatus } from '@/lib/api';
 import { getLocalizedApiMessage, isApiClientError } from '@/lib/api-error';
 import type { AdminLogisticsDashboard } from '@/types/logistics';
 
+type AdminOrderRow = AdminLogisticsDashboard['recentOrders'][number];
+type CustomsRow = { id: string; referenceNumber: string; status: string };
+
 export function AdminLogisticsDashboardContent() {
   const t = useTranslations('logistics');
   const locale = useLocale() as 'en' | 'ar';
   const { user, isReady } = useRequireAdminAuth();
-  const [customsData, setCustomsData] = useState<{ recent: Array<{ id: string; referenceNumber: string; status: string }>; awaitingDocs: number } | null>(null);
+  const [customsData, setCustomsData] = useState<{ recent: CustomsRow[]; awaitingDocs: number } | null>(null);
   const [opsData, setOpsData] = useState<AdminLogisticsDashboard | null>(null);
-  const [search, setSearch] = useState('');
-  const [statusFilter, setStatusFilter] = useState('all');
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -41,18 +44,72 @@ export function AdminLogisticsDashboardContent() {
     reload();
   }, [isReady, locale, t, user]);
 
-  const filteredOrders = useMemo(() => {
-    if (!opsData) return [];
-    return opsData.recentOrders.filter((row) => {
-      const matchesSearch =
-        !search.trim() ||
-        row.referenceNumber.toLowerCase().includes(search.toLowerCase()) ||
-        (row.title ?? '').toLowerCase().includes(search.toLowerCase()) ||
-        (row.customer?.email ?? '').toLowerCase().includes(search.toLowerCase());
-      const matchesStatus = statusFilter === 'all' || row.status === statusFilter;
-      return matchesSearch && matchesStatus;
-    });
-  }, [opsData, search, statusFilter]);
+  const orderColumns: DataTableColumn<AdminOrderRow>[] = [
+    {
+      id: 'reference',
+      header: t('dashboard.table.reference'),
+      accessor: (row) => row.referenceNumber,
+      render: (row) => (
+        <Link href={`/logistics/orders/${row.id}`} className="portal-link">
+          {row.referenceNumber}
+        </Link>
+      ),
+    },
+    {
+      id: 'customer',
+      header: t('admin.table.customer'),
+      accessor: (row) => row.customer?.customerProfile?.fullName ?? row.customer?.email ?? '—',
+    },
+    {
+      id: 'status',
+      header: t('dashboard.table.status'),
+      accessor: (row) => row.status,
+      render: (row) => <IntegrationStatusBadge status={row.status} label={row.status.replace(/_/g, ' ')} />,
+    },
+    {
+      id: 'actions',
+      header: t('admin.table.actions'),
+      accessor: () => '',
+      render: (row) => (
+        <>
+          {(row.customsRequests ?? []).map((c) => (
+            <button
+              key={c.id}
+              type="button"
+              className="rental-btn rental-btn--ghost"
+              onClick={() => void updateAdminCustomsStatus(c.id, 'clearance_in_progress').then(reload)}
+            >
+              {c.referenceNumber}: {t('admin.startClearance')}
+            </button>
+          ))}
+        </>
+      ),
+    },
+  ];
+
+  const customsColumns: DataTableColumn<CustomsRow>[] = [
+    { id: 'reference', header: t('customs.fields.reference'), accessor: (row) => row.referenceNumber },
+    {
+      id: 'status',
+      header: t('customs.fields.status'),
+      accessor: (row) => row.status,
+      render: (row) => <IntegrationStatusBadge status={row.status} label={row.status.replace(/_/g, ' ')} />,
+    },
+    {
+      id: 'actions',
+      header: t('admin.table.actions'),
+      accessor: () => '',
+      render: (row) => (
+        <button
+          type="button"
+          className="rental-btn rental-btn--ghost"
+          onClick={() => void updateAdminCustomsStatus(row.id, 'clearance_in_progress').then(reload)}
+        >
+          {t('admin.startClearance')}
+        </button>
+      ),
+    },
+  ];
 
   if (!isReady || !user) {
     return <LoadingState message={t('loading')} />;
@@ -84,46 +141,27 @@ export function AdminLogisticsDashboardContent() {
 
           <p>{t('admin.awaitingDocs', { count: customsData.awaitingDocs })}</p>
 
-          <div className="logistics-form logistics-form--inline" style={{ marginBottom: '1rem' }}>
-            <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder={t('admin.search')} />
-            <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
-              <option value="all">{t('admin.filterAll')}</option>
-              <option value="draft">{t('admin.filterDraft')}</option>
-              <option value="in_progress">{t('admin.filterInProgress')}</option>
-              <option value="completed">{t('admin.filterCompleted')}</option>
-            </select>
-          </div>
-
-          <div className="logistics-table">
-            {filteredOrders.map((row) => (
-              <div key={row.id} className="logistics-table__row logistics-table__row--admin">
-                <Link href={`/logistics/orders/${row.id}`}>
-                  <strong>{row.referenceNumber}</strong>
-                </Link>
-                <span>{row.customer?.customerProfile?.fullName ?? row.customer?.email ?? '—'}</span>
-                <span className="logistics-badge">{row.status.replace(/_/g, ' ')}</span>
-                {(row.customsRequests ?? []).map((c) => (
-                  <button key={c.id} type="button" className="rental-btn rental-btn--ghost" onClick={() => void updateAdminCustomsStatus(c.id, 'clearance_in_progress').then(reload)}>
-                    {c.referenceNumber}: {t('admin.startClearance')}
-                  </button>
-                ))}
-              </div>
-            ))}
-          </div>
+          <DataTable
+            rows={opsData.recentOrders}
+            columns={orderColumns}
+            searchPlaceholder={t('admin.search')}
+            emptyMessage={t('dashboard.noOrders')}
+            exportFileName="admin-logistics-orders.csv"
+            mobileCardTitle={(row) => row.referenceNumber}
+            mobileCardSubtitle={(row) => row.customer?.email ?? row.status}
+          />
 
           <section className="logistics-panel" style={{ marginTop: '2rem' }}>
             <h2>{t('admin.recentCustoms')}</h2>
-            <div className="logistics-table">
-              {customsData.recent.map((row) => (
-                <div key={row.id} className="logistics-table__row logistics-table__row--admin">
-                  <strong>{row.referenceNumber}</strong>
-                  <span className="logistics-badge">{row.status.replace(/_/g, ' ')}</span>
-                  <button type="button" className="rental-btn rental-btn--ghost" onClick={() => void updateAdminCustomsStatus(row.id, 'clearance_in_progress').then(reload)}>
-                    {t('admin.startClearance')}
-                  </button>
-                </div>
-              ))}
-            </div>
+            <DataTable
+              rows={customsData.recent}
+              columns={customsColumns}
+              searchPlaceholder={t('admin.search')}
+              emptyMessage={t('customs.empty')}
+              exportFileName="admin-customs.csv"
+              mobileCardTitle={(row) => row.referenceNumber}
+              mobileCardSubtitle={(row) => row.status}
+            />
           </section>
         </>
       ) : null}

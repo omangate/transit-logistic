@@ -88,5 +88,17 @@ if (!migrateResult.ok) {
 }
 
 console.log('[railway-start] Migrations applied successfully.');
+
+if (process.env.STAGING_RUN_SEED === 'true') {
+  console.log('[railway-start] STAGING_RUN_SEED enabled — running prisma seed...');
+  try {
+    execSync('npx ts-node prisma/seed.ts', { cwd: apiRoot, stdio: 'inherit', env: process.env });
+    console.log('[railway-start] Staging seed completed.');
+  } catch (seedError) {
+    console.error('[railway-start] Staging seed failed:', seedError instanceof Error ? seedError.message : seedError);
+    process.exit(1);
+  }
+}
+
 console.log('[railway-start] Starting API (node dist/main.js)...');
 execSync('node dist/main.js', { cwd: apiRoot, stdio: 'inherit', env: process.env });
