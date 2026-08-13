@@ -22,8 +22,10 @@ import { createOceanCarrierProviders } from './providers/carrier-adapters';
 import { InternalOceanTrackingProvider } from './providers/internal-ocean-tracking.provider';
 import {
   CARRIER_SEED_DEFINITIONS,
+  resolveCarrierWebsiteUrl,
   resolveCredentialConfigured,
   resolveIntegrationStatus,
+  resolveTrackingPortalUrl,
 } from './ocean-carriers.constants';
 
 @Injectable()
@@ -109,16 +111,37 @@ export class OceanCarriersService implements OnModuleInit {
 
   async listCarrierDirectory(): Promise<CarrierDirectoryEntry[]> {
     const configs = await this.prisma.oceanCarrierConfig.findMany({ orderBy: { displayName: 'asc' } });
-    return configs.map((config) => ({
-      carrierCode: config.carrierCode as OceanCarrierCode,
-      displayName: config.displayName,
-      scac: config.scac,
-      supportsTracking: config.supportsTracking,
-      supportsSchedules: config.supportsSchedules,
-      supportsBooking: config.supportsBooking,
-      integrationStatus: config.status as OceanCarrierConnectionStatus,
-      integrationMode: config.integrationMode as OceanCarrierIntegrationMode,
-    }));
+    return configs
+      .filter((config) => config.enabled)
+      .map((config) => {
+        const integrationMode = config.integrationMode as OceanCarrierIntegrationMode;
+        const credentialConfigured = resolveCredentialConfigured(config.credentialEnvKey);
+        const integrationStatus = resolveIntegrationStatus(
+          credentialConfigured,
+          integrationMode,
+          config.lastError,
+          config.lastSyncAt,
+        );
+        const carrierCode = config.carrierCode as OceanCarrierCode;
+
+        return {
+          carrierCode,
+          displayName: config.displayName,
+          scac: config.scac,
+          supportsTracking: config.supportsTracking,
+          supportsSchedules: config.supportsSchedules,
+          supportsBooking: config.supportsBooking,
+          integrationStatus,
+          integrationMode,
+          externalTrackingPortalUrl: resolveTrackingPortalUrl(config.externalTrackingUrlTemplate),
+          carrierWebsiteUrl: resolveCarrierWebsiteUrl(carrierCode),
+          lastSyncAt:
+            integrationMode === OceanCarrierIntegrationMode.LIVE_API && config.lastSyncAt
+              ? config.lastSyncAt.toISOString()
+              : null,
+          enabled: config.enabled,
+        };
+      });
   }
 
   async listAdminConnections(): Promise<AdminCarrierConnection[]> {

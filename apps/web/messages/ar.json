@@ -748,9 +748,63 @@
   },
   "oceanCarriers": {
     "title": "دليل خطوط الشحن",
-    "subtitle": "خطوط الشحن المدعومة وإمكانيات التكامل",
+    "subtitle": "خطوط الشحن البحرية المدعومة وإمكانيات الخدمة",
     "loading": "جارٍ تحميل خطوط الشحن...",
     "scac": "SCAC",
+    "connectionMethod": "طريقة الربط",
+    "searchPlaceholder": "ابحث عن خط شحن",
+    "resultCount": "{shown} من {total} خط شحن",
+    "badges": {
+      "live_api": "متصل مباشرة",
+      "external_tracking": "تتبع خارجي",
+      "manual_ops": "تحديث داخلي",
+      "not_configured": "غير مهيأ"
+    },
+    "capabilities": {
+      "trackingAvailable": "التتبع متاح",
+      "trackingUnavailable": "التتبع غير متاح",
+      "schedulesAvailable": "جداول الرحلات متاحة",
+      "schedulesUnavailable": "جداول الرحلات غير متاحة",
+      "bookingAvailable": "الحجز الإلكتروني متاح",
+      "bookingUnavailable": "الحجز الإلكتروني غير متاح"
+    },
+    "filters": {
+      "label": "تصفية خطوط الشحن",
+      "all": "الكل",
+      "liveApi": "واجهة مباشرة",
+      "externalTracking": "تتبع خارجي",
+      "manual": "يدوي",
+      "trackingAvailable": "التتبع متاح",
+      "schedulesAvailable": "الجداول متاحة",
+      "bookingAvailable": "الحجز متاح"
+    },
+    "actions": {
+      "trackShipment": "تتبع شحنة",
+      "trackViaCarrier": "تتبع عبر موقع الناقل",
+      "viewSchedules": "جدول الرحلات",
+      "requestQuote": "طلب عرض سعر",
+      "openWebsite": "فتح موقع الناقل",
+      "details": "تفاصيل"
+    },
+    "drawer": {
+      "close": "إغلاق",
+      "services": "الخدمات المتاحة",
+      "trackingMethod": "طريقة التتبع",
+      "schedules": "توفر الجداول",
+      "booking": "توفر الحجز",
+      "lastSync": "آخر مزامنة"
+    },
+    "errors": {
+      "loadFailed": "تعذر تحميل بيانات خطوط الشحن. حاول مرة أخرى.",
+      "retry": "حاول مرة أخرى"
+    },
+    "empty": {
+      "title": "لا توجد خطوط شحن",
+      "description": "تعذر تحميل دليل خطوط الشحن حالياً.",
+      "noResults": "لا توجد نتائج مطابقة",
+      "noResultsHint": "جرّب كلمة بحث أو فلتراً مختلفاً.",
+      "clearFilters": "مسح الفلاتر"
+    },
     "tracking": "التتبع",
     "schedules": "الجداول",
     "booking": "الحجز",

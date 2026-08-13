@@ -125,3 +125,34 @@ export function buildExternalTrackingUrl(template: string | null | undefined, re
   }
   return template.replace('{reference}', encodeURIComponent(reference));
 }
+
+/** Customer-safe tracking portal landing URL (no shipment reference). */
+export function resolveTrackingPortalUrl(template: string | null | undefined): string | null {
+  if (!template?.trim()) {
+    return null;
+  }
+
+  const withoutPlaceholder = template.replace('{reference}', '').replace(/[?&]$/, '');
+  try {
+    const url = new URL(withoutPlaceholder);
+    return `${url.origin}${url.pathname}${url.search}`;
+  } catch {
+    return withoutPlaceholder;
+  }
+}
+
+const CARRIER_WEBSITE_URLS: Record<OceanCarrierCode, string> = {
+  [OceanCarrierCode.MAERSK]: 'https://www.maersk.com',
+  [OceanCarrierCode.HAPAG_LLOYD]: 'https://www.hapag-lloyd.com',
+  [OceanCarrierCode.MSC]: 'https://www.msc.com',
+  [OceanCarrierCode.CMA_CGM]: 'https://www.cma-cgm.com',
+  [OceanCarrierCode.COSCO]: 'https://elines.coscoshipping.com',
+  [OceanCarrierCode.ONE]: 'https://www.one-line.com',
+  [OceanCarrierCode.EVERGREEN]: 'https://www.evergreen-line.com',
+  [OceanCarrierCode.YANG_MING]: 'https://www.yangming.com',
+  [OceanCarrierCode.ZIM]: 'https://www.zim.com',
+};
+
+export function resolveCarrierWebsiteUrl(carrierCode: OceanCarrierCode): string {
+  return CARRIER_WEBSITE_URLS[carrierCode];
+}

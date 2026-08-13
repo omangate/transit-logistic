@@ -60,15 +60,27 @@ export async function parseApiError(response: Response): Promise<ApiClientError>
   const body = (await response.json().catch(() => ({}))) as ApiErrorResponse &
     NestValidationBody;
 
-  if (typeof body.message_en === 'string' && typeof body.message_ar === 'string') {
-    if (response.status === 401) {
-      return new ApiClientError(
-        body.code === 'UNAUTHORIZED' ? 'UNAUTHORIZED' : 'SESSION_EXPIRED',
-        body.message_en,
-        body.message_ar,
-      );
-    }
+  if (response.status === 401) {
+    return createUnauthorizedError();
+  }
 
+  if (response.status === 403) {
+    return new ApiClientError(
+      'FORBIDDEN',
+      'You do not have permission to access this resource.',
+      'ليس لديك صلاحية للوصول إلى هذا المورد.',
+    );
+  }
+
+  if (response.status >= 500) {
+    return new ApiClientError(
+      'SERVER_ERROR',
+      'Something went wrong on our side. Please try again.',
+      'حدث خطأ من جانبنا. يرجى المحاولة مرة أخرى.',
+    );
+  }
+
+  if (typeof body.message_en === 'string' && typeof body.message_ar === 'string') {
     return new ApiClientError(
       body.code ?? 'API_ERROR',
       body.message_en,
@@ -82,12 +94,14 @@ export async function parseApiError(response: Response): Promise<ApiClientError>
   }
 
   if (typeof body.message === 'string') {
-    if (response.status === 401 || body.message === 'Unauthorized') {
-      return new ApiClientError(
-        'UNAUTHORIZED',
-        'Your session has expired. Please sign in again.',
-        'انتهت صلاحية جلستك. يرجى تسجيل الدخول مرة أخرى.',
-      );
+    if (body.message === 'Unauthorized' || body.message === 'Forbidden') {
+      return response.status === 403
+        ? new ApiClientError(
+            'FORBIDDEN',
+            'You do not have permission to access this resource.',
+            'ليس لديك صلاحية للوصول إلى هذا المورد.',
+          )
+        : createUnauthorizedError();
     }
 
     return new ApiClientError('API_ERROR', body.message, body.message);

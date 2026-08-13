@@ -91,6 +91,10 @@ export type CarrierDirectoryEntry = {
   supportsBooking: boolean;
   integrationStatus: OceanCarrierConnectionStatus;
   integrationMode: OceanCarrierIntegrationMode;
+  externalTrackingPortalUrl?: string | null;
+  carrierWebsiteUrl?: string | null;
+  lastSyncAt?: string | null;
+  enabled: boolean;
 };
 
 export type AdminCarrierConnection = {

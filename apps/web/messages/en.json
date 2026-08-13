@@ -752,6 +752,60 @@
     "subtitle": "Supported ocean carriers and integration capabilities",
     "loading": "Loading carriers...",
     "scac": "SCAC",
+    "connectionMethod": "Connection method",
+    "searchPlaceholder": "Search carriers",
+    "resultCount": "{shown} of {total} carriers",
+    "badges": {
+      "live_api": "LIVE API",
+      "external_tracking": "EXTERNAL TRACKING",
+      "manual_ops": "MANUAL OPS",
+      "not_configured": "NOT CONFIGURED"
+    },
+    "capabilities": {
+      "trackingAvailable": "Tracking available",
+      "trackingUnavailable": "Tracking not available",
+      "schedulesAvailable": "Sailing schedules available",
+      "schedulesUnavailable": "Sailing schedules not available",
+      "bookingAvailable": "Online booking available",
+      "bookingUnavailable": "Online booking not available"
+    },
+    "filters": {
+      "label": "Filter carriers",
+      "all": "All",
+      "liveApi": "Live API",
+      "externalTracking": "External tracking",
+      "manual": "Manual",
+      "trackingAvailable": "Tracking available",
+      "schedulesAvailable": "Schedules available",
+      "bookingAvailable": "Booking available"
+    },
+    "actions": {
+      "trackShipment": "Track shipment",
+      "trackViaCarrier": "Track via carrier site",
+      "viewSchedules": "Sailing schedules",
+      "requestQuote": "Request quote",
+      "openWebsite": "Open carrier website",
+      "details": "Details"
+    },
+    "drawer": {
+      "close": "Close",
+      "services": "Available services",
+      "trackingMethod": "Tracking method",
+      "schedules": "Schedule availability",
+      "booking": "Booking availability",
+      "lastSync": "Last sync"
+    },
+    "errors": {
+      "loadFailed": "Unable to load carrier directory. Please try again.",
+      "retry": "Try again"
+    },
+    "empty": {
+      "title": "No carriers available",
+      "description": "Carrier directory data could not be loaded right now.",
+      "noResults": "No carriers match your search",
+      "noResultsHint": "Try a different search term or filter.",
+      "clearFilters": "Clear filters"
+    },
     "tracking": "Tracking",
     "schedules": "Schedules",
     "booking": "Booking",

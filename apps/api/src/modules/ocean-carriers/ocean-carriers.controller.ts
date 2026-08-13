@@ -1,5 +1,7 @@
 import { OceanCarrierCode, OceanTrackingSearchType } from '@transit-logistic/shared';
-import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query } from '@nestjs/common';
+
+import { Public } from '../../common/decorators/public.decorator';
 
 import { OceanCarriersService } from './ocean-carriers.service';
 import type { ScheduleSearchInput, TrackOceanInput } from './ocean-carrier.types';
@@ -8,11 +10,13 @@ import type { ScheduleSearchInput, TrackOceanInput } from './ocean-carrier.types
 export class OceanCarriersController {
   constructor(private readonly oceanCarriersService: OceanCarriersService) {}
 
+  @Public()
   @Get('carriers')
   listCarriers() {
     return this.oceanCarriersService.listCarrierDirectory();
   }
 
+  @Public()
   @Get('track')
   track(
     @Query('type') type: string,
@@ -28,11 +32,13 @@ export class OceanCarriersController {
     return this.oceanCarriersService.track(input);
   }
 
+  @Public()
   @Post('track')
   trackPost(@Body() body: TrackOceanInput) {
     return this.oceanCarriersService.track(body);
   }
 
+  @Public()
   @Get('schedules')
   searchSchedules(
     @Query('origin') originUnlocode: string,
