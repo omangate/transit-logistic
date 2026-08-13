@@ -31,38 +31,72 @@ export class GlobalTrackingService {
     requesterUserId?: string;
   }): Promise<UnifiedTrackingResult> {
     const reference = normalizeReference(input.searchValue);
-    const resolvedMode = input.mode && input.mode !== 'all' ? input.mode : detectTrackingMode(reference);
-    const searchType = input.searchType ?? detectSearchType(reference, resolvedMode);
-
-    if (resolvedMode === TrackingMode.OCEAN) {
-      const ocean = await this.trackOcean(searchType, reference);
-      if (ocean) return ocean;
-    }
-
-    if (resolvedMode === TrackingMode.AIR) {
-      const air = await this.airProvider.track({ searchType, searchValue: reference });
-      if (air) return air;
-    }
-
-    if (resolvedMode === TrackingMode.ROAD) {
-      return this.roadProvider.track({ searchType, searchValue: reference, requesterUserId: input.requesterUserId });
-    }
-
-    const ocean = await this.trackOcean(searchType, reference);
-    if (ocean) return ocean;
-
-    const air = await this.airProvider.track({ searchType, searchValue: reference });
-    if (air) return air;
-
-    try {
-      return await this.roadProvider.track({ searchType, searchValue: reference, requesterUserId: input.requesterUserId });
-    } catch {
+    if (!reference) {
       throw new NotFoundException({
         code: 'TRACKING_NOT_FOUND',
         message_en: 'No tracking data found for this reference.',
         message_ar: 'لا توجد بيانات تتبع لهذا المرجع.',
       });
     }
+
+    const explicitMode = input.mode && input.mode !== 'all' ? input.mode : null;
+    const resolvedMode = explicitMode ?? detectTrackingMode(reference);
+
+    if (resolvedMode === 'all') {
+      return this.trackWithFallback(reference, input.searchType, input.requesterUserId);
+    }
+
+    const searchType = input.searchType ?? detectSearchType(reference, resolvedMode);
+
+    if (resolvedMode === TrackingMode.OCEAN) {
+      const ocean = await this.trackOcean(searchType, reference);
+      if (ocean) return ocean;
+      throw this.notFoundError();
+    }
+
+    if (resolvedMode === TrackingMode.AIR) {
+      const air = await this.airProvider.track({ searchType, searchValue: reference });
+      if (air) return air;
+      throw this.notFoundError();
+    }
+
+    return this.roadProvider.track({
+      searchType,
+      searchValue: reference,
+      requesterUserId: input.requesterUserId,
+    });
+  }
+
+  private async trackWithFallback(
+    reference: string,
+    searchType: GlobalTrackingSearchType | undefined,
+    requesterUserId?: string,
+  ): Promise<UnifiedTrackingResult> {
+    const resolvedSearchType = searchType ?? detectSearchType(reference, 'all');
+
+    const ocean = await this.trackOcean(resolvedSearchType, reference);
+    if (ocean) return ocean;
+
+    const air = await this.airProvider.track({ searchType: resolvedSearchType, searchValue: reference });
+    if (air) return air;
+
+    try {
+      return await this.roadProvider.track({
+        searchType: resolvedSearchType,
+        searchValue: reference,
+        requesterUserId,
+      });
+    } catch {
+      throw this.notFoundError();
+    }
+  }
+
+  private notFoundError(): NotFoundException {
+    return new NotFoundException({
+      code: 'TRACKING_NOT_FOUND',
+      message_en: 'No tracking data found for this reference.',
+      message_ar: 'لا توجد بيانات تتبع لهذا المرجع.',
+    });
   }
 
   async getSummary(userId: string): Promise<TrackingSummary> {

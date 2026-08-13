@@ -11,7 +11,7 @@ import { GlobalTrackingService } from './global-tracking.service';
 
 import type { Request } from 'express';
 
-type AuthRequest = Request & { user?: { sub: string; role: UserRole } };
+type AuthRequest = Request & { user?: { id: string; role: UserRole } };
 
 @Controller('global')
 export class GlobalTrackingController {
@@ -32,7 +32,7 @@ export class GlobalTrackingController {
       mode: mode ?? 'all',
       searchType,
       searchValue,
-      requesterUserId: req?.user?.sub,
+      requesterUserId: req?.user?.id,
     });
   }
 
@@ -40,7 +40,7 @@ export class GlobalTrackingController {
   @Roles(UserRole.CUSTOMER, UserRole.ADMIN, UserRole.FLEET_OWNER, UserRole.DRIVER)
   @Get('tracking/summary')
   summary(@Req() req: AuthRequest) {
-    return this.globalTracking.getSummary(req.user!.sub);
+    return this.globalTracking.getSummary(req.user!.id);
   }
 
   private parseSearchType(type?: string): GlobalTrackingSearchType | undefined {
