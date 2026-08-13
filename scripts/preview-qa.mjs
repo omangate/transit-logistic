@@ -24,10 +24,10 @@ const ROLE_ROUTES = {
 };
 
 const CREDENTIALS = {
-  customer: { email: 'customer@test.com', password: 'Test1234' },
-  fleet: { email: 'fleet@test.com', password: 'Test1234' },
-  driver: { email: 'driver@test.com', password: 'Test1234' },
-  admin: { email: 'admin@test.com', password: 'Test1234' },
+  customer: { email: 'alharithlap@gmail.com', password: 'Test1234' },
+  fleet: { email: 'fleet@transit.dev', password: 'Fleet1234' },
+  driver: { email: 'driver@transit.dev', password: 'Driver1234' },
+  admin: { email: 'admin@transit.dev', password: 'Admin1234' },
 };
 
 const results = {
@@ -51,14 +51,17 @@ async function checkApi() {
 
 async function login(page, role) {
   const cred = CREDENTIALS[role];
-  await page.goto(`${WEB}/en/login`, { waitUntil: 'domcontentloaded', timeout: 30000 });
+  await page.goto(`${WEB}/en/login`, { waitUntil: 'networkidle', timeout: 45000 });
   await page.fill('input[name="email"]', cred.email);
   await page.fill('input[name="password"]', cred.password);
-  await Promise.all([
-    page.waitForURL((url) => !url.pathname.endsWith('/login'), { timeout: 20000 }).catch(() => null),
-    page.click('button[type="submit"]'),
-  ]);
-  await page.waitForTimeout(1500);
+  const loginResponse = page.waitForResponse(
+    (res) => res.url().includes('/auth/login') && res.request().method() === 'POST',
+    { timeout: 30000 },
+  );
+  await page.click('button[type="submit"]');
+  const response = await loginResponse.catch(() => null);
+  if (!response || response.status() >= 400) return false;
+  await page.waitForTimeout(2500);
   const token = await page.evaluate(() => localStorage.getItem('tl_access_token'));
   return Boolean(token);
 }
