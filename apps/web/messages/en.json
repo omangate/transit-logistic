@@ -56,7 +56,7 @@
       "shipments": "Shipments",
       "marketplace": "Truck marketplace",
       "newShipment": "New shipment",
-      "globalTracking": "Global tracking",
+      "globalTracking": "Global Tracking",
       "notifications": "Notifications",
       "account": "Account & company",
       "quotations": "Quotations",
@@ -108,7 +108,11 @@
       "customsClearance": "Customs clearance",
       "awaitingDocuments": "Awaiting documents",
       "outstandingQuotes": "Outstanding quotes",
-      "outstandingPayments": "Outstanding payments"
+      "outstandingPayments": "Outstanding payments",
+      "oceanActive": "Active ocean",
+      "airActive": "Active air",
+      "roadActive": "Active road",
+      "trackingActionRequired": "Needs action"
     },
     "pipeline": {
       "booking": "Booking",
@@ -327,6 +331,7 @@
       "settings": "Settings",
       "logistics": "Logistics operations",
       "oceanCarriers": "Ocean carriers",
+      "emailLogs": "Email delivery logs",
       "groups": {
         "operations": "Operations",
         "network": "Network",
@@ -724,6 +729,91 @@
       "generic": "Something went wrong. Please try again."
     }
   },
+  "globalTracking": {
+    "title": "Global Tracking",
+    "subtitle": "Track ocean, air, and road shipments from one place.",
+    "modeTabs": "Transport mode",
+    "searchType": "Search by",
+    "referenceLabel": "Tracking reference",
+    "trackButton": "Track shipment",
+    "backToSearch": "Back to search",
+    "loading": "Loading tracking details...",
+    "notFound": "No tracking data found for this reference.",
+    "unknownProvider": "Provider pending",
+    "statusUnknown": "Status unavailable",
+    "lastUpdate": "Last update",
+    "journey": "Journey",
+    "routeUnavailable": "Route details not available yet",
+    "eta": "ETA",
+    "nextMilestone": "Next milestone",
+    "details": "Shipment details",
+    "timeline": "Events timeline",
+    "liveMap": "Live location",
+    "openExternalTracking": "Track via carrier site",
+    "viewShipment": "View shipment",
+    "viewTransaction": "View transaction",
+    "documents": "Documents",
+    "recentTitle": "Recent tracked shipments",
+    "quickLinksTitle": "Tracking resources",
+    "quickLinks": {
+      "carriers": "Ocean carriers",
+      "schedules": "Sailing schedules",
+      "shipments": "My shipments",
+      "logistics": "Logistics orders"
+    },
+    "modes": {
+      "all": "All",
+      "ocean": "Ocean",
+      "air": "Air",
+      "road": "Road"
+    },
+    "searchTypes": {
+      "container": "Container number",
+      "bill_of_lading": "Bill of lading",
+      "booking": "Booking number",
+      "reference": "Reference",
+      "awb": "Air waybill (AWB)",
+      "mawb": "Master AWB",
+      "hawb": "House AWB",
+      "shipment_reference": "Shipment reference",
+      "truck": "Truck / vehicle ID",
+      "order": "Booking / order reference"
+    },
+    "placeholders": {
+      "all": "Container, AWB, or shipment reference",
+      "ocean": "e.g. MSCU1234567",
+      "air": "e.g. 176-12345678",
+      "road": "e.g. TL-2026-00045"
+    },
+    "dataSource": {
+      "live": "Live data",
+      "manual": "Operations update",
+      "external": "External tracking"
+    },
+    "summary": {
+      "oceanActive": "Active ocean",
+      "airActive": "Active air",
+      "roadActive": "Active road",
+      "actionRequired": "Needs action"
+    },
+    "ocean": {
+      "vessel": "Vessel",
+      "container": "Container",
+      "pol": "Port of loading",
+      "pod": "Port of discharge"
+    },
+    "air": {
+      "airline": "Airline",
+      "awb": "AWB",
+      "flight": "Flight"
+    },
+    "road": {
+      "fleet": "Fleet company",
+      "truck": "Truck",
+      "pickup": "Pickup",
+      "delivery": "Delivery"
+    }
+  },
   "oceanTracking": {
     "unknownCarrier": "Carrier pending",
     "statusUnknown": "Status unavailable",
@@ -745,6 +835,26 @@
       "eta": "ETA",
       "lastUpdate": "Last update",
       "nextMilestone": "Next milestone"
+    }
+  },
+  "adminEmailLogs": {
+    "title": "Email delivery logs",
+    "subtitle": "Transactional email delivery history",
+    "loading": "Loading email logs...",
+    "provider": "Provider",
+    "from": "From",
+    "configuredYes": "Configured",
+    "configuredNo": "Not configured — set RESEND_API_KEY and EMAIL_FROM",
+    "missingCredentials": "Missing credentials",
+    "empty": "No email delivery logs yet.",
+    "table": {
+      "recipient": "Recipient",
+      "event": "Event",
+      "reference": "Reference",
+      "provider": "Provider",
+      "status": "Status",
+      "sent": "Sent",
+      "delivered": "Delivered"
     }
   },
   "oceanCarriers": {

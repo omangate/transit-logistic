@@ -108,7 +108,11 @@
       "customsClearance": "تخليص جمركي",
       "awaitingDocuments": "بانتظار المستندات",
       "outstandingQuotes": "عروض معلقة",
-      "outstandingPayments": "مدفوعات مستحقة"
+      "outstandingPayments": "مدفوعات مستحقة",
+      "oceanActive": "شحنات بحرية نشطة",
+      "airActive": "شحنات جوية نشطة",
+      "roadActive": "شحنات برية نشطة",
+      "trackingActionRequired": "تحتاج إجراء"
     },
     "pipeline": {
       "booking": "حجز",
@@ -327,6 +331,7 @@
       "settings": "الإعدادات",
       "logistics": "العمليات اللوجستية",
       "oceanCarriers": "خطوط الشحن البحرية",
+      "emailLogs": "سجل رسائل البريد",
       "groups": {
         "operations": "العمليات",
         "network": "الشبكة",
@@ -723,6 +728,91 @@
       "generic": "حدث خطأ ما. يرجى المحاولة مرة أخرى."
     }
   },
+  "globalTracking": {
+    "title": "التتبع العالمي",
+    "subtitle": "تتبع الشحنات البحرية والجوية والبرية من مكان واحد.",
+    "modeTabs": "نوع النقل",
+    "searchType": "البحث بواسطة",
+    "referenceLabel": "مرجع التتبع",
+    "trackButton": "تتبع الشحنة",
+    "backToSearch": "العودة إلى البحث",
+    "loading": "جارٍ تحميل بيانات التتبع...",
+    "notFound": "لا توجد بيانات تتبع لهذا المرجع.",
+    "unknownProvider": "الناقل قيد التحديد",
+    "statusUnknown": "الحالة غير متاحة",
+    "lastUpdate": "آخر تحديث",
+    "journey": "مسار الشحنة",
+    "routeUnavailable": "تفاصيل المسار غير متاحة بعد",
+    "eta": "الوصول المتوقع",
+    "nextMilestone": "المرحلة التالية",
+    "details": "تفاصيل الشحنة",
+    "timeline": "سجل الأحداث",
+    "liveMap": "الموقع المباشر",
+    "openExternalTracking": "تتبع عبر موقع الناقل",
+    "viewShipment": "عرض الشحنة",
+    "viewTransaction": "عرض المعاملة",
+    "documents": "المستندات",
+    "recentTitle": "آخر الشحنات المتتبعة",
+    "quickLinksTitle": "روابط التتبع",
+    "quickLinks": {
+      "carriers": "خطوط الشحن البحرية",
+      "schedules": "جداول الإبحار",
+      "shipments": "شحناتي",
+      "logistics": "الطلبات اللوجستية"
+    },
+    "modes": {
+      "all": "الكل",
+      "ocean": "بحري",
+      "air": "جوي",
+      "road": "بري"
+    },
+    "searchTypes": {
+      "container": "رقم الحاوية",
+      "bill_of_lading": "بوليصة الشحن",
+      "booking": "رقم الحجز",
+      "reference": "مرجع",
+      "awb": "بوليصة جوية (AWB)",
+      "mawb": "بوليصة رئيسية",
+      "hawb": "بوليصة فرعية",
+      "shipment_reference": "مرجع الشحنة",
+      "truck": "معرف الشاحنة",
+      "order": "مرجع الحجز / الطلب"
+    },
+    "placeholders": {
+      "all": "حاوية أو AWB أو مرجع شحنة",
+      "ocean": "مثال: MSCU1234567",
+      "air": "مثال: 176-12345678",
+      "road": "مثال: TL-2026-00045"
+    },
+    "dataSource": {
+      "live": "بيانات مباشرة",
+      "manual": "تحديث عمليات",
+      "external": "تتبع خارجي"
+    },
+    "summary": {
+      "oceanActive": "شحنات بحرية نشطة",
+      "airActive": "شحنات جوية نشطة",
+      "roadActive": "شحنات برية نشطة",
+      "actionRequired": "تحتاج إجراء"
+    },
+    "ocean": {
+      "vessel": "السفينة",
+      "container": "الحاوية",
+      "pol": "ميناء التحميل",
+      "pod": "ميناء التفريغ"
+    },
+    "air": {
+      "airline": "خط جوي",
+      "awb": "AWB",
+      "flight": "الرحلة"
+    },
+    "road": {
+      "fleet": "شركة النقل",
+      "truck": "الشاحنة",
+      "pickup": "الاستلام",
+      "delivery": "التسليم"
+    }
+  },
   "oceanTracking": {
     "unknownCarrier": "خط الشحن غير محدد",
     "statusUnknown": "الحالة غير متوفرة",
@@ -744,6 +834,26 @@
       "eta": "ETA",
       "lastUpdate": "آخر تحديث",
       "nextMilestone": "المرحلة التالية"
+    }
+  },
+  "adminEmailLogs": {
+    "title": "سجل رسائل البريد",
+    "subtitle": "سجل تسليم رسائل المعاملات",
+    "loading": "جارٍ تحميل السجل...",
+    "provider": "المزود",
+    "from": "المرسل",
+    "configuredYes": "مهيأ",
+    "configuredNo": "غير مهيأ — عيّن RESEND_API_KEY و EMAIL_FROM",
+    "missingCredentials": "بيانات اعتماد ناقصة",
+    "empty": "لا توجد سجلات بريد بعد.",
+    "table": {
+      "recipient": "المستلم",
+      "event": "الحدث",
+      "reference": "المرجع",
+      "provider": "المزود",
+      "status": "الحالة",
+      "sent": "أُرسل",
+      "delivered": "تم التسليم"
     }
   },
   "oceanCarriers": {

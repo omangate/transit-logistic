@@ -78,7 +78,7 @@ export class NotificationDeliveryService {
       [input.userId],
       content,
       { type: NOTIFICATION_TYPES.REGISTRATION_SUCCESS },
-      [{ email: input.email, locale: input.locale, kind: 'welcome' as const, name: input.name }],
+      [{ email: input.email, locale: input.locale, userId: input.userId, kind: 'welcome' as const, name: input.name }],
     );
   }
 
@@ -134,7 +134,7 @@ export class NotificationDeliveryService {
       [input.userId],
       content,
       { type: NOTIFICATION_TYPES.SHIPMENT_CREATED, referenceNumber: input.referenceNumber },
-      [{ email: input.email, locale: input.locale, kind: 'shipment_created' as const, reference: input.referenceNumber }],
+      [{ email: input.email, locale: input.locale, userId: input.userId, kind: 'shipment_created' as const, reference: input.referenceNumber }],
     );
   }
 
@@ -171,6 +171,7 @@ export class NotificationDeliveryService {
       [{
         email: user.email,
         locale: user.locale as 'en' | 'ar',
+        userId: input.userId,
         kind: 'payment' as const,
         reference: input.referenceNumber,
         amount: input.amount,
@@ -254,6 +255,7 @@ export class NotificationDeliveryService {
       .map((user) => ({
         email: user.email,
         locale: user.locale as 'en' | 'ar',
+        userId: user.id,
         kind: this.resolveEmailKindForStatus(context.toStatus),
         reference: context.referenceNumber,
         statusLabel: content.bodyEn.split(' is now ')[1] ?? context.toStatus,
@@ -326,12 +328,17 @@ export class NotificationDeliveryService {
   async notifyAdminsNewShipment(context: NewShipmentAdminContext) {
     const admins = await this.prisma.user.findMany({
       where: { role: 'admin', isActive: true },
-      select: { id: true },
+      select: { id: true, email: true, locale: true },
     });
 
     if (admins.length === 0) {
       return { delivered: 0 };
     }
+
+    const customer = await this.prisma.user.findUnique({
+      where: { id: context.customerId },
+      select: { email: true, customerProfile: { select: { fullName: true, company: true } } },
+    });
 
     const content = buildNewShipmentAdminNotification(context.referenceNumber);
     const data: NewShipmentNotificationData = {
@@ -341,11 +348,26 @@ export class NotificationDeliveryService {
       customerId: context.customerId,
     };
 
-    return this.deliverToUsers(
+    const result = await this.deliverToUsers(
       admins.map((admin) => admin.id),
       content,
       data,
     );
+
+    void this.safeNotifyAdminsTransaction({
+      event: 'admin.new_road_shipment',
+      titleEn: `New road shipment — ${context.referenceNumber}`,
+      titleAr: `طلب نقل بري جديد — ${context.referenceNumber}`,
+      requestTypeEn: 'Road shipment',
+      requestTypeAr: 'شحن بري',
+      reference: context.referenceNumber,
+      customerName: customer?.customerProfile?.company ?? customer?.customerProfile?.fullName ?? customer?.email ?? 'Customer',
+      statusEn: 'Created',
+      statusAr: 'تم الإنشاء',
+      path: `/admin/shipments/${context.shipmentId}`,
+    });
+
+    return result;
   }
 
   async safeNotifyAdminsNewShipment(context: NewShipmentAdminContext) {
@@ -435,6 +457,7 @@ export class NotificationDeliveryService {
     emailJobs: Array<{
       email: string;
       locale: 'en' | 'ar';
+      userId?: string;
       kind: 'welcome' | 'shipment_created' | 'payment' | 'assignment' | 'status' | 'delivery';
       name?: string;
       reference?: string;
@@ -466,6 +489,7 @@ export class NotificationDeliveryService {
     email: string;
     locale: 'en' | 'ar';
     kind: 'welcome' | 'shipment_created' | 'payment' | 'assignment' | 'status' | 'delivery';
+    userId?: string;
     name?: string;
     reference?: string;
     amount?: string;
@@ -473,39 +497,73 @@ export class NotificationDeliveryService {
     statusLabel?: string;
   }) {
     try {
+      const {
+        welcomeEmail,
+        shipmentCreatedEmail,
+        paymentConfirmationEmail,
+        assignmentEmail,
+        deliveryConfirmationEmail,
+        shipmentStatusEmail,
+      } = await import('../email/email-templates');
+
+      let event = 'system.general_update';
+      let subject = '';
+      let html = '';
+      let eventKey = `${job.kind}:${job.email}:${Date.now()}`;
+
       switch (job.kind) {
         case 'welcome':
-          await this.email.sendWelcome({ to: job.email, name: job.name ?? 'Customer', locale: job.locale });
+          event = 'auth.registration_success';
+          subject = job.locale === 'ar' ? 'مرحباً بك في ترانزيت لوجستك' : 'Welcome to Transit Logistic';
+          html = welcomeEmail(job.name ?? 'Customer', job.locale);
+          eventKey = `welcome:${job.email}`;
           break;
         case 'shipment_created':
-          await this.email.sendShipmentCreated({ to: job.email, reference: job.reference ?? '', locale: job.locale });
+          event = 'shipment.created';
+          subject = job.locale === 'ar' ? 'تم إنشاء الشحنة' : 'Shipment created';
+          html = shipmentCreatedEmail(job.reference ?? '', job.locale);
+          eventKey = `shipment:${job.reference}:created`;
           break;
         case 'payment':
-          await this.email.sendPaymentConfirmation({
-            to: job.email,
-            reference: job.reference ?? '',
-            amount: job.amount ?? '0',
-            currency: job.currency ?? 'OMR',
-            locale: job.locale,
-          });
+          event = 'payment.received';
+          subject = job.locale === 'ar' ? 'تأكيد الدفع' : 'Payment confirmation';
+          html = paymentConfirmationEmail(job.reference ?? '', job.amount ?? '0', job.currency ?? 'OMR', job.locale);
+          eventKey = `payment:${job.reference}:received`;
           break;
         case 'assignment':
-          await this.email.sendAssignment({ to: job.email, reference: job.reference ?? '', locale: job.locale });
+          event = 'shipment.assigned';
+          subject = job.locale === 'ar' ? 'تم تعيين الشحنة' : 'Shipment assigned';
+          html = assignmentEmail(job.reference ?? '', job.locale);
+          eventKey = `shipment:${job.reference}:assigned`;
           break;
         case 'delivery':
-          await this.email.sendDeliveryConfirmation({ to: job.email, reference: job.reference ?? '', locale: job.locale });
+          event = 'shipment.delivered';
+          subject = job.locale === 'ar' ? 'تم التسليم' : 'Delivery completed';
+          html = deliveryConfirmationEmail(job.reference ?? '', job.locale);
+          eventKey = `shipment:${job.reference}:delivered`;
           break;
         case 'status':
-          await this.email.sendStatusUpdate({
-            to: job.email,
-            reference: job.reference ?? '',
-            statusLabel: job.statusLabel ?? 'updated',
-            locale: job.locale,
-          });
+          event = 'shipment.status_changed';
+          subject = job.locale === 'ar' ? 'تحديث حالة الشحنة' : 'Shipment status update';
+          html = shipmentStatusEmail(job.reference ?? '', job.statusLabel ?? 'updated', job.locale);
+          eventKey = `shipment:${job.reference}:status:${job.statusLabel ?? 'updated'}`;
           break;
         default:
-          break;
+          return;
       }
+
+      void this.transactionalEmail.sendTransactional({
+        userId: job.userId,
+        to: job.email,
+        locale: job.locale,
+        event,
+        eventKey,
+        entityType: job.reference ? 'shipment' : 'user',
+        entityId: job.reference,
+        subject,
+        html,
+        force: job.kind === 'welcome' || job.kind === 'payment' || job.kind === 'delivery',
+      });
     } catch (error) {
       this.logger.error(`Email delivery failed for ${job.email}`, error instanceof Error ? error.stack : undefined);
     }
@@ -654,7 +712,7 @@ export class NotificationDeliveryService {
         where: { id: requestId },
         include: {
           logisticsOrder: { select: { referenceNumber: true } },
-          customer: { select: { locale: true } },
+          customer: { select: { locale: true, customerProfile: { select: { fullName: true, company: true } } } },
         },
       });
       if (!request) return;
@@ -685,6 +743,30 @@ export class NotificationDeliveryService {
           bodyEn: `Request ${request.referenceNumber} was submitted.`,
           bodyAr: `تم إرسال الطلب ${request.referenceNumber}.`,
           path: `/admin/logistics/customs/${requestId}`,
+        });
+        void this.safeNotifyAdminsTransaction({
+          event: 'admin.new_customs_request',
+          titleEn: `New customs request — ${request.referenceNumber}`,
+          titleAr: `طلب تخليص جمركي جديد — ${request.referenceNumber}`,
+          requestTypeEn: 'Customs clearance',
+          requestTypeAr: 'تخليص جمركي',
+          reference: request.referenceNumber,
+          customerName: request.customer.customerProfile?.company ?? request.customer.customerProfile?.fullName ?? 'Customer',
+          statusEn: 'Submitted',
+          statusAr: 'مُرسَل',
+          path: `/admin/logistics/customs/${requestId}`,
+        });
+        void this.safeNotifyTransactionReceived({
+          userId,
+          reference: request.referenceNumber,
+          requestTypeEn: 'Customs clearance',
+          requestTypeAr: 'تخليص جمركي',
+          statusEn: 'Submitted',
+          statusAr: 'مُرسَل',
+          nextActionEn: 'Our operations team will review your submission.',
+          nextActionAr: 'سيراجع فريق العمليات طلبك.',
+          path: `/${locale}/logistics/customs/${requestId}`,
+          eventKey: `customs:${requestId}:submitted`,
         });
       }
     } catch (error) {
@@ -727,7 +809,7 @@ export class NotificationDeliveryService {
         where: { id: requestId },
         include: {
           logisticsOrder: { select: { referenceNumber: true } },
-          customer: { select: { locale: true } },
+          customer: { select: { locale: true, customerProfile: { select: { fullName: true, company: true } } } },
         },
       });
       if (!request) return;
@@ -748,6 +830,45 @@ export class NotificationDeliveryService {
           occurredAt: new Date(),
         },
       });
+
+      if (status === 'submitted') {
+        const modeLabel =
+          request.transportMode === 'air'
+            ? { en: 'Air freight', ar: 'شحن جوي' }
+            : request.transportMode === 'sea'
+              ? { en: 'Ocean freight', ar: 'شحن بحري' }
+              : request.transportMode === 'road'
+                ? { en: 'Road freight', ar: 'شحن بري' }
+                : { en: 'Freight request', ar: 'طلب شحن' };
+
+        void this.safeNotifyAdminsTransaction({
+          event: `admin.new_${request.transportMode}_freight`,
+          titleEn: `New ${modeLabel.en.toLowerCase()} — ${request.referenceNumber}`,
+          titleAr: `${modeLabel.ar} جديد — ${request.referenceNumber}`,
+          requestTypeEn: modeLabel.en,
+          requestTypeAr: modeLabel.ar,
+          reference: request.referenceNumber,
+          customerName: request.customer.customerProfile?.company ?? request.customer.customerProfile?.fullName ?? 'Customer',
+          origin: request.origin ?? request.portOrigin ?? undefined,
+          destination: request.destination ?? request.portDestination ?? undefined,
+          statusEn: 'Submitted',
+          statusAr: 'مُرسَل',
+          cargoSummary: request.cargoDescription ?? request.commodity ?? undefined,
+          path: `/admin/logistics/freight/${requestId}`,
+        });
+        void this.safeNotifyTransactionReceived({
+          userId,
+          reference: request.referenceNumber,
+          requestTypeEn: modeLabel.en,
+          requestTypeAr: modeLabel.ar,
+          statusEn: 'Submitted',
+          statusAr: 'مُرسَل',
+          nextActionEn: 'Our team will review your freight request.',
+          nextActionAr: 'سيراجع فريقنا طلب الشحن.',
+          path: `/${locale}/logistics/freight/${requestId}`,
+          eventKey: `freight:${requestId}:submitted`,
+        });
+      }
     } catch (error) {
       this.logger.warn(`Freight status notification failed: ${String(error)}`);
     }
@@ -1133,6 +1254,146 @@ export class NotificationDeliveryService {
       });
     } catch (error) {
       this.logger.warn(`Payment email notification failed: ${String(error)}`);
+    }
+  }
+
+  async safeNotifyTransactionReceived(input: {
+    userId: string;
+    reference: string;
+    requestTypeEn: string;
+    requestTypeAr: string;
+    statusEn: string;
+    statusAr: string;
+    nextActionEn: string;
+    nextActionAr: string;
+    path: string;
+    eventKey: string;
+  }) {
+    try {
+      const user = await this.prisma.user.findUnique({
+        where: { id: input.userId },
+        select: { email: true, locale: true },
+      });
+      if (!user) return;
+
+      const locale = (user.locale as 'en' | 'ar') ?? 'ar';
+      const { transactionReceivedEmail } = await import('../email/email-templates');
+      const html = transactionReceivedEmail({
+        locale,
+        reference: input.reference,
+        requestType: locale === 'ar' ? input.requestTypeAr : input.requestTypeEn,
+        statusLabel: locale === 'ar' ? input.statusAr : input.statusEn,
+        nextAction: locale === 'ar' ? input.nextActionAr : input.nextActionEn,
+        actionUrl: resolveWebAppUrl(input.path),
+      });
+
+      void this.transactionalEmail.sendTransactional({
+        userId: input.userId,
+        to: user.email,
+        locale,
+        event: 'transaction.received',
+        eventKey: input.eventKey,
+        entityType: 'transaction',
+        entityId: input.reference,
+        subject: locale === 'ar' ? 'تم استلام طلبك بنجاح' : 'Your request was received',
+        html,
+        force: true,
+      });
+    } catch (error) {
+      this.logger.warn(`Transaction received notification failed: ${String(error)}`);
+    }
+  }
+
+  async safeNotifyLogisticsOrderCreated(userId: string, orderId: string, referenceNumber: string) {
+    try {
+      const user = await this.prisma.user.findUnique({
+        where: { id: userId },
+        select: { locale: true, email: true, customerProfile: { select: { fullName: true, company: true } } },
+      });
+      const locale = (user?.locale as 'en' | 'ar') ?? 'ar';
+
+      void this.safeNotifyTransactionReceived({
+        userId,
+        reference: referenceNumber,
+        requestTypeEn: 'Logistics order',
+        requestTypeAr: 'طلب لوجستي',
+        statusEn: 'Created',
+        statusAr: 'تم الإنشاء',
+        nextActionEn: 'Complete your order details and submit related requests.',
+        nextActionAr: 'أكمل تفاصيل الطلب وأرسل الطلبات المرتبطة.',
+        path: `/${locale}/logistics/orders/${orderId}`,
+        eventKey: `logistics-order:${orderId}:created`,
+      });
+
+      void this.safeNotifyAdminsTransaction({
+        event: 'admin.new_logistics_order',
+        titleEn: `New logistics order — ${referenceNumber}`,
+        titleAr: `طلب لوجستي جديد — ${referenceNumber}`,
+        requestTypeEn: 'Logistics order',
+        requestTypeAr: 'طلب لوجستي',
+        reference: referenceNumber,
+        customerName: user?.customerProfile?.company ?? user?.customerProfile?.fullName ?? user?.email ?? 'Customer',
+        statusEn: 'Created',
+        statusAr: 'تم الإنشاء',
+        path: `/admin/logistics/orders/${orderId}`,
+      });
+    } catch (error) {
+      this.logger.warn(`Logistics order notification failed: ${String(error)}`);
+    }
+  }
+
+  async safeNotifyAdminsTransaction(input: {
+    event: string;
+    titleEn: string;
+    titleAr: string;
+    requestTypeEn: string;
+    requestTypeAr: string;
+    reference: string;
+    customerName: string;
+    origin?: string;
+    destination?: string;
+    statusEn: string;
+    statusAr: string;
+    cargoSummary?: string;
+    path?: string;
+  }) {
+    try {
+      const admins = await this.prisma.user.findMany({
+        where: { role: 'admin', isActive: true },
+        select: { id: true, email: true, locale: true },
+      });
+
+      for (const admin of admins) {
+        const locale = (admin.locale as 'en' | 'ar') ?? 'ar';
+        const { adminTransactionAlertEmail } = await import('../email/email-templates');
+        const html = adminTransactionAlertEmail({
+          locale,
+          title: locale === 'ar' ? input.titleAr : input.titleEn,
+          requestType: locale === 'ar' ? input.requestTypeAr : input.requestTypeEn,
+          reference: input.reference,
+          customerName: input.customerName,
+          origin: input.origin,
+          destination: input.destination,
+          statusLabel: locale === 'ar' ? input.statusAr : input.statusEn,
+          cargoSummary: input.cargoSummary,
+          createdAt: new Date().toLocaleString(locale === 'ar' ? 'ar-OM' : 'en-GB'),
+          actionUrl: input.path ? resolveWebAppUrl(input.path) : undefined,
+        });
+
+        void this.transactionalEmail.sendTransactional({
+          userId: admin.id,
+          to: admin.email,
+          locale,
+          event: 'admin.operational_alert',
+          eventKey: `${input.event}:${input.reference}:${admin.id}`,
+          entityType: 'transaction',
+          entityId: input.reference,
+          subject: locale === 'ar' ? input.titleAr : input.titleEn,
+          html,
+        });
+      }
+    } catch (error) {
+      this.logger.warn(`Admin transaction notification failed: ${String(error)}`);
     }
   }
 

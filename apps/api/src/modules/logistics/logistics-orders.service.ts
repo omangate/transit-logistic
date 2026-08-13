@@ -3,6 +3,7 @@ import type { User } from '@/types/user';
 import { UserRole } from '@transit-logistic/shared';
 
 import { PrismaService } from '../../database/prisma.service';
+import { NotificationDeliveryService } from '../notifications/notification-delivery.service';
 
 import { LogisticsAccessService } from './logistics-access.service';
 import { LogisticsAuditService } from './logistics-audit.service';
@@ -14,6 +15,7 @@ export class LogisticsOrdersService {
     private readonly prisma: PrismaService,
     private readonly access: LogisticsAccessService,
     private readonly audit: LogisticsAuditService,
+    private readonly notifications: NotificationDeliveryService,
   ) {}
 
   async listForUser(user: User) {
@@ -76,6 +78,8 @@ export class LogisticsOrdersService {
       logisticsOrderId: order.id,
       note: 'Order created',
     });
+
+    void this.notifications.safeNotifyLogisticsOrderCreated(user.id, order.id, order.referenceNumber);
 
     return order;
   }

@@ -39,7 +39,10 @@ const NAV_GROUPS = [
   {
     id: 'integrations',
     labelKey: 'nav.groups.integrations',
-    items: [{ href: '/admin/integrations/ocean-carriers', labelKey: 'nav.oceanCarriers' }],
+    items: [
+      { href: '/admin/integrations/ocean-carriers', labelKey: 'nav.oceanCarriers' },
+      { href: '/admin/email/delivery-logs', labelKey: 'nav.emailLogs' },
+    ],
   },
   {
     id: 'system',

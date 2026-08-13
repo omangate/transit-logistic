@@ -58,10 +58,28 @@ export class TransactionalEmailService {
   }
 
   getProviderStatus() {
+    const missingCredentials: string[] = [];
+    const apiKey = this.config.get<string>('email.resendApiKey');
+    const from = this.config.get<string>('email.from');
+    const webUrl = this.config.get<string>('app.webUrl');
+
+    if (this.provider === 'resend' && !apiKey) {
+      missingCredentials.push('RESEND_API_KEY');
+    }
+    if (!from?.trim()) {
+      missingCredentials.push('EMAIL_FROM');
+    }
+    if (!webUrl?.trim() || webUrl.includes('127.0.0.1')) {
+      missingCredentials.push('WEB_APP_URL');
+    }
+
     return {
       provider: this.provider,
       configured: this.enabled,
       from: this.fromEmail.replace(/<.*>/, '').trim() || this.fromEmail,
+      replyTo: this.replyTo ?? null,
+      webhookConfigured: Boolean(this.config.get<string>('email.resendWebhookSecret')),
+      missingCredentials,
     };
   }
 

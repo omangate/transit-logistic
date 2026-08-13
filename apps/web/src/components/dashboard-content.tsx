@@ -12,9 +12,10 @@ import { EmptyPanel, KpiCard, ShipmentPipeline } from './ui/premium';
 
 import { useRequireAuth } from '@/hooks/use-require-auth';
 import { Link, useRouter } from '@/i18n/navigation';
-import { getLogisticsDashboard, listShipments } from '@/lib/api';
+import { getLogisticsDashboard, getTrackingSummary, listShipments } from '@/lib/api';
 import { getLocalizedApiMessage, isApiClientError } from '@/lib/api-error';
 import { countActiveShipments, countShipmentsByStatus, formatDate, formatRoute } from '@/lib/shipment-utils';
+import type { TrackingSummary } from '@/types/global-tracking';
 import type { LogisticsDashboard } from '@/types/logistics';
 import { SHIPMENT_PIPELINE_STAGES, type ShipmentPipelineStage } from '@/types/ocean';
 import type { Shipment } from '@/types/shipment';
@@ -55,6 +56,7 @@ export function DashboardContent() {
   const { user, isReady } = useRequireAuth();
   const [shipments, setShipments] = useState<Shipment[]>([]);
   const [logistics, setLogistics] = useState<LogisticsDashboard | null>(null);
+  const [trackingSummary, setTrackingSummary] = useState<TrackingSummary | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -71,14 +73,16 @@ export function DashboardContent() {
       setError(null);
 
       try {
-        const [shipmentResponse, logisticsResponse] = await Promise.all([
+        const [shipmentResponse, logisticsResponse, summaryResponse] = await Promise.all([
           listShipments({ page: 1, limit: 100 }),
           getLogisticsDashboard().catch(() => null),
+          getTrackingSummary().catch(() => null),
         ]);
 
         if (!cancelled) {
           setShipments(shipmentResponse.data);
           setLogistics(logisticsResponse);
+          setTrackingSummary(summaryResponse);
         }
       } catch (loadError) {
         if (!cancelled) {
@@ -187,11 +191,23 @@ export function DashboardContent() {
       <section className="kpi-grid">
         <KpiCard label={t('stats.activeShipments')} value={isLoading ? '…' : countActiveShipments(shipments)} />
         <KpiCard label={t('stats.inTransit')} value={isLoading ? '…' : inTransitCount} />
+        <KpiCard label={t('stats.oceanActive')} value={isLoading ? '…' : (trackingSummary?.ocean.active ?? 0)} />
+        <KpiCard label={t('stats.airActive')} value={isLoading ? '…' : (trackingSummary?.air.active ?? 0)} />
+        <KpiCard label={t('stats.roadActive')} value={isLoading ? '…' : (trackingSummary?.road.active ?? 0)} />
+        <KpiCard
+          label={t('stats.trackingActionRequired')}
+          value={
+            isLoading
+              ? '…'
+              : (trackingSummary?.ocean.actionRequired ?? 0) +
+                (trackingSummary?.air.actionRequired ?? 0) +
+                (trackingSummary?.road.actionRequired ?? 0)
+          }
+        />
         <KpiCard
           label={t('stats.customsClearance')}
           value={isLoading ? '…' : (logistics?.counts.customs ?? 0)}
         />
-        <KpiCard label={t('stats.awaitingDocuments')} value={isLoading ? '…' : '—'} />
         <KpiCard
           label={t('stats.outstandingQuotes')}
           value={isLoading ? '…' : (logistics?.counts.pendingQuotes ?? 0)}

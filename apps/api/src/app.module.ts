@@ -10,6 +10,7 @@ import { BookingsModule } from './modules/bookings/bookings.module';
 import { DocumentsModule } from './modules/documents/documents.module';
 import { EmailModule } from './modules/email/email.module';
 import { FleetModule } from './modules/fleet/fleet.module';
+import { GlobalTrackingModule } from './modules/global-tracking/global-tracking.module';
 import { HealthModule } from './modules/health/health.module';
 import { GeographyModule } from './modules/geography/geography.module';
 import { MarketplaceModule } from './modules/marketplace/marketplace.module';
@@ -60,6 +61,7 @@ import { RedisModule } from './redis/redis.module';
     AiModule,
     LogisticsModule,
     OceanCarriersModule,
+    GlobalTrackingModule,
     PricingModule,
     PaymentsModule,
     PayoutsModule,

@@ -1,4 +1,4 @@
-import type { OceanCarrierCode, OceanCarrierIntegrationMode, OceanTrackingSearchType } from '@transit-logistic/shared';
+import type { GlobalTrackingSearchType, OceanCarrierCode, OceanCarrierIntegrationMode, OceanTrackingSearchType, TrackingMode } from '@transit-logistic/shared';
 
 import { buildApiUrl } from '@/lib/api-config';
 import {
@@ -29,6 +29,12 @@ import type { AuthTokensResponse, LoginRequest, RegisterRequest } from '@/types/
 import type { EmailPreferences, UpdateEmailPreferencesInput } from '@/types/email-preferences';
 import type { AcceptShipmentInput } from '@/types/fleet';
 import type { GeoRegion, GovernorateWithWilayats } from '@/types/geography';
+import type {
+  EmailProviderStatus,
+  PaginatedEmailDeliveryLogs,
+  TrackingSummary,
+  UnifiedTrackingResult,
+} from '@/types/global-tracking';
 import type {
   AdminCustomsDashboard,
   AdminLogisticsDashboard,
@@ -197,6 +203,28 @@ async function authRequest<T>(path: string, init?: RequestInit, allowRefresh = t
       }
     }
 
+    throw error;
+  }
+}
+
+async function optionalAuthRequest<T>(path: string, init?: RequestInit): Promise<T> {
+  const token = getAccessToken() ?? (await refreshAuthSession());
+  if (!token) {
+    return request<T>(path, init);
+  }
+
+  try {
+    return await request<T>(path, {
+      ...init,
+      headers: {
+        ...(init?.headers ?? {}),
+        Authorization: `Bearer ${token}`,
+      },
+    });
+  } catch (error) {
+    if (isApiClientError(error) && error.code === 'UNAUTHORIZED') {
+      return request<T>(path, init);
+    }
     throw error;
   }
 }
@@ -702,6 +730,42 @@ export async function trackOceanShipment(input: {
     params.set('carrier', input.carrierCode);
   }
   return request<NormalizedOceanTracking>(`/ocean/track?${params.toString()}`);
+}
+
+export async function trackGlobalShipment(input: {
+  mode?: TrackingMode | 'all';
+  searchType?: GlobalTrackingSearchType;
+  searchValue: string;
+}): Promise<UnifiedTrackingResult> {
+  const params = new URLSearchParams({ value: input.searchValue });
+  if (input.mode) params.set('mode', input.mode);
+  if (input.searchType) params.set('type', input.searchType);
+  return optionalAuthRequest<UnifiedTrackingResult>(`/global/track?${params.toString()}`);
+}
+
+export async function getTrackingSummary(): Promise<TrackingSummary> {
+  return authRequest<TrackingSummary>('/global/tracking/summary');
+}
+
+export async function getEmailProviderStatus(): Promise<EmailProviderStatus> {
+  return authRequest<EmailProviderStatus>('/admin/email/provider-status');
+}
+
+export async function listAdminEmailDeliveryLogs(query?: {
+  page?: number;
+  limit?: number;
+  status?: string;
+  recipientEmail?: string;
+  templateEvent?: string;
+}): Promise<PaginatedEmailDeliveryLogs> {
+  const params = new URLSearchParams();
+  if (query?.page) params.set('page', String(query.page));
+  if (query?.limit) params.set('limit', String(query.limit));
+  if (query?.status) params.set('status', query.status);
+  if (query?.recipientEmail) params.set('recipientEmail', query.recipientEmail);
+  if (query?.templateEvent) params.set('templateEvent', query.templateEvent);
+  const suffix = params.toString() ? `?${params.toString()}` : '';
+  return authRequest<PaginatedEmailDeliveryLogs>(`/admin/email/delivery-logs${suffix}`);
 }
 
 export async function listOceanCarriers(): Promise<CarrierDirectoryEntry[]> {

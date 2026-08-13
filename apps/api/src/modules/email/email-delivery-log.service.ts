@@ -136,6 +136,71 @@ export class EmailDeliveryLogService {
     });
   }
 
+  async listForAdmin(query: {
+    page?: number;
+    limit?: number;
+    status?: EmailDeliveryStatus;
+    recipientEmail?: string;
+    templateEvent?: string;
+  }) {
+    const page = Math.max(1, query.page ?? 1);
+    const limit = Math.min(100, Math.max(1, query.limit ?? 25));
+    const where = {
+      ...(query.status ? { status: query.status } : {}),
+      ...(query.recipientEmail
+        ? { recipientEmail: { contains: query.recipientEmail.toLowerCase(), mode: 'insensitive' as const } }
+        : {}),
+      ...(query.templateEvent
+        ? { templateEvent: { contains: query.templateEvent, mode: 'insensitive' as const } }
+        : {}),
+    };
+
+    const [rows, total] = await Promise.all([
+      this.prisma.emailDeliveryLog.findMany({
+        where,
+        orderBy: { queuedAt: 'desc' },
+        skip: (page - 1) * limit,
+        take: limit,
+        select: {
+          id: true,
+          recipientEmail: true,
+          templateEvent: true,
+          entityType: true,
+          entityId: true,
+          locale: true,
+          subject: true,
+          status: true,
+          provider: true,
+          providerMessageId: true,
+          retryCount: true,
+          errorCategory: true,
+          errorMessage: true,
+          queuedAt: true,
+          sentAt: true,
+          deliveredAt: true,
+          failedAt: true,
+        },
+      }),
+      this.prisma.emailDeliveryLog.count({ where }),
+    ]);
+
+    return {
+      data: rows.map((row) => ({
+        ...row,
+        queuedAt: row.queuedAt.toISOString(),
+        sentAt: row.sentAt?.toISOString() ?? null,
+        deliveredAt: row.deliveredAt?.toISOString() ?? null,
+        failedAt: row.failedAt?.toISOString() ?? null,
+      })),
+      meta: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
+  }
+
   private isUniqueViolation(error: unknown): boolean {
     return (
       typeof error === 'object' &&

@@ -392,6 +392,77 @@ export function adminOperationalAlertEmail(input: {
   });
 }
 
+export function adminTransactionAlertEmail(input: {
+  locale: 'en' | 'ar';
+  title: string;
+  requestType: string;
+  reference: string;
+  customerName: string;
+  origin?: string;
+  destination?: string;
+  statusLabel: string;
+  cargoSummary?: string;
+  createdAt: string;
+  actionUrl?: string;
+}) {
+  const isAr = input.locale === 'ar';
+  const rows = [
+    [isAr ? 'العميل' : 'Customer', input.customerName],
+    [isAr ? 'المرجع' : 'Reference', input.reference],
+    [isAr ? 'النوع' : 'Type', input.requestType],
+    ...(input.origin ? [[isAr ? 'المصدر' : 'Origin', input.origin]] : []),
+    ...(input.destination ? [[isAr ? 'الوجهة' : 'Destination', input.destination]] : []),
+    [isAr ? 'الحالة' : 'Status', input.statusLabel],
+    ...(input.cargoSummary ? [[isAr ? 'البضاعة' : 'Cargo', input.cargoSummary]] : []),
+    [isAr ? 'تاريخ الإنشاء' : 'Created', input.createdAt],
+  ];
+
+  const table = `<table role="presentation" style="width:100%;border-collapse:collapse;margin:16px 0">${rows
+    .map(
+      ([label, value]) =>
+        `<tr><td style="padding:8px 0;color:#64748b;font-size:13px">${label}</td><td style="padding:8px 0;font-weight:600">${value}</td></tr>`,
+    )
+    .join('')}</table>`;
+
+  return renderBrandedEmail({
+    locale: input.locale,
+    title: input.title,
+    heading: input.title,
+    bodyHtml: table,
+    statusBadge: input.statusLabel,
+    ctaLabel: input.actionUrl ? (isAr ? 'فتح المعاملة' : 'Open transaction') : undefined,
+    ctaUrl: input.actionUrl,
+  });
+}
+
+export function transactionReceivedEmail(input: {
+  locale: 'en' | 'ar';
+  reference: string;
+  requestType: string;
+  statusLabel: string;
+  nextAction: string;
+  actionUrl: string;
+}) {
+  const isAr = input.locale === 'ar';
+  return renderBrandedEmail({
+    locale: input.locale,
+    title: isAr ? 'تم استلام طلبك بنجاح' : 'Your request was received',
+    heading: isAr ? 'تم استلام طلبك بنجاح' : 'Request received successfully',
+    bodyHtml: isAr
+      ? `<p>تم استلام <strong>${input.requestType}</strong> بنجاح.</p>
+         <p><strong>المرجع:</strong> ${input.reference}</p>
+         <p><strong>الحالة:</strong> ${input.statusLabel}</p>
+         <p>${input.nextAction}</p>`
+      : `<p>Your <strong>${input.requestType}</strong> has been received.</p>
+         <p><strong>Reference:</strong> ${input.reference}</p>
+         <p><strong>Status:</strong> ${input.statusLabel}</p>
+         <p>${input.nextAction}</p>`,
+    statusBadge: input.statusLabel,
+    ctaLabel: isAr ? 'عرض المعاملة' : 'View transaction',
+    ctaUrl: input.actionUrl,
+  });
+}
+
 export function driverJobEmail(input: {
   locale: 'en' | 'ar';
   title: string;

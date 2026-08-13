@@ -1,6 +1,6 @@
 'use client';
 
-import { OceanTrackingSearchType } from '@transit-logistic/shared';
+import { GlobalTrackingSearchType, TrackingMode } from '@transit-logistic/shared';
 import { useSearchParams } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
 import { useEffect, useMemo, useState } from 'react';
@@ -8,44 +8,39 @@ import { useEffect, useMemo, useState } from 'react';
 import { BrandLogo } from '@/components/brand/brand-logo';
 import { FormError } from '@/components/form-error';
 import { LocaleSwitcher } from '@/components/locale-switcher';
-import { OceanTrackingResult } from '@/components/ocean/ocean-tracking-result';
-import { StatusBadge } from '@/components/portal/status-badge';
-import { TrackingMap } from '@/components/tracking/tracking-map';
+import { UnifiedTrackingResultView } from '@/components/tracking/unified-tracking-result';
 import { Link } from '@/i18n/navigation';
-import { getPublicTracking, trackOceanShipment } from '@/lib/api';
+import { trackGlobalShipment } from '@/lib/api';
 import { getLocalizedApiMessage, isApiClientError } from '@/lib/api-error';
-import { formatDate } from '@/lib/shipment-utils';
-import type { NormalizedOceanTracking } from '@/types/ocean';
-import type { PublicTracking } from '@/types/tracking';
+import type { UnifiedTrackingResult } from '@/types/global-tracking';
 
 type TrackDetailsContentProps = {
   reference: string;
 };
 
-function parseSearchType(value: string | null): OceanTrackingSearchType {
-  if (
-    value === OceanTrackingSearchType.CONTAINER ||
-    value === OceanTrackingSearchType.BILL_OF_LADING ||
-    value === OceanTrackingSearchType.BOOKING ||
-    value === OceanTrackingSearchType.REFERENCE
-  ) {
+function parseMode(value: string | null): TrackingMode | 'all' {
+  if (value === TrackingMode.OCEAN || value === TrackingMode.AIR || value === TrackingMode.ROAD) {
     return value;
   }
-  return OceanTrackingSearchType.REFERENCE;
+  return 'all';
+}
+
+function parseSearchType(value: string | null): GlobalTrackingSearchType | undefined {
+  const values = Object.values(GlobalTrackingSearchType);
+  if (value && values.includes(value as GlobalTrackingSearchType)) {
+    return value as GlobalTrackingSearchType;
+  }
+  return undefined;
 }
 
 export function TrackDetailsContent({ reference }: TrackDetailsContentProps) {
-  const t = useTranslations('tracking');
-  const tShipments = useTranslations('shipments');
+  const t = useTranslations('globalTracking');
   const locale = useLocale();
   const searchParams = useSearchParams();
-  const searchType = useMemo(
-    () => parseSearchType(searchParams.get('type')),
-    [searchParams],
-  );
+  const mode = useMemo(() => parseMode(searchParams.get('mode')), [searchParams]);
+  const searchType = useMemo(() => parseSearchType(searchParams.get('type')), [searchParams]);
 
-  const [oceanTracking, setOceanTracking] = useState<NormalizedOceanTracking | null>(null);
-  const [truckTracking, setTruckTracking] = useState<PublicTracking | null>(null);
+  const [tracking, setTracking] = useState<UnifiedTrackingResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -55,49 +50,33 @@ export function TrackDetailsContent({ reference }: TrackDetailsContentProps) {
     async function load() {
       setIsLoading(true);
       setError(null);
-      setOceanTracking(null);
-      setTruckTracking(null);
-
       try {
-        const ocean = await trackOceanShipment({ searchType, searchValue: reference });
+        const result = await trackGlobalShipment({ mode, searchType, searchValue: reference });
+        if (!cancelled) setTracking(result);
+      } catch (loadError) {
         if (!cancelled) {
-          setOceanTracking(ocean);
-        }
-      } catch {
-        try {
-          const truck = await getPublicTracking(reference);
-          if (!cancelled) {
-            setTruckTracking(truck);
-          }
-        } catch (loadError) {
-          if (!cancelled) {
-            setError(
-              isApiClientError(loadError)
-                ? getLocalizedApiMessage(loadError, locale as 'en' | 'ar')
-                : t('notFound'),
-            );
-          }
+          setTracking(null);
+          setError(
+            isApiClientError(loadError)
+              ? getLocalizedApiMessage(loadError, locale as 'en' | 'ar')
+              : t('notFound'),
+          );
         }
       } finally {
-        if (!cancelled) {
-          setIsLoading(false);
-        }
+        if (!cancelled) setIsLoading(false);
       }
     }
 
     void load();
-    const timer = window.setInterval(() => {
-      void load();
-    }, 30000);
-
+    const timer = window.setInterval(() => void load(), 30000);
     return () => {
       cancelled = true;
       window.clearInterval(timer);
     };
-  }, [reference, searchType, locale, t]);
+  }, [reference, mode, searchType, locale, t]);
 
   return (
-    <main className="public-page">
+    <main className="public-page global-tracking-page">
       <header className="public-page__header">
         <div className="container public-page__header-inner">
           <Link href="/">
@@ -114,93 +93,12 @@ export function TrackDetailsContent({ reference }: TrackDetailsContentProps) {
 
         {isLoading ? (
           <p className="muted-text">{t('loading')}</p>
-        ) : oceanTracking ? (
-          <OceanTrackingResult tracking={oceanTracking} />
-        ) : !truckTracking ? (
+        ) : tracking ? (
+          <UnifiedTrackingResultView tracking={tracking} />
+        ) : (
           <div className="public-card">
             <FormError message={error ?? t('notFound')} />
           </div>
-        ) : (
-          <>
-            <div className="public-card">
-              <div className="details-header">
-                <h1 className="public-card__title">{truckTracking.referenceNumber}</h1>
-                <StatusBadge
-                  status={truckTracking.status}
-                  label={tShipments(`status.${truckTracking.status}`)}
-                />
-              </div>
-
-              <dl className="details-list">
-                <div>
-                  <dt>{tShipments('fields.cargoDescription')}</dt>
-                  <dd>{truckTracking.cargoDescription ?? '—'}</dd>
-                </div>
-                <div>
-                  <dt>{t('estimatedDelivery')}</dt>
-                  <dd>{formatDate(truckTracking.estimatedDeliveryAt, locale)}</dd>
-                </div>
-                {truckTracking.pickup ? (
-                  <div>
-                    <dt>{tShipments('sections.pickup')}</dt>
-                    <dd>
-                      {truckTracking.pickup.address}, {truckTracking.pickup.city}
-                    </dd>
-                  </div>
-                ) : null}
-                {truckTracking.delivery ? (
-                  <div>
-                    <dt>{tShipments('sections.delivery')}</dt>
-                    <dd>
-                      {truckTracking.delivery.address}, {truckTracking.delivery.city}
-                    </dd>
-                  </div>
-                ) : null}
-              </dl>
-            </div>
-
-            {(() => {
-              const center =
-                truckTracking.livePosition ??
-                (truckTracking.pickup
-                  ? {
-                      latitude: Number(truckTracking.pickup.latitude),
-                      longitude: Number(truckTracking.pickup.longitude),
-                    }
-                  : null);
-
-              if (!center || ['completed', 'cancelled'].includes(truckTracking.status)) {
-                return null;
-              }
-
-              return <TrackingMap center={center} title={t('liveMap')} />;
-            })()}
-
-            <section className="panel">
-              <h2 className="panel__title">{tShipments('sections.timeline')}</h2>
-              {truckTracking.timeline.length === 0 ? (
-                <p className="muted-text">{tShipments('timeline.empty')}</p>
-              ) : (
-                <ul className="timeline-list">
-                  {truckTracking.timeline.map((entry, index) => (
-                    <li key={`${entry.toStatus}-${entry.createdAt}-${index}`}>
-                      <span className="timeline-list__status">
-                        {entry.fromStatus
-                          ? `${tShipments(`status.${entry.fromStatus}`)} → ${tShipments(`status.${entry.toStatus}`)}`
-                          : tShipments(`status.${entry.toStatus}`)}
-                      </span>
-                      {entry.note ? (
-                        <span className="timeline-list__note">{entry.note}</span>
-                      ) : null}
-                      <span className="timeline-list__date">
-                        {formatDate(entry.createdAt, locale)}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </section>
-          </>
         )}
       </section>
     </main>
