@@ -55,6 +55,7 @@ export const configuration = () => ({
     from: process.env.EMAIL_FROM ?? 'Transit Logistic <noreply@transit-logistic.dev>',
     replyTo: process.env.EMAIL_REPLY_TO,
     resendWebhookSecret: process.env.RESEND_WEBHOOK_SECRET,
+    adminNotificationEmail: process.env.ADMIN_NOTIFICATION_EMAIL?.trim().toLowerCase() || undefined,
   },
   ai: {
     provider: process.env.AI_PROVIDER ?? 'mock',

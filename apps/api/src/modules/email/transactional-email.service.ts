@@ -79,8 +79,40 @@ export class TransactionalEmailService {
       from: this.fromEmail.replace(/<.*>/, '').trim() || this.fromEmail,
       replyTo: this.replyTo ?? null,
       webhookConfigured: Boolean(this.config.get<string>('email.resendWebhookSecret')),
+      adminNotificationEmailConfigured: Boolean(this.config.get<string>('email.adminNotificationEmail')),
       missingCredentials,
     };
+  }
+
+  async sendAdminStagingTest(): Promise<{
+    sent: boolean;
+    skipped?: boolean;
+    reason?: string;
+    logId?: string;
+  }> {
+    const to = this.config.get<string>('email.adminNotificationEmail');
+    if (!to?.trim()) {
+      return { sent: false, skipped: true, reason: 'admin_notification_email_not_configured' };
+    }
+
+    const html = `
+      <div style="font-family:Arial,sans-serif;line-height:1.6;color:#111827;">
+        <h2 style="margin:0 0 12px;">Transit Logistic — Staging Email Test</h2>
+        <p style="margin:0 0 12px;">Staging admin notification email is configured and working successfully.</p>
+        <p style="margin:0 0 12px;">تم اختبار نظام إشعارات Staging بنجاح.</p>
+        <p style="margin:0;color:#6b7280;font-size:13px;">Sent at ${new Date().toISOString()}</p>
+      </div>
+    `;
+
+    return this.sendTransactional({
+      to,
+      locale: 'en',
+      event: 'admin.operational_alert',
+      eventKey: `admin:staging-email-test:${Date.now()}`,
+      subject: 'Transit Logistic - Email Test',
+      html,
+      force: true,
+    });
   }
 
   async sendTransactional(input: SendTransactionalEmailInput): Promise<{ sent: boolean; skipped?: boolean; logId?: string }> {

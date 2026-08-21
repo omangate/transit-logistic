@@ -1,5 +1,5 @@
 import { UserRole } from '@transit-logistic/shared';
-import { Controller, Get, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
 import { EmailDeliveryStatus } from '@prisma/client';
 
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
@@ -37,5 +37,10 @@ export class AdminEmailController {
       recipientEmail,
       templateEvent,
     });
+  }
+
+  @Post('send-test')
+  sendTestEmail() {
+    return this.transactionalEmail.sendAdminStagingTest();
   }
 }

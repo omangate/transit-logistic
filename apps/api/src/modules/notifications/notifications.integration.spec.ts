@@ -43,6 +43,7 @@ describe('Notifications integration', () => {
         sendMilestone: jest.fn().mockResolvedValue({ sent: false }),
         sendMessageEmailThrottled: jest.fn().mockResolvedValue({ sent: false }),
       } as never,
+      { list: jest.fn().mockResolvedValue([]) } as never,
       { getSection: jest.fn().mockResolvedValue({ email: false }) } as never,
     );
   });

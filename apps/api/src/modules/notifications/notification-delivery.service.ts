@@ -13,6 +13,7 @@ import {
   resolveWebAppUrl,
 } from '../email/email-templates';
 import { TransactionalEmailService } from '../email/transactional-email.service';
+import { AdminNotificationRecipientsService } from '../email/admin-notification-recipients.service';
 import { SettingsService } from '../settings/settings.service';
 
 import type { BroadcastNotificationDto } from './dto/broadcast-notification.dto';
@@ -69,6 +70,7 @@ export class NotificationDeliveryService {
     private readonly notifications: NotificationsService,
     private readonly email: EmailService,
     private readonly transactionalEmail: TransactionalEmailService,
+    private readonly adminRecipients: AdminNotificationRecipientsService,
     private readonly settings: SettingsService,
   ) {}
 
@@ -1252,6 +1254,17 @@ export class NotificationDeliveryService {
         html,
         force: true,
       });
+
+      if (input.kind === 'received' || input.kind === 'failed') {
+        void this.safeNotifyAdminsOperational({
+          event: `admin.payment_${input.kind}`,
+          titleEn: input.kind === 'received' ? `Payment received — ${input.reference}` : `Payment failed — ${input.reference}`,
+          titleAr: input.kind === 'received' ? `تم استلام دفعة — ${input.reference}` : `فشل الدفع — ${input.reference}`,
+          bodyEn: `${input.amount} ${input.currency}${input.description ? ` — ${input.description}` : ''}`,
+          bodyAr: `${input.amount} ${input.currency}${input.description ? ` — ${input.description}` : ''}`,
+          path: input.actionPath,
+        });
+      }
     } catch (error) {
       this.logger.warn(`Payment email notification failed: ${String(error)}`);
     }
@@ -1358,13 +1371,10 @@ export class NotificationDeliveryService {
     path?: string;
   }) {
     try {
-      const admins = await this.prisma.user.findMany({
-        where: { role: 'admin', isActive: true },
-        select: { id: true, email: true, locale: true },
-      });
+      const admins = await this.adminRecipients.list();
 
       for (const admin of admins) {
-        const locale = (admin.locale as 'en' | 'ar') ?? 'ar';
+        const locale = admin.locale;
         const { adminTransactionAlertEmail } = await import('../email/email-templates');
         const html = adminTransactionAlertEmail({
           locale,
@@ -1381,15 +1391,16 @@ export class NotificationDeliveryService {
         });
 
         void this.transactionalEmail.sendTransactional({
-          userId: admin.id,
+          userId: admin.userId,
           to: admin.email,
           locale,
           event: 'admin.operational_alert',
-          eventKey: `${input.event}:${input.reference}:${admin.id}`,
+          eventKey: `${input.event}:${input.reference}:${admin.email}`,
           entityType: 'transaction',
           entityId: input.reference,
           subject: locale === 'ar' ? input.titleAr : input.titleEn,
           html,
+          force: true,
         });
       }
     } catch (error) {
@@ -1406,13 +1417,10 @@ export class NotificationDeliveryService {
     path?: string;
   }) {
     try {
-      const admins = await this.prisma.user.findMany({
-        where: { role: 'admin', isActive: true },
-        select: { id: true, email: true, locale: true, emailPreferences: true },
-      });
+      const admins = await this.adminRecipients.list();
 
       for (const admin of admins) {
-        const locale = (admin.locale as 'en' | 'ar') ?? 'ar';
+        const locale = admin.locale;
         const { adminOperationalAlertEmail } = await import('../email/email-templates');
         const html = adminOperationalAlertEmail({
           locale,
@@ -1422,13 +1430,14 @@ export class NotificationDeliveryService {
         });
 
         void this.transactionalEmail.sendTransactional({
-          userId: admin.id,
+          userId: admin.userId,
           to: admin.email,
           locale,
           event: 'admin.operational_alert',
-          eventKey: `${input.event}:${admin.id}:${Date.now()}`,
+          eventKey: `${input.event}:${admin.email}:${Date.now()}`,
           subject: locale === 'ar' ? input.titleAr : input.titleEn,
           html,
+          force: true,
         });
       }
     } catch (error) {
