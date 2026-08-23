@@ -5,8 +5,8 @@
 [build.environment]
   NODE_VERSION = "20"
   NEXT_TELEMETRY_DISABLED = "1"
+  NEXT_PUBLIC_API_URL = "https://transit-logistic-production.up.railway.app"
   NETLIFY_USE_PNPM = "true"
-  NEXT_PUBLIC_USE_SAME_ORIGIN_API = "true"
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"
