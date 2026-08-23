@@ -8,6 +8,7 @@
   NODE_ENV = "development"
   NEXT_TELEMETRY_DISABLED = "1"
   NETLIFY_USE_PNPM = "true"
+  NETLIFY_SKIP_INSTALL = "true"
   NETLIFY_TEST_STACK = "true"
   NETLIFY_TEST_SEED = "true"
   NEXT_PUBLIC_USE_SAME_ORIGIN_API = "true"

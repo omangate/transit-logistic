@@ -4,7 +4,7 @@
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
-    "build": "pnpm db:generate && rimraf dist tsconfig.build.tsbuildinfo && nest build",
+    "build": "pnpm db:generate && rimraf dist tsconfig.build.tsbuildinfo && tsc -p tsconfig.build.json",
     "postinstall": "prisma generate --schema=./prisma/schema.prisma",
     "prestart": "pnpm db:generate",
     "dev": "ts-node src/main.ts",

@@ -3,7 +3,13 @@ import { execSync } from 'node:child_process';
 
 function run(cmd, opts = {}) {
   console.log(`[netlify-build] $ ${cmd}`);
-  execSync(cmd, { stdio: 'inherit', ...opts });
+  try {
+    execSync(cmd, { stdio: 'inherit', shell: true, ...opts });
+  } catch (error) {
+    const status = error && typeof error === 'object' && 'status' in error ? error.status : 1;
+    console.error(`[netlify-build] FAILED (exit ${status}): ${cmd}`);
+    throw error;
+  }
 }
 
 function tryRun(cmd) {
