@@ -1,5 +1,5 @@
 [build]
-  command = "pnpm install --ignore-scripts --config.production=false && pnpm --filter @transit-logistic/shared build && pnpm --filter @transit-logistic/api build && pnpm --filter @transit-logistic/web build"
+  command = "pnpm install --ignore-scripts && pnpm --filter @transit-logistic/shared build && pnpm --filter @transit-logistic/web build"
   publish = "apps/web/.next"
   functions = "netlify/functions"
 
