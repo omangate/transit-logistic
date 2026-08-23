@@ -27,7 +27,9 @@ function resolveDatabaseUrl() {
 }
 
 console.log('[netlify-build] Installing dependencies...');
-run('pnpm install --ignore-scripts');
+process.env.NODE_ENV = 'development';
+process.env.NPM_CONFIG_PRODUCTION = 'false';
+run('pnpm install --ignore-scripts --config.production=false');
 
 console.log('[netlify-build] Building shared package...');
 run('pnpm --filter @transit-logistic/shared build');
@@ -57,6 +59,7 @@ if (dbUrl) {
 }
 
 console.log('[netlify-build] Building web app...');
+process.env.NODE_ENV = 'production';
 process.env.NEXT_PUBLIC_USE_SAME_ORIGIN_API ??= 'true';
 run('pnpm --filter @transit-logistic/web build');
 

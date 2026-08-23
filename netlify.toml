@@ -5,6 +5,7 @@
 
 [build.environment]
   NODE_VERSION = "20"
+  NODE_ENV = "development"
   NEXT_TELEMETRY_DISABLED = "1"
   NETLIFY_USE_PNPM = "true"
   NETLIFY_TEST_STACK = "true"
