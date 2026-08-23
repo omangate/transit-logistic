@@ -47,7 +47,7 @@ console.log('[netlify-build] Building API...');
 run('pnpm --filter @transit-logistic/api build');
 
 const dbUrl = resolveDatabaseUrl();
-if (dbUrl && process.env.NETLIFY_TEST_SEED === 'force') {
+if (dbUrl) {
   console.log('[netlify-build] Running Prisma migrations...');
   if (!tryRun('pnpm --filter @transit-logistic/api exec prisma migrate deploy --schema=prisma/schema.prisma')) {
     console.warn('[netlify-build] WARNING: prisma migrate deploy failed');
