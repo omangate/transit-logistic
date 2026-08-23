@@ -45,3 +45,6 @@ apps/api/prisma/migrations/**/migration.sql.bak
 .vercel
 .env*
 .railway-config-pull-*/
+
+# Local Netlify folder
+.netlify

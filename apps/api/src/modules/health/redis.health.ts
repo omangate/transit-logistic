@@ -1,12 +1,11 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { HealthCheckError, HealthIndicator, type HealthIndicatorResult } from '@nestjs/terminus';
-import type Redis from 'ioredis';
-
+import type { CacheLike } from '../../cache/cache.types';
 import { REDIS_CLIENT } from '../../redis/redis.module';
 
 @Injectable()
 export class RedisHealthIndicator extends HealthIndicator {
-  constructor(@Inject(REDIS_CLIENT) private readonly redis: Redis) {
+  constructor(@Inject(REDIS_CLIENT) private readonly redis: CacheLike) {
     super();
   }
 

@@ -3,6 +3,7 @@ import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
 import { PrismaService } from '../../database/prisma.service';
+import type { CacheLike } from '../../cache/cache.types';
 import { REDIS_CLIENT } from '../../redis/redis.module';
 import { SettingsService } from '../settings/settings.service';
 
@@ -18,8 +19,6 @@ import type {
   SendMilestoneEmailInput,
   SendTransactionalEmailInput,
 } from './transactional-email.types';
-
-import type Redis from 'ioredis';
 
 const MAX_RETRIES = 3;
 const RETRY_DELAYS_MS = [30_000, 60_000, 120_000];
@@ -38,7 +37,7 @@ export class TransactionalEmailService {
     private readonly settings: SettingsService,
     private readonly webhookConfig: ResendWebhookConfigService,
     private readonly transport: EmailTransportService,
-    @Inject(REDIS_CLIENT) private readonly redis: Redis,
+    @Inject(REDIS_CLIENT) private readonly redis: CacheLike,
   ) {
     this.provider = this.transport.getProvider();
 
@@ -337,6 +336,13 @@ export class TransactionalEmailService {
       if (attempt < MAX_RETRIES - 1) {
         const delay = RETRY_DELAYS_MS[attempt] ?? 120_000;
         this.logger.warn(`Email retry ${attempt + 1}/${MAX_RETRIES} in ${delay}ms: ${subject}`);
+
+        if (process.env.NETLIFY === 'true') {
+          await new Promise((resolve) => setTimeout(resolve, Math.min(delay, 2_000)));
+          await this.sendOnce(logId, to, subject, html, attempt + 1);
+          return;
+        }
+
         setTimeout(() => {
           void this.sendOnce(logId, to, subject, html, attempt + 1);
         }, delay);

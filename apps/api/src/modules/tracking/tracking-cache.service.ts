@@ -1,8 +1,7 @@
 /* eslint-disable @typescript-eslint/consistent-type-imports -- Nest DI needs runtime injection tokens */
 import { Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import type Redis from 'ioredis';
-
+import type { CacheLike } from '../../cache/cache.types';
 import { REDIS_CLIENT } from '../../redis/redis.module';
 
 import type { LiveTrackingPosition } from './tracking-live.types';
@@ -10,7 +9,7 @@ import type { LiveTrackingPosition } from './tracking-live.types';
 @Injectable()
 export class TrackingCacheService {
   constructor(
-    @Inject(REDIS_CLIENT) private readonly redis: Redis,
+    @Inject(REDIS_CLIENT) private readonly redis: CacheLike,
     private readonly config: ConfigService,
   ) {}
 

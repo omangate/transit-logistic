@@ -6,6 +6,10 @@ function normalizeApiOrigin(url: string): string {
 
 /** Resolved API origin for server-side proxy and SSR fetches. */
 export function getApiOrigin(): string {
+  if (process.env.NEXT_PUBLIC_USE_SAME_ORIGIN_API === 'true') {
+    return '';
+  }
+
   const configured =
     process.env.NEXT_PUBLIC_API_URL?.trim() ?? process.env.API_URL?.trim();
 

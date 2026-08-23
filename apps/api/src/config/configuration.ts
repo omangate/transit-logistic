@@ -19,7 +19,12 @@ export const configuration = () => ({
     uploadDir: process.env.UPLOAD_DIR ?? 'uploads',
   },
   storage: {
-    provider: process.env.STORAGE_PROVIDER ?? 'local',
+    provider:
+      process.env.STORAGE_PROVIDER ??
+      (process.env.NETLIFY === 'true' || process.env.NETLIFY_TEST_STACK === 'true'
+        ? 'netlify-blobs'
+        : 'local'),
+    netlifyBlobStore: process.env.NETLIFY_BLOB_STORE ?? 'transit-uploads',
     s3: {
       bucket: process.env.S3_BUCKET,
       region: process.env.S3_REGION ?? 'auto',
@@ -32,6 +37,9 @@ export const configuration = () => ({
   },
   database: {
     url: process.env.DATABASE_URL,
+  },
+  cache: {
+    provider: process.env.CACHE_PROVIDER,
   },
   redis: {
     host: process.env.REDIS_HOST ?? 'localhost',

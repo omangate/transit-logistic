@@ -24,7 +24,7 @@ export type StoreOptions = {
 export type StoredFileResult = {
   url: string;
   key: string;
-  provider: 'local' | 's3';
+  provider: 'local' | 's3' | 'netlify-blobs';
   mimeType: string;
   size: number;
 };
@@ -33,15 +33,23 @@ export type StoredFileResult = {
 export class StorageService {
   private readonly logger = new Logger(StorageService.name);
   private readonly uploadRoot: string;
-  private readonly provider: 'local' | 's3';
+  private readonly provider: 'local' | 's3' | 'netlify-blobs';
   private readonly s3Bucket?: string;
   private readonly s3PublicBaseUrl?: string;
+  private readonly netlifyBlobStore: string;
 
   constructor(private readonly config: ConfigService) {
+    const configured = this.config.get<string>('storage.provider', 'local');
+    this.provider =
+      configured === 's3'
+        ? 's3'
+        : configured === 'netlify-blobs'
+          ? 'netlify-blobs'
+          : 'local';
     this.uploadRoot = this.config.get<string>('app.uploadDir', join(process.cwd(), 'uploads'));
-    this.provider = this.config.get<string>('storage.provider', 'local') === 's3' ? 's3' : 'local';
     this.s3Bucket = this.config.get<string>('storage.s3.bucket');
     this.s3PublicBaseUrl = this.config.get<string>('storage.s3.publicBaseUrl');
+    this.netlifyBlobStore = this.config.get<string>('storage.netlifyBlobStore', 'transit-uploads');
   }
 
   validateAndDetect(file: StoredFileInput | undefined, options: StoreOptions = {}) {
@@ -91,6 +99,17 @@ export class StorageService {
     const normalizedDir = `${prefix}/${relativeDir.replace(/\\/g, '/').replace(/^\/+/, '')}`;
     const key = `${normalizedDir}/${filename}`;
 
+    if (this.provider === 'netlify-blobs') {
+      const uploaded = await this.storeNetlifyBlob(key, file.buffer, detected);
+      return {
+        url: uploaded.url,
+        key,
+        provider: 'netlify-blobs',
+        mimeType: detected,
+        size: file.buffer.length,
+      };
+    }
+
     if (this.provider === 's3' && this.s3Bucket) {
       const uploaded = await this.storeS3(key, file.buffer, detected, visibility);
       return {
@@ -128,6 +147,10 @@ export class StorageService {
   }
 
   async read(key: string): Promise<{ buffer: Buffer; mimeType: string }> {
+    if (this.provider === 'netlify-blobs') {
+      return this.readNetlifyBlob(key);
+    }
+
     if (this.provider === 's3' && this.s3Bucket) {
       return this.readS3(key);
     }
@@ -152,6 +175,11 @@ export class StorageService {
   }
 
   async delete(key: string) {
+    if (this.provider === 'netlify-blobs') {
+      await this.deleteNetlifyBlob(key);
+      return;
+    }
+
     if (this.provider === 's3' && this.s3Bucket) {
       await this.deleteS3(key);
       return;
@@ -164,6 +192,13 @@ export class StorageService {
   }
 
   publicUrlForKey(key: string) {
+    if (this.provider === 'netlify-blobs') {
+      if (key.startsWith('private/')) {
+        return `/api/v1/files/${encodeURIComponent(key)}`;
+      }
+      return `/uploads/${key.replace(/^public\//, '')}`;
+    }
+
     if (this.provider === 's3' && this.s3PublicBaseUrl) {
       return `${this.s3PublicBaseUrl.replace(/\/$/, '')}/${key}`;
     }
@@ -171,6 +206,48 @@ export class StorageService {
       return `/api/v1/files/${encodeURIComponent(key)}`;
     }
     return `/uploads/${key}`;
+  }
+
+  private async storeNetlifyBlob(key: string, buffer: Buffer, contentType: string) {
+    const { getStore } = await import('@netlify/blobs');
+    const store = getStore(this.netlifyBlobStore);
+    const arrayBuffer = buffer.buffer.slice(
+      buffer.byteOffset,
+      buffer.byteOffset + buffer.byteLength,
+    ) as ArrayBuffer;
+    await store.set(key, arrayBuffer, {
+      metadata: { contentType },
+    });
+    const url =
+      key.startsWith('private/')
+        ? `/api/v1/files/${encodeURIComponent(key)}`
+        : `/uploads/${key.replace(/^public\//, '')}`;
+    return { url };
+  }
+
+  private async readNetlifyBlob(key: string) {
+    const { getStore } = await import('@netlify/blobs');
+    const store = getStore(this.netlifyBlobStore);
+    const result = await store.getWithMetadata(key, { type: 'blob' });
+    if (!result?.data) {
+      throw new NotFoundException({
+        code: 'FILE_NOT_FOUND',
+        message_en: 'File not found.',
+        message_ar: 'الملف غير موجود.',
+      });
+    }
+    const buffer = Buffer.from(await result.data.arrayBuffer());
+    const mimeType =
+      (result.metadata?.contentType as string | undefined) ??
+      detectFileKind(buffer) ??
+      'application/octet-stream';
+    return { buffer, mimeType };
+  }
+
+  private async deleteNetlifyBlob(key: string) {
+    const { getStore } = await import('@netlify/blobs');
+    const store = getStore(this.netlifyBlobStore);
+    await store.delete(key);
   }
 
   private async storeS3(

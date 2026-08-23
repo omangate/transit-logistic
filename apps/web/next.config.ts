@@ -12,6 +12,10 @@ if (process.argv.some((arg) => arg.includes('build')) && process.env.NODE_ENV !=
 const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
 
 function resolveApiOrigin(): string {
+  if (process.env.NEXT_PUBLIC_USE_SAME_ORIGIN_API === 'true') {
+    return '';
+  }
+
   const configured =
     process.env.NEXT_PUBLIC_API_URL?.trim() ?? process.env.API_URL?.trim() ?? '';
 

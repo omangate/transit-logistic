@@ -1,7 +1,3 @@
-import { randomBytes } from 'crypto';
-import { mkdir, writeFile } from 'fs/promises';
-import { join } from 'path';
-
 import {
   BadRequestException,
   Injectable,
@@ -10,7 +6,7 @@ import {
 import type { User } from '@/types/user';
 
 /* eslint-disable @typescript-eslint/consistent-type-imports -- Nest DI needs runtime injection tokens */
-import { ConfigService } from '@nestjs/config';
+import { StorageService } from '../../common/storage/storage.service';
 import { PrismaService } from '../../database/prisma.service';
 import { ShipmentAccessService } from '../shipments/shipment-access.service';
 
@@ -30,15 +26,11 @@ type UploadedFile = {
 
 @Injectable()
 export class DocumentsService {
-  private readonly uploadRoot: string;
-
   constructor(
     private readonly prisma: PrismaService,
     private readonly access: ShipmentAccessService,
-    private readonly config: ConfigService,
-  ) {
-    this.uploadRoot = this.config.get<string>('app.uploadDir', join(process.cwd(), 'uploads'));
-  }
+    private readonly storage: StorageService,
+  ) {}
 
   async uploadShipmentDocument(
     user: User,
@@ -72,14 +64,21 @@ export class DocumentsService {
       });
     }
 
-    const ext = this.extensionForMime(file.mimetype);
-    const filename = `${Date.now()}-${randomBytes(6).toString('hex')}${ext}`;
-    const relativeDir = join('shipments', shipmentId);
-    const absoluteDir = join(this.uploadRoot, relativeDir);
-    await mkdir(absoluteDir, { recursive: true });
-    await writeFile(join(absoluteDir, filename), file.buffer);
+    const stored = await this.storage.store(
+      `shipments/${shipmentId}`,
+      {
+        buffer: file.buffer,
+        mimetype: file.mimetype,
+        size: file.size,
+      },
+      {
+        maxBytes: MAX_FILE_BYTES,
+        allowedKinds: ['application/pdf', 'image/jpeg', 'image/png', 'image/webp'],
+        visibility: 'private',
+      },
+    );
 
-    const fileUrl = `/uploads/${relativeDir.replace(/\\/g, '/')}/${filename}`;
+    const fileUrl = stored.url;
 
     return this.prisma.shipmentDocument.create({
       data: {
@@ -117,18 +116,4 @@ export class DocumentsService {
     return document;
   }
 
-  private extensionForMime(mime: string) {
-    switch (mime) {
-      case 'application/pdf':
-        return '.pdf';
-      case 'image/jpeg':
-        return '.jpg';
-      case 'image/png':
-        return '.png';
-      case 'image/webp':
-        return '.webp';
-      default:
-        return '.bin';
-    }
-  }
 }

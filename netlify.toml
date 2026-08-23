@@ -1,12 +1,51 @@
 [build]
-  command = "pnpm install --ignore-scripts && pnpm --filter @transit-logistic/shared build && pnpm --filter @transit-logistic/web build"
+  command = "bash scripts/netlify-build.sh"
   publish = "apps/web/.next"
+  functions = "netlify/functions"
 
 [build.environment]
   NODE_VERSION = "20"
   NEXT_TELEMETRY_DISABLED = "1"
-  NEXT_PUBLIC_API_URL = "https://transit-logistic-production.up.railway.app"
   NETLIFY_USE_PNPM = "true"
+  NETLIFY_TEST_STACK = "true"
+  NETLIFY_TEST_SEED = "true"
+  NEXT_PUBLIC_USE_SAME_ORIGIN_API = "true"
+  CACHE_PROVIDER = "postgres"
+  STORAGE_PROVIDER = "netlify-blobs"
+  NETLIFY_BLOB_STORE = "transit-uploads"
+  EMAIL_PROVIDER = "mock"
+  AI_PROVIDER = "mock"
+  PAYMENT_PROVIDER = "mock"
+  WEB_APP_URL = "https://transit-logistic-web-test.netlify.app"
+  CORS_ORIGIN = "https://transit-logistic-web-test.netlify.app"
+
+[functions]
+  node_bundler = "esbuild"
+  included_files = [
+    "apps/api/dist/**",
+    "apps/api/prisma/schema.prisma",
+    "node_modules/.prisma/**",
+    "node_modules/@prisma/client/**"
+  ]
+
+[functions.api]
+  timeout = 26
+  memory = 1024
+
+[functions.uploads]
+  timeout = 10
+
+[[redirects]]
+  from = "/api/v1/*"
+  to = "/.netlify/functions/api/:splat"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/uploads/*"
+  to = "/.netlify/functions/uploads/:splat"
+  status = 200
+  force = true
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"
