@@ -4,7 +4,7 @@ import { execSync } from 'node:child_process';
 function run(cmd, opts = {}) {
   console.log(`[netlify-build] $ ${cmd}`);
   try {
-    execSync(cmd, { stdio: 'inherit', shell: true, ...opts });
+    execSync(cmd, { stdio: 'inherit', ...opts });
   } catch (error) {
     const status = error && typeof error === 'object' && 'status' in error ? error.status : 1;
     console.error(`[netlify-build] FAILED (exit ${status}): ${cmd}`);
