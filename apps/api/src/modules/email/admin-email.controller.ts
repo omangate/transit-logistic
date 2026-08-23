@@ -6,6 +6,7 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { Roles } from '../auth/roles.decorator';
 import { RolesGuard } from '../auth/roles.guard';
 import { EmailDeliveryLogService } from './email-delivery-log.service';
+import { ResendWebhookConfigService } from './resend-webhook-config.service';
 import { TransactionalEmailService } from './transactional-email.service';
 
 @Controller('admin/email')
@@ -15,6 +16,7 @@ export class AdminEmailController {
   constructor(
     private readonly deliveryLogs: EmailDeliveryLogService,
     private readonly transactionalEmail: TransactionalEmailService,
+    private readonly webhookConfig: ResendWebhookConfigService,
   ) {}
 
   @Get('provider-status')
@@ -42,5 +44,10 @@ export class AdminEmailController {
   @Post('send-test')
   sendTestEmail() {
     return this.transactionalEmail.sendAdminStagingTest();
+  }
+
+  @Post('setup-webhook')
+  setupWebhook() {
+    return this.webhookConfig.ensureConfigured();
   }
 }

@@ -13,6 +13,7 @@ import { Webhook } from 'svix';
 import { Public } from '../../common/decorators/public.decorator';
 
 import { EmailDeliveryLogService } from './email-delivery-log.service';
+import { ResendWebhookConfigService } from './resend-webhook-config.service';
 
 type ResendWebhookPayload = {
   type: string;
@@ -34,6 +35,7 @@ export class ResendWebhookController {
   constructor(
     private readonly deliveryLog: EmailDeliveryLogService,
     private readonly config: ConfigService,
+    private readonly webhookConfig: ResendWebhookConfigService,
   ) {}
 
   @Post()
@@ -45,7 +47,7 @@ export class ResendWebhookController {
     @Headers('svix-timestamp') svixTimestamp?: string,
     @Headers('svix-signature') svixSignature?: string,
   ) {
-    const secret = this.config.get<string>('email.resendWebhookSecret');
+    const secret = await this.webhookConfig.getSigningSecret();
     const rawBody = req.rawBody?.toString('utf8') ?? '';
     const body = secret
       ? this.verifyPayload(rawBody, { svixId, svixTimestamp, svixSignature }, secret)

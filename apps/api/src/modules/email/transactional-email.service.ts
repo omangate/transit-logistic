@@ -9,6 +9,7 @@ import { SettingsService } from '../settings/settings.service';
 
 import { EmailDeliveryLogService } from './email-delivery-log.service';
 import { EmailPreferencesService } from './email-preferences.service';
+import { ResendWebhookConfigService } from './resend-webhook-config.service';
 import { milestoneEmail, resolveWebAppUrl } from './email-templates';
 import { buildMilestoneCopy, resolveWorkflowEvent } from './transactional-email.events';
 import type {
@@ -39,6 +40,7 @@ export class TransactionalEmailService {
     private readonly deliveryLog: EmailDeliveryLogService,
     private readonly preferences: EmailPreferencesService,
     private readonly settings: SettingsService,
+    private readonly webhookConfig: ResendWebhookConfigService,
     @Inject(REDIS_CLIENT) private readonly redis: Redis,
   ) {
     const apiKey = this.config.get<string>('email.resendApiKey');
@@ -57,7 +59,7 @@ export class TransactionalEmailService {
     return this.enabled;
   }
 
-  getProviderStatus() {
+  async getProviderStatus() {
     const missingCredentials: string[] = [];
     const apiKey = this.config.get<string>('email.resendApiKey');
     const from = this.config.get<string>('email.from');
@@ -78,8 +80,9 @@ export class TransactionalEmailService {
       configured: this.enabled,
       from: this.fromEmail.replace(/<.*>/, '').trim() || this.fromEmail,
       replyTo: this.replyTo ?? null,
-      webhookConfigured: Boolean(this.config.get<string>('email.resendWebhookSecret')),
+      webhookConfigured: await this.webhookConfig.isConfigured(),
       adminNotificationEmailConfigured: Boolean(this.config.get<string>('email.adminNotificationEmail')),
+      adminNotificationIncludeDemoAdmins: this.config.get<boolean>('email.adminNotificationIncludeDemoAdmins', false),
       missingCredentials,
     };
   }

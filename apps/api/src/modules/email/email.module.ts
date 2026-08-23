@@ -9,6 +9,7 @@ import { EmailVerificationService } from './email-verification.service';
 import { EmailService } from './email.service';
 import { AdminEmailController } from './admin-email.controller';
 import { AdminNotificationRecipientsService } from './admin-notification-recipients.service';
+import { ResendWebhookConfigService } from './resend-webhook-config.service';
 import { ResendWebhookController } from './resend-webhook.controller';
 import { TransactionalEmailService } from './transactional-email.service';
 
@@ -21,6 +22,7 @@ import { TransactionalEmailService } from './transactional-email.service';
     EmailDeliveryLogService,
     EmailPreferencesService,
     AdminNotificationRecipientsService,
+    ResendWebhookConfigService,
     TransactionalEmailService,
     EmailVerificationService,
   ],
@@ -29,6 +31,7 @@ import { TransactionalEmailService } from './transactional-email.service';
     EmailDeliveryLogService,
     EmailPreferencesService,
     AdminNotificationRecipientsService,
+    ResendWebhookConfigService,
     TransactionalEmailService,
     EmailVerificationService,
   ],
