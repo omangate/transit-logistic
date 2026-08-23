@@ -21,6 +21,7 @@
 
 [functions]
   node_bundler = "esbuild"
+  external_node_modules = ["@prisma/client", "@nestjs/microservices", "sharp", "class-transformer", "class-validator", "reflect-metadata"]
   included_files = [
     "apps/api/dist/**",
     "apps/api/prisma/schema.prisma",
