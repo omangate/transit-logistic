@@ -27,7 +27,7 @@ async function bootstrap() {
     `[bootstrap] PORT=${process.env.PORT ?? '(unset)'} API_PORT=${process.env.API_PORT ?? '(unset)'} NODE_ENV=${process.env.NODE_ENV ?? '(unset)'}`,
   );
 
-  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, { rawBody: true });
   app.useWebSocketAdapter(new IoAdapter(app));
 
   const config = app.get(ConfigService);

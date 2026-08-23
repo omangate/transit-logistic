@@ -56,6 +56,7 @@ export const configuration = () => ({
     replyTo: process.env.EMAIL_REPLY_TO,
     resendWebhookSecret: process.env.RESEND_WEBHOOK_SECRET,
     adminNotificationEmail: process.env.ADMIN_NOTIFICATION_EMAIL?.trim().toLowerCase() || undefined,
+    adminNotificationIncludeDemoAdmins: process.env.ADMIN_NOTIFICATION_INCLUDE_DEMO_ADMINS === 'true',
   },
   ai: {
     provider: process.env.AI_PROVIDER ?? 'mock',

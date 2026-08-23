@@ -344,6 +344,10 @@ export class TransactionalEmailService {
         ...(this.replyTo ? { reply_to: this.replyTo } : {}),
       });
 
+      if (result.error) {
+        throw new Error(result.error.message);
+      }
+
       await this.deliveryLog.markSent(logId, result.data?.id ?? null);
       this.logger.log(`Email sent: ${subject} -> ${to}`);
     } catch (error) {

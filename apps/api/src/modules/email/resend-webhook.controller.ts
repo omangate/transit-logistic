@@ -1,6 +1,14 @@
-import { Body, Controller, Headers, Logger, Post, UnauthorizedException } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Headers,
+  Logger,
+  Post,
+  Req,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { createHmac, timingSafeEqual } from 'node:crypto';
+import { Webhook } from 'svix';
 
 import { Public } from '../../common/decorators/public.decorator';
 
@@ -15,6 +23,10 @@ type ResendWebhookPayload = {
   };
 };
 
+type RawBodyRequest = {
+  rawBody?: Buffer;
+};
+
 @Controller('webhooks/resend')
 export class ResendWebhookController {
   private readonly logger = new Logger(ResendWebhookController.name);
@@ -27,12 +39,17 @@ export class ResendWebhookController {
   @Post()
   @Public()
   async handle(
-    @Body() body: ResendWebhookPayload,
+    @Req() req: RawBodyRequest,
+    @Body() parsedBody: ResendWebhookPayload,
     @Headers('svix-id') svixId?: string,
     @Headers('svix-timestamp') svixTimestamp?: string,
     @Headers('svix-signature') svixSignature?: string,
   ) {
-    this.verifySignature(JSON.stringify(body), svixId, svixTimestamp, svixSignature);
+    const secret = this.config.get<string>('email.resendWebhookSecret');
+    const rawBody = req.rawBody?.toString('utf8') ?? '';
+    const body = secret
+      ? this.verifyPayload(rawBody, { svixId, svixTimestamp, svixSignature }, secret)
+      : parsedBody;
 
     const messageId = body.data?.email_id;
     if (!messageId) {
@@ -60,34 +77,27 @@ export class ResendWebhookController {
     return { received: true };
   }
 
-  private verifySignature(
-    payload: string,
-    svixId?: string,
-    svixTimestamp?: string,
-    svixSignature?: string,
-  ) {
-    const secret = this.config.get<string>('email.resendWebhookSecret');
-    if (!secret) {
-      return;
+  private verifyPayload(
+    rawBody: string,
+    headers: { svixId?: string; svixTimestamp?: string; svixSignature?: string },
+    secret: string,
+  ): ResendWebhookPayload {
+    if (!rawBody) {
+      throw new UnauthorizedException('Missing webhook payload');
     }
 
-    if (!svixId || !svixTimestamp || !svixSignature) {
+    if (!headers.svixId || !headers.svixTimestamp || !headers.svixSignature) {
       throw new UnauthorizedException('Missing webhook signature headers');
     }
 
-    const signed = `${svixId}.${svixTimestamp}.${payload}`;
-    const expected = createHmac('sha256', secret).update(signed).digest('base64');
-    const signatures = svixSignature.split(' ').map((part) => part.split(',')[1]).filter(Boolean);
-
-    const valid = signatures.some((sig) => {
-      try {
-        return timingSafeEqual(Buffer.from(sig!), Buffer.from(expected));
-      } catch {
-        return false;
-      }
-    });
-
-    if (!valid) {
+    try {
+      const verifier = new Webhook(secret);
+      return verifier.verify(rawBody, {
+        'svix-id': headers.svixId,
+        'svix-timestamp': headers.svixTimestamp,
+        'svix-signature': headers.svixSignature,
+      }) as ResendWebhookPayload;
+    } catch {
       throw new UnauthorizedException('Invalid webhook signature');
     }
   }
