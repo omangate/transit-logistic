@@ -61,6 +61,14 @@ export class EmailDeliveryLogService {
     });
   }
 
+  async markDelivered(id: string) {
+    if (!id) return;
+    await this.prisma.emailDeliveryLog.update({
+      where: { id },
+      data: { status: EmailDeliveryStatus.delivered, deliveredAt: new Date() },
+    });
+  }
+
   async markSkipped(id: string, reason: string) {
     if (!id) return;
     await this.prisma.emailDeliveryLog.update({

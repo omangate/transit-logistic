@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/consistent-type-imports -- Nest DI needs runtime injection tokens */
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { Resend } from 'resend';
 
 import { PrismaService } from '../../database/prisma.service';
 import { REDIS_CLIENT } from '../../redis/redis.module';
@@ -9,6 +8,7 @@ import { SettingsService } from '../settings/settings.service';
 
 import { EmailDeliveryLogService } from './email-delivery-log.service';
 import { EmailPreferencesService } from './email-preferences.service';
+import { EmailTransportService } from './email-transport.service';
 import { ResendWebhookConfigService } from './resend-webhook-config.service';
 import { milestoneEmail, resolveWebAppUrl } from './email-templates';
 import { buildMilestoneCopy, resolveWorkflowEvent } from './transactional-email.events';
@@ -28,11 +28,7 @@ const MESSAGE_THROTTLE_SECONDS = 300;
 @Injectable()
 export class TransactionalEmailService {
   private readonly logger = new Logger(TransactionalEmailService.name);
-  private readonly resend: Resend | null;
-  private readonly fromEmail: string;
-  private readonly replyTo?: string;
   private readonly provider: string;
-  private readonly enabled: boolean;
 
   constructor(
     private readonly config: ConfigService,
@@ -41,46 +37,34 @@ export class TransactionalEmailService {
     private readonly preferences: EmailPreferencesService,
     private readonly settings: SettingsService,
     private readonly webhookConfig: ResendWebhookConfigService,
+    private readonly transport: EmailTransportService,
     @Inject(REDIS_CLIENT) private readonly redis: Redis,
   ) {
-    const apiKey = this.config.get<string>('email.resendApiKey');
-    this.provider = this.config.get<string>('email.provider', 'resend');
-    this.fromEmail = this.config.get<string>('email.from', 'Transit Logistic <noreply@transit-logistic.dev>');
-    this.replyTo = this.config.get<string>('email.replyTo');
-    this.enabled = this.provider === 'resend' && Boolean(apiKey);
-    this.resend = apiKey ? new Resend(apiKey) : null;
+    this.provider = this.transport.getProvider();
 
-    if (!this.enabled) {
+    if (!this.transport.isConfigured()) {
       this.logger.warn('Transactional email provider not configured — emails will be logged as skipped');
     }
   }
 
   isConfigured(): boolean {
-    return this.enabled;
+    return this.transport.isConfigured();
   }
 
   async getProviderStatus() {
-    const missingCredentials: string[] = [];
-    const apiKey = this.config.get<string>('email.resendApiKey');
-    const from = this.config.get<string>('email.from');
+    const missingCredentials = this.transport.getMissingCredentials();
     const webUrl = this.config.get<string>('app.webUrl');
 
-    if (this.provider === 'resend' && !apiKey) {
-      missingCredentials.push('RESEND_API_KEY');
-    }
-    if (!from?.trim()) {
-      missingCredentials.push('EMAIL_FROM');
-    }
     if (!webUrl?.trim() || webUrl.includes('127.0.0.1')) {
       missingCredentials.push('WEB_APP_URL');
     }
 
     return {
       provider: this.provider,
-      configured: this.enabled,
-      from: this.fromEmail.replace(/<.*>/, '').trim() || this.fromEmail,
-      replyTo: this.replyTo ?? null,
-      webhookConfigured: await this.webhookConfig.isConfigured(),
+      configured: this.transport.isConfigured(),
+      from: this.transport.getFromAddress().replace(/<.*>/, '').trim() || this.transport.getFromAddress(),
+      replyTo: this.transport.getReplyTo() ?? null,
+      webhookConfigured: this.provider === 'resend' ? await this.webhookConfig.isConfigured() : false,
       adminNotificationEmailConfigured: Boolean(this.config.get<string>('email.adminNotificationEmail')),
       adminNotificationIncludeDemoAdmins: this.config.get<boolean>('email.adminNotificationIncludeDemoAdmins', false),
       missingCredentials,
@@ -332,26 +316,19 @@ export class TransactionalEmailService {
   }
 
   private async sendOnce(logId: string, to: string, subject: string, html: string, attempt: number) {
-    if (!this.enabled || !this.resend) {
+    if (!this.transport.isConfigured()) {
       await this.deliveryLog.markSkipped(logId, 'provider_not_configured');
       this.logger.warn(`Email skipped (not configured): ${subject} -> ${to}`);
       return;
     }
 
     try {
-      const result = await this.resend.emails.send({
-        from: this.fromEmail,
-        to,
-        subject,
-        html,
-        ...(this.replyTo ? { reply_to: this.replyTo } : {}),
-      });
+      const result = await this.transport.send({ to, subject, html });
 
-      if (result.error) {
-        throw new Error(result.error.message);
+      await this.deliveryLog.markSent(logId, result.providerMessageId);
+      if (this.provider === 'smtp') {
+        await this.deliveryLog.markDelivered(logId);
       }
-
-      await this.deliveryLog.markSent(logId, result.data?.id ?? null);
       this.logger.log(`Email sent: ${subject} -> ${to}`);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);

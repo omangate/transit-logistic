@@ -5,6 +5,7 @@ import { SettingsModule } from '../settings/settings.module';
 
 import { EmailDeliveryLogService } from './email-delivery-log.service';
 import { EmailPreferencesService } from './email-preferences.service';
+import { EmailTransportService } from './email-transport.service';
 import { EmailVerificationService } from './email-verification.service';
 import { EmailService } from './email.service';
 import { AdminEmailController } from './admin-email.controller';
@@ -21,6 +22,7 @@ import { TransactionalEmailService } from './transactional-email.service';
     EmailService,
     EmailDeliveryLogService,
     EmailPreferencesService,
+    EmailTransportService,
     AdminNotificationRecipientsService,
     ResendWebhookConfigService,
     TransactionalEmailService,
@@ -30,6 +32,7 @@ import { TransactionalEmailService } from './transactional-email.service';
     EmailService,
     EmailDeliveryLogService,
     EmailPreferencesService,
+    EmailTransportService,
     AdminNotificationRecipientsService,
     ResendWebhookConfigService,
     TransactionalEmailService,

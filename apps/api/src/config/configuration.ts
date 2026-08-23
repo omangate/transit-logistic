@@ -57,6 +57,13 @@ export const configuration = () => ({
     resendWebhookSecret: process.env.RESEND_WEBHOOK_SECRET,
     adminNotificationEmail: process.env.ADMIN_NOTIFICATION_EMAIL?.trim().toLowerCase() || undefined,
     adminNotificationIncludeDemoAdmins: process.env.ADMIN_NOTIFICATION_INCLUDE_DEMO_ADMINS === 'true',
+    smtp: {
+      host: process.env.SMTP_HOST,
+      port: parseInt(process.env.SMTP_PORT ?? '587', 10),
+      secure: process.env.SMTP_SECURE === 'true',
+      user: process.env.SMTP_USER?.trim().toLowerCase(),
+      password: process.env.SMTP_PASSWORD,
+    },
   },
   ai: {
     provider: process.env.AI_PROVIDER ?? 'mock',
