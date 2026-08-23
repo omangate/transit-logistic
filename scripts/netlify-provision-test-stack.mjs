@@ -46,23 +46,34 @@ async function ensureDatabase() {
 }
 
 async function setEnvVars(accountId, vars) {
-  for (const [key, value, context = 'all'] of vars) {
+  const batch = [];
+  for (const [key, value, context = 'all', secret = false] of vars) {
     if (!value) continue;
-    try {
-      await netlify('POST', `/accounts/${accountId}/env?site_id=${SITE_ID}`, {
-        key,
-        values: [{ value, context }],
-      });
-      console.log(`Env set: ${key}`);
-    } catch (error) {
-      if (String(error.message).includes('409')) {
-        await netlify('PUT', `/accounts/${accountId}/env/${key}?site_id=${SITE_ID}`, {
-          key,
-          values: [{ value, context }],
-        });
-        console.log(`Env updated: ${key}`);
-      } else {
-        console.warn(`Env ${key}:`, String(error.message).slice(0, 120));
+    batch.push({
+      key,
+      is_secret: secret,
+      values: [{ value, context }],
+    });
+  }
+
+  if (!batch.length) return;
+
+  try {
+    await netlify('POST', `/accounts/${accountId}/env?site_id=${SITE_ID}`, batch);
+    for (const item of batch) {
+      console.log(`Env set: ${item.key}`);
+    }
+  } catch (error) {
+    for (const item of batch) {
+      try {
+        await netlify('POST', `/accounts/${accountId}/env?site_id=${SITE_ID}`, [item]);
+        console.log(`Env set: ${item.key}`);
+      } catch (inner) {
+        if (String(inner.message).includes('409')) {
+          console.log(`Env exists: ${item.key}`);
+        } else {
+          console.warn(`Env ${item.key}:`, String(inner.message).slice(0, 120));
+        }
       }
     }
   }
@@ -75,10 +86,17 @@ async function main() {
   const jwtAccess = secret();
   const jwtRefresh = secret();
 
+  const dbUrl =
+    process.env.NETLIFY_DATABASE_URL ??
+    db.connection_string ??
+    db.connection_strings?.postgresql ??
+    db.connection_uri ??
+    db.url;
+
   const envVars = [
-    ['DATABASE_URL', process.env.NETLIFY_DATABASE_URL ?? db.connection_uri ?? db.url, 'all'],
-    ['JWT_ACCESS_SECRET', jwtAccess, 'all'],
-    ['JWT_REFRESH_SECRET', jwtRefresh, 'all'],
+    ['DATABASE_URL', dbUrl, 'all', true],
+    ['JWT_ACCESS_SECRET', jwtAccess, 'all', true],
+    ['JWT_REFRESH_SECRET', jwtRefresh, 'all', true],
     ['WEB_APP_URL', SITE_URL, 'all'],
     ['CORS_ORIGIN', SITE_URL, 'all'],
     ['NETLIFY_TEST_STACK', 'true', 'all'],
