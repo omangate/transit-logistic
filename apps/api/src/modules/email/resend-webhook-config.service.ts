@@ -38,70 +38,85 @@ export class ResendWebhookConfigService {
     return Boolean(await this.getSigningSecret());
   }
 
-  async ensureConfigured(): Promise<{ configured: boolean; webhookId?: string; created?: boolean }> {
-    if (await this.isConfigured()) {
-      const stored = await this.getStoredConfig();
-      return { configured: true, webhookId: stored.webhookId };
-    }
+  async ensureConfigured(): Promise<{ configured: boolean; webhookId?: string; created?: boolean; reason?: string }> {
+    try {
+      if (await this.isConfigured()) {
+        const stored = await this.getStoredConfig();
+        return { configured: true, webhookId: stored.webhookId };
+      }
 
-    const apiKey = this.config.get<string>('email.resendApiKey')?.trim();
-    if (!apiKey) {
-      return { configured: false };
-    }
+      const apiKey = this.config.get<string>('email.resendApiKey')?.trim();
+      if (!apiKey) {
+        return { configured: false, reason: 'missing_resend_api_key' };
+      }
 
-    const endpoint = this.resolveWebhookEndpoint();
-    const list = await this.resendRequest<{ data?: Array<{ id: string; endpoint: string; signing_secret?: string }> }>(
-      apiKey,
-      'GET',
-      '/webhooks',
-    );
+      const endpoint = this.resolveWebhookEndpoint();
+      const listPayload = await this.resendRequest<{ data?: unknown }>(apiKey, 'GET', '/webhooks');
+      const webhooks = Array.isArray(listPayload.data) ? listPayload.data : [];
 
-    const existing = list.data?.find((webhook) => webhook.endpoint === endpoint);
-    let signingSecret = existing?.signing_secret;
-    let webhookId = existing?.id;
-    let created = false;
+      const existing = webhooks.find(
+        (webhook): webhook is { id: string; endpoint: string; signing_secret?: string } =>
+          typeof webhook === 'object' &&
+          webhook !== null &&
+          'endpoint' in webhook &&
+          (webhook as { endpoint?: string }).endpoint === endpoint,
+      );
 
-    if (existing?.id && !signingSecret) {
-      const retrieved = await this.resendRequest<{ signing_secret?: string }>(apiKey, 'GET', `/webhooks/${existing.id}`);
-      signingSecret = retrieved.signing_secret;
-      webhookId = existing.id;
-    }
+      let signingSecret = existing?.signing_secret;
+      let webhookId = existing?.id;
+      let created = false;
 
-    if (!signingSecret) {
-      const createdWebhook = await this.resendRequest<{ id?: string; signing_secret?: string }>(apiKey, 'POST', '/webhooks', {
-        endpoint,
-        events: WEBHOOK_EVENTS,
+      if (existing?.id && !signingSecret) {
+        const retrieved = await this.resendRequest<{ signing_secret?: string }>(apiKey, 'GET', `/webhooks/${existing.id}`);
+        signingSecret = retrieved.signing_secret;
+        webhookId = existing.id;
+      }
+
+      if (!signingSecret) {
+        const createdWebhook = await this.resendRequest<{ id?: string; signing_secret?: string }>(
+          apiKey,
+          'POST',
+          '/webhooks',
+          {
+            endpoint,
+            events: WEBHOOK_EVENTS,
+          },
+        );
+        signingSecret = createdWebhook.signing_secret;
+        webhookId = createdWebhook.id;
+        created = true;
+      }
+
+      if (!signingSecret) {
+        return { configured: false, reason: 'signing_secret_unavailable' };
+      }
+
+      await this.prisma.platformSetting.upsert({
+        where: { key: PLATFORM_SETTING_KEY },
+        create: {
+          key: PLATFORM_SETTING_KEY,
+          value: {
+            webhookId,
+            signingSecret,
+            endpoint,
+          } satisfies StoredWebhookConfig as Prisma.InputJsonValue,
+        },
+        update: {
+          value: {
+            webhookId,
+            signingSecret,
+            endpoint,
+          } satisfies StoredWebhookConfig as Prisma.InputJsonValue,
+        },
       });
-      signingSecret = createdWebhook.signing_secret;
-      webhookId = createdWebhook.id;
-      created = true;
+
+      this.logger.log(`Resend webhook configured for ${endpoint}`);
+      return { configured: true, webhookId, created };
+    } catch (error) {
+      const reason = error instanceof Error ? error.message.slice(0, 200) : 'webhook_setup_failed';
+      this.logger.warn(`Resend webhook setup failed: ${reason}`);
+      return { configured: false, reason };
     }
-
-    if (!signingSecret) {
-      return { configured: false };
-    }
-
-    await this.prisma.platformSetting.upsert({
-      where: { key: PLATFORM_SETTING_KEY },
-      create: {
-        key: PLATFORM_SETTING_KEY,
-        value: {
-          webhookId,
-          signingSecret,
-          endpoint,
-        } satisfies StoredWebhookConfig as Prisma.InputJsonValue,
-      },
-      update: {
-        value: {
-          webhookId,
-          signingSecret,
-          endpoint,
-        } satisfies StoredWebhookConfig as Prisma.InputJsonValue,
-      },
-    });
-
-    this.logger.log(`Resend webhook configured for ${endpoint}`);
-    return { configured: true, webhookId, created };
   }
 
   private resolveWebhookEndpoint(): string {
