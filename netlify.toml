@@ -1,0 +1,12 @@
+[build]
+  command = "pnpm install --ignore-scripts && pnpm --filter @transit-logistic/shared build && pnpm --filter @transit-logistic/web build"
+  publish = "apps/web/.next"
+
+[build.environment]
+  NODE_VERSION = "20"
+  NEXT_TELEMETRY_DISABLED = "1"
+  NEXT_PUBLIC_API_URL = "https://transit-logistic-production.up.railway.app"
+  NETLIFY_USE_PNPM = "true"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
