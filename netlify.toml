@@ -1,5 +1,5 @@
 [build]
-  command = "bash scripts/netlify-build.sh"
+  command = "node scripts/netlify-build.mjs"
   publish = "apps/web/.next"
   functions = "netlify/functions"
 
