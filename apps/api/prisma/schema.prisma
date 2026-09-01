@@ -423,6 +423,38 @@ enum ChecklistItemStatus {
   @@map("checklist_item_status")
 }
 
+enum ExtractionReviewStatus {
+  CONFIRMED_FROM_DOCUMENT
+  NEEDS_REVIEW
+  MISSING
+  MANUALLY_OVERRIDDEN
+  EXTRACTION_FAILED
+
+  @@map("extraction_review_status")
+}
+
+enum DeclarationPrepStatus {
+  not_started
+  documents_uploaded
+  extracting
+  draft_ready
+  under_review
+  hs_review
+  validated
+  bayan_ready
+
+  @@map("declaration_prep_status")
+}
+
+enum DocumentExtractionStatus {
+  pending
+  processing
+  completed
+  failed
+
+  @@map("document_extraction_status")
+}
+
 enum ContainerRecordStatus {
   booked
   loaded
@@ -1656,6 +1688,18 @@ model CustomsClearanceRequest {
   eta                 DateTime?
   etd                 DateTime?
   declarationNumber   String?                  @map("declaration_number")
+  customsEntryExitPort String?                 @map("customs_entry_exit_port")
+  consigneeName       String?                  @map("consignee_name")
+  consigneeConfirmed  Boolean                  @default(false) @map("consignee_confirmed")
+  declarationPrepStatus DeclarationPrepStatus @default(not_started) @map("declaration_prep_status")
+  declarationDraftBuiltAt DateTime?            @map("declaration_draft_built_at")
+  bayanReadyAt        DateTime?                @map("bayan_ready_at")
+  bayanDeclarationNumber String?               @map("bayan_declaration_number")
+  bayanDeclarationDate DateTime?               @map("bayan_declaration_date")
+  customsDutyAmount   Decimal?                 @map("customs_duty_amount") @db.Decimal(14, 3)
+  customsPaymentStatus String?                 @map("customs_payment_status")
+  customsReleaseStatus String?                 @map("customs_release_status")
+  bayanNotes          String?                  @map("bayan_notes")
   assignedToId        String?                  @map("assigned_to_id") @db.Uuid
   notes               String?
   createdAt           DateTime                 @default(now()) @map("created_at")
@@ -1674,6 +1718,9 @@ model CustomsClearanceRequest {
   checklistItems   DocumentChecklistItem[]
   conversations    LogisticsConversation[]
   statusHistory    LogisticsStatusHistory[] @relation("CustomsStatusHistory")
+  extractedFields  DeclarationExtractedField[]
+  fieldDiscrepancies FieldDiscrepancy[]
+  documentExtractions DocumentExtraction[]
 
   @@index([customerId])
   @@index([status])
@@ -1688,6 +1735,10 @@ model CustomsCargoLine {
   customsRequestId  String   @map("customs_request_id") @db.Uuid
   description       String
   hsCode            String?  @map("hs_code")
+  approvedHsCode    String?  @map("approved_hs_code")
+  quantity          Decimal? @db.Decimal(14, 3)
+  unitOfMeasure     String?  @map("unit_of_measure")
+  unitPrice         Decimal? @map("unit_price") @db.Decimal(14, 3)
   packageCount      Int?     @map("package_count")
   packageType       String?  @map("package_type")
   grossWeightKg     Decimal? @map("gross_weight_kg") @db.Decimal(12, 3)
@@ -1697,6 +1748,10 @@ model CustomsCargoLine {
   currency          String   @default("OMR")
   containerCount    Int?     @map("container_count")
   containerType     String?  @map("container_type")
+  vin               String?
+  vehicleMake       String?  @map("vehicle_make")
+  vehicleModel      String?  @map("vehicle_model")
+  vehicleYear       Int?     @map("vehicle_year")
   isReefer          Boolean  @default(false) @map("is_reefer")
   isDangerousGoods  Boolean  @default(false) @map("is_dangerous_goods")
   isVehicleCargo    Boolean  @default(false) @map("is_vehicle_cargo")
@@ -1707,6 +1762,7 @@ model CustomsCargoLine {
   createdAt         DateTime @default(now()) @map("created_at")
 
   customsRequest CustomsClearanceRequest @relation(fields: [customsRequestId], references: [id], onDelete: Cascade)
+  hsSuggestions  CargoLineHsSuggestion[]
 
   @@index([customsRequestId])
   @@map("customs_cargo_lines")
@@ -1789,6 +1845,8 @@ model LogisticsDocument {
   freightRequest FreightForwardingRequest? @relation(fields: [freightRequestId], references: [id], onDelete: Cascade)
   uploadedBy     User                      @relation("LogisticsDocumentUploader", fields: [uploadedById], references: [id], onDelete: Restrict)
   checklistItems DocumentChecklistItem[]
+  extractions    DocumentExtraction[]
+  extractedFields DeclarationExtractedField[]
 
   @@index([logisticsOrderId])
   @@index([customsRequestId])
@@ -2109,6 +2167,167 @@ model OceanCarrierConfig {
   updatedAt                   DateTime                     @updatedAt @map("updated_at")
 
   @@map("ocean_carrier_configs")
+}
+
+model DocumentExtraction {
+  id                  String                   @id @default(uuid()) @db.Uuid
+  logisticsDocumentId String                   @map("logistics_document_id") @db.Uuid
+  customsRequestId    String                   @map("customs_request_id") @db.Uuid
+  status              DocumentExtractionStatus @default(pending)
+  detectedCategory    LogisticsDocumentCategory? @map("detected_category")
+  rawPayload          Json?                    @map("raw_payload")
+  errorMessage        String?                  @map("error_message")
+  startedAt           DateTime?                @map("started_at")
+  completedAt         DateTime?                @map("completed_at")
+  createdAt           DateTime                 @default(now()) @map("created_at")
+
+  logisticsDocument LogisticsDocument       @relation(fields: [logisticsDocumentId], references: [id], onDelete: Cascade)
+  customsRequest    CustomsClearanceRequest @relation(fields: [customsRequestId], references: [id], onDelete: Cascade)
+  fields            DeclarationExtractedField[]
+
+  @@index([logisticsDocumentId])
+  @@index([customsRequestId])
+  @@map("document_extractions")
+}
+
+model DeclarationExtractedField {
+  id                  String                 @id @default(uuid()) @db.Uuid
+  customsRequestId    String                 @map("customs_request_id") @db.Uuid
+  fieldKey            String                 @map("field_key")
+  fieldGroup          String                 @map("field_group")
+  displayValue        String?                @map("display_value")
+  normalizedValue     String?                @map("normalized_value")
+  reviewStatus        ExtractionReviewStatus @default(NEEDS_REVIEW) @map("review_status")
+  confidence          Decimal?               @db.Decimal(5, 4)
+  extractionMethod    String?                @map("extraction_method")
+  evidenceSnippet     String?                @map("evidence_snippet")
+  sourceDocumentId    String?                @map("source_document_id") @db.Uuid
+  sourcePage          Int?                   @map("source_page")
+  sourceExtractionId  String?                @map("source_extraction_id") @db.Uuid
+  cargoLineIndex      Int?                   @map("cargo_line_index")
+  reviewedById        String?                @map("reviewed_by_id") @db.Uuid
+  reviewedAt          DateTime?              @map("reviewed_at")
+  createdAt           DateTime               @default(now()) @map("created_at")
+  updatedAt           DateTime               @updatedAt @map("updated_at")
+
+  customsRequest   CustomsClearanceRequest @relation(fields: [customsRequestId], references: [id], onDelete: Cascade)
+  sourceDocument   LogisticsDocument?      @relation(fields: [sourceDocumentId], references: [id], onDelete: SetNull)
+  sourceExtraction DocumentExtraction?     @relation(fields: [sourceExtractionId], references: [id], onDelete: SetNull)
+
+  @@index([customsRequestId])
+  @@index([fieldKey])
+  @@index([sourceDocumentId])
+  @@map("declaration_extracted_fields")
+}
+
+model FieldDiscrepancy {
+  id               String   @id @default(uuid()) @db.Uuid
+  customsRequestId String   @map("customs_request_id") @db.Uuid
+  fieldKey         String   @map("field_key")
+  values           Json
+  resolved         Boolean  @default(false)
+  resolvedValue    String?  @map("resolved_value")
+  createdAt        DateTime @default(now()) @map("created_at")
+
+  customsRequest CustomsClearanceRequest @relation(fields: [customsRequestId], references: [id], onDelete: Cascade)
+
+  @@index([customsRequestId])
+  @@map("field_discrepancies")
+}
+
+model CargoLineHsSuggestion {
+  id                 String   @id @default(uuid()) @db.Uuid
+  cargoLineId        String   @map("cargo_line_id") @db.Uuid
+  hsCode             String   @map("hs_code")
+  descriptionEn      String   @map("description_en")
+  descriptionAr      String   @map("description_ar")
+  dutyRate           String?  @map("duty_rate")
+  permitRequired     Boolean  @default(false) @map("permit_required")
+  restrictionNote    String?  @map("restriction_note")
+  confidence         Decimal? @db.Decimal(5, 4)
+  isOfficialSource   Boolean  @default(false) @map("is_official_source")
+  matchExplanation   String?  @map("match_explanation")
+  tariffVersion      String?  @map("tariff_version")
+  officialSourceUrl  String?  @map("official_source_url")
+  sortOrder          Int      @default(0) @map("sort_order")
+  createdAt          DateTime @default(now()) @map("created_at")
+
+  cargoLine CustomsCargoLine @relation(fields: [cargoLineId], references: [id], onDelete: Cascade)
+
+  @@index([cargoLineId])
+  @@index([hsCode])
+  @@map("cargo_line_hs_suggestions")
+}
+
+model OmanHsTariffEntry {
+  id              String   @id @default(uuid()) @db.Uuid
+  hsCode          String   @map("hs_code")
+  descriptionEn   String   @map("description_en")
+  descriptionAr   String   @map("description_ar")
+  chapter         String?  @map("chapter")
+  heading         String?  @map("heading")
+  subheading      String?  @map("subheading")
+  dutyRate        String?  @map("duty_rate")
+  unitOfMeasure   String?  @map("unit_of_measure")
+  permitRequired  Boolean  @default(false) @map("permit_required")
+  restrictionNote String?  @map("restriction_note")
+  keywords        String[] @default([])
+  tariffVersion   String?  @map("tariff_version")
+  tariffYear      Int?     @map("tariff_year")
+  officialSource  String?  @map("official_source")
+  officialSourceUrl String? @map("official_source_url")
+  isOfficialSource Boolean @default(false) @map("is_official_source")
+  isVerified      Boolean  @default(false) @map("is_verified")
+  isActive        Boolean  @default(true) @map("is_active")
+  importedAt      DateTime @default(now()) @map("imported_at")
+  lastVerifiedAt  DateTime? @map("last_verified_at")
+  importBatchId   String?  @map("import_batch_id") @db.Uuid
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  importBatch OmanHsTariffImportBatch? @relation(fields: [importBatchId], references: [id], onDelete: SetNull)
+
+  @@unique([hsCode, tariffVersion])
+  @@index([hsCode])
+  @@index([chapter])
+  @@index([isActive, isOfficialSource])
+  @@map("oman_hs_tariff_entries")
+}
+
+model OmanHsTariffImportBatch {
+  id              String   @id @default(uuid()) @db.Uuid
+  fileName        String?  @map("file_name")
+  fileFormat      String   @map("file_format")
+  recordCount     Int      @default(0) @map("record_count")
+  officialCount   Int      @default(0) @map("official_count")
+  tariffVersion   String?  @map("tariff_version")
+  tariffYear      Int?     @map("tariff_year")
+  officialSource  String?  @map("official_source")
+  officialSourceUrl String? @map("official_source_url")
+  importedById    String?  @map("imported_by_id") @db.Uuid
+  notes           String?
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  entries OmanHsTariffEntry[]
+
+  @@map("oman_hs_tariff_import_batches")
+}
+
+model SavedConsignee {
+  id              String   @id @default(uuid()) @db.Uuid
+  companyName     String   @map("company_name")
+  companyNameAr   String?  @map("company_name_ar")
+  crNumber        String?  @map("cr_number")
+  address         String?
+  contactPhone    String?  @map("contact_phone")
+  contactEmail    String?  @map("contact_email")
+  createdById     String   @map("created_by_id") @db.Uuid
+  usageCount      Int      @default(0) @map("usage_count")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  @@index([companyName])
+  @@map("saved_consignees")
 }
 
 model OceanTrackingCache {

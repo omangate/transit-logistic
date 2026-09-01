@@ -17,10 +17,11 @@ import type { Response } from 'express';
 export class FilesController {
   constructor(private readonly storage: StorageService) {}
 
-  @Get(':key(*)')
+  @Get('*key')
   @UseGuards(JwtAuthGuard)
-  async download(@Param('key') key: string, @Res() res: Response) {
-    const decoded = decodeURIComponent(key);
+  async download(@Param('key') key: string | string[], @Res() res: Response) {
+    const raw = Array.isArray(key) ? key.join('/') : key;
+    const decoded = decodeURIComponent(raw);
     if (!decoded.startsWith('private/')) {
       throw new NotFoundException({
         code: 'FILE_NOT_FOUND',

@@ -35,12 +35,22 @@ export type CustomsCargoLine = {
   id: string;
   description: string;
   hsCode?: string | null;
+  approvedHsCode?: string | null;
+  quantity?: string | null;
+  unitOfMeasure?: string | null;
+  unitPrice?: string | null;
   packageCount?: number | null;
   grossWeightKg?: string | null;
+  netWeightKg?: string | null;
+  volumeCbm?: string | null;
   cargoValue?: string | null;
   currency: string;
   containerCount?: number | null;
   containerType?: string | null;
+  vin?: string | null;
+  vehicleMake?: string | null;
+  vehicleModel?: string | null;
+  vehicleYear?: number | null;
 };
 
 export type FreightForwardingRequest = {

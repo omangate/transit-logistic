@@ -45,9 +45,11 @@ import type {
   DocumentChecklistItem,
   FleetLogisticsDashboard,
   FreightForwardingRequest,
+  CustomsCargoLine,
   LogisticsCharge,
   LogisticsConversation,
   LogisticsDashboard,
+  LogisticsDocument,
   LogisticsMessage,
   LogisticsOrder,
   LogisticsQuote,
@@ -1243,6 +1245,219 @@ export async function updateAdminCustomsStatus(id: string, status: string, note?
     method: 'PATCH',
     body: JSON.stringify({ status, note }),
   });
+}
+
+export type DeclarationExtractedField = {
+  id: string;
+  fieldKey: string;
+  fieldGroup: string;
+  displayValue: string | null;
+  reviewStatus: string;
+  confidence?: string | null;
+  sourcePage?: number | null;
+  sourceDocument?: { id: string; category: string; originalName: string | null } | null;
+};
+
+export type DeclarationDraftResponse = {
+  request: {
+    id: string;
+    referenceNumber: string;
+    transactionType: string;
+    status: string;
+    declarationPrepStatus: string;
+    customsEntryExitPort?: string | null;
+    consigneeName?: string | null;
+    consigneeConfirmed?: boolean;
+    bayanReadyAt?: string | null;
+    bayanDeclarationNumber?: string | null;
+    bayanDeclarationDate?: string | null;
+    customsDutyAmount?: number | null;
+    customsPaymentStatus?: string | null;
+    customsReleaseStatus?: string | null;
+    bayanNotes?: string | null;
+  };
+  fields: DeclarationExtractedField[];
+  merged: Record<string, string>;
+  discrepancies: Array<{ id: string; fieldKey: string; values: unknown; resolved: boolean }>;
+  missingFields: Array<{ key: string; label: string; labelAr: string; required: boolean; reason?: string }>;
+  cargoLines: CustomsCargoLine[];
+  documents: LogisticsDocument[];
+  hsSuggestions: Array<{
+    cargoLineId: string;
+    description: string;
+    approvedHsCode?: string | null;
+    suggestions: Array<{
+      id: string;
+      hsCode: string;
+      descriptionEn: string;
+      descriptionAr: string;
+      dutyRate?: string | null;
+      permitRequired: boolean;
+      restrictionNote?: string | null;
+      confidence?: string | null;
+    }>;
+  }>;
+};
+
+export type BayanField = {
+  label: string;
+  value: string;
+  copyKey: string;
+  reviewStatus?: string;
+};
+
+export type BayanViewResponse = {
+  sections: Array<{
+    id: string;
+    title: string;
+    fields?: BayanField[];
+    containers?: BayanField[];
+    seals?: BayanField[];
+    lines?: Array<{ lineNumber: number; fields: BayanField[] }>;
+  }>;
+  summaryText?: string;
+};
+
+export async function getCustomsDeclarationDraft(id: string): Promise<DeclarationDraftResponse> {
+  return authRequest<DeclarationDraftResponse>(`/admin/customs/requests/${id}/declaration-draft`);
+}
+
+export async function uploadCustomsDocumentsAndExtract(
+  customsRequestId: string,
+  files: Array<{ file: File; category: string }>,
+): Promise<DeclarationDraftResponse> {
+  const formData = new FormData();
+  const categories = files.map((f) => f.category);
+  files.forEach(({ file }) => formData.append('files', file));
+  formData.append('categories', JSON.stringify(categories));
+  return authMultipartRequest<DeclarationDraftResponse>(
+    `/admin/customs/requests/${customsRequestId}/documents/upload-and-extract`,
+    formData,
+  );
+}
+
+export async function buildCustomsDeclarationDraft(id: string): Promise<DeclarationDraftResponse> {
+  return authRequest<DeclarationDraftResponse>(`/admin/customs/requests/${id}/build-draft`, { method: 'POST' });
+}
+
+export async function updateCustomsDeclarationDraft(
+  id: string,
+  input: { customsEntryExitPort?: string; consigneeName?: string; consigneeConfirmed?: boolean; transactionType?: string },
+): Promise<DeclarationDraftResponse> {
+  return authRequest<DeclarationDraftResponse>(`/admin/customs/requests/${id}/declaration-draft`, {
+    method: 'PATCH',
+    body: JSON.stringify(input),
+  });
+}
+
+export async function confirmDeclarationField(
+  fieldId: string,
+  input: { reviewStatus: string; displayValue?: string },
+): Promise<DeclarationExtractedField> {
+  return authRequest<DeclarationExtractedField>(`/admin/customs/declaration-fields/${fieldId}`, {
+    method: 'PATCH',
+    body: JSON.stringify(input),
+  });
+}
+
+export async function approveCargoLineHs(lineId: string, hsCode: string) {
+  return authRequest(`/admin/customs/cargo-lines/${lineId}/approve-hs`, {
+    method: 'PATCH',
+    body: JSON.stringify({ hsCode }),
+  });
+}
+
+export async function validateCustomsDeclaration(id: string) {
+  return authRequest<{ valid: boolean; blockers: unknown[]; draft: DeclarationDraftResponse }>(
+    `/admin/customs/requests/${id}/validate`,
+    { method: 'POST' },
+  );
+}
+
+export async function markCustomsBayanReady(id: string) {
+  return authRequest<{ valid: boolean; bayanView?: BayanViewResponse }>(`/admin/customs/requests/${id}/bayan-ready`, {
+    method: 'POST',
+  });
+}
+
+export async function getCustomsBayanView(id: string): Promise<BayanViewResponse> {
+  return authRequest<BayanViewResponse>(`/admin/customs/requests/${id}/bayan-view`);
+}
+
+export async function searchSavedConsignees(q: string) {
+  return authRequest<Array<{ id: string; companyName: string; companyNameAr?: string | null; crNumber?: string | null; address?: string | null }>>(
+    `/admin/customs/consignees/search?q=${encodeURIComponent(q)}`,
+  );
+}
+
+export async function saveConsignee(input: {
+  companyName: string;
+  companyNameAr?: string;
+  crNumber?: string;
+  address?: string;
+}) {
+  return authRequest('/admin/customs/consignees', { method: 'POST', body: JSON.stringify(input) });
+}
+
+export async function searchHsCodes(q: string) {
+  return authRequest<Array<{ hsCode: string; descriptionEn: string; descriptionAr: string; dutyRate?: string; permitRequired: boolean; confidence: number }>>(
+    `/admin/customs/hs-codes/search?q=${encodeURIComponent(q)}`,
+  );
+}
+
+export async function fetchHsTariffStats() {
+  return authRequest<{
+    totalRecords: number;
+    officialRecords: number;
+    unverifiedRecords: number;
+    activeTariffVersion: string | null;
+    tariffYear: number | null;
+    datasetComplete: boolean;
+    completenessMessage?: string | null;
+  }>('/admin/customs/hs-tariff/stats');
+}
+
+export async function searchHsTariff(q: string) {
+  return authRequest<{ results: Array<{ hsCode: string; descriptionEn: string; descriptionAr: string; dutyRate?: string | null }> }>(
+    `/admin/customs/hs-tariff/search?q=${encodeURIComponent(q)}`,
+  );
+}
+
+export async function importHsTariffFile(file: File) {
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('tariffVersion', 'GCC-2025');
+  formData.append('tariffYear', '2025');
+  formData.append('archivePrevious', 'true');
+  return authMultipartRequest('/admin/customs/hs-tariff/import', formData);
+}
+
+export async function recordBayanSubmission(
+  requestId: string,
+  input: {
+    bayanDeclarationNumber: string;
+    bayanDeclarationDate?: string;
+    customsDutyAmount?: number;
+    customsPaymentStatus?: string;
+    customsReleaseStatus?: string;
+    bayanNotes?: string;
+  },
+) {
+  return authRequest(`/admin/customs/requests/${requestId}/bayan-record`, { method: 'PATCH', body: JSON.stringify(input) });
+}
+
+export function preparationSheetPdfUrl(requestId: string) {
+  return buildApiUrl(`/admin/customs/requests/${requestId}/preparation-sheet.pdf`);
+}
+
+export async function downloadPreparationSheetPdf(requestId: string): Promise<Blob> {
+  const token = getAccessToken();
+  if (!token) throw createUnauthorizedError();
+  const response = await fetch(preparationSheetPdfUrl(requestId), {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!response.ok) throw await parseApiError(response);
+  return response.blob();
 }
 
 export async function openLogisticsConversation(input: {

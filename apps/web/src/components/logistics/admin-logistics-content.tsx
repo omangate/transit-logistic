@@ -100,13 +100,18 @@ export function AdminLogisticsDashboardContent() {
       header: t('admin.table.actions'),
       accessor: () => '',
       render: (row) => (
-        <button
-          type="button"
-          className="rental-btn rental-btn--ghost"
-          onClick={() => void updateAdminCustomsStatus(row.id, 'clearance_in_progress').then(reload)}
-        >
-          {t('admin.startClearance')}
-        </button>
+        <>
+          <Link href={`/admin/logistics/customs/${row.id}/prepare`} className="rental-btn rental-btn--ghost">
+            {t('customsPrep.title')}
+          </Link>
+          <button
+            type="button"
+            className="rental-btn rental-btn--ghost"
+            onClick={() => void updateAdminCustomsStatus(row.id, 'clearance_in_progress').then(reload)}
+          >
+            {t('admin.startClearance')}
+          </button>
+        </>
       ),
     },
   ];
@@ -120,9 +125,14 @@ export function AdminLogisticsDashboardContent() {
       user={user}
       title={t('admin.title')}
       action={
-        <Link href="/admin/logistics/checklist-templates" className="rental-btn rental-btn--ghost">
-          {t('checklistTemplates.manage')}
-        </Link>
+        <div className="admin-shell__actions">
+          <Link href="/admin/logistics/customs/hs-tariff" className="rental-btn rental-btn--ghost">
+            {t('customsPrep.hsAdminTitle')}
+          </Link>
+          <Link href="/admin/logistics/checklist-templates" className="rental-btn rental-btn--ghost">
+            {t('checklistTemplates.manage')}
+          </Link>
+        </div>
       }
     >
       {error ? <FormError message={error} /> : null}

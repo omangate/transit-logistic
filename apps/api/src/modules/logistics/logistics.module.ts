@@ -7,7 +7,13 @@ import { ChecklistTemplatesService } from './checklist-templates.service';
 import { FleetLogisticsController } from './fleet-logistics.controller';
 import { FleetLogisticsService } from './fleet-logistics.service';
 import { AdminCustomsController, CustomsClearanceController } from './customs-clearance.controller';
+import { AdminCustomsDeclarationController } from './customs-declaration-prep.controller';
+import { AdminOmanHsTariffController } from './oman-hs-tariff.controller';
 import { CustomsClearanceService } from './customs-clearance.service';
+import { CustomsDeclarationPrepService } from './customs-declaration-prep.service';
+import { CustomsDocumentExtractionService } from './customs-document-extraction.service';
+import { OmanHsTariffImportService } from './oman-hs-tariff-import.service';
+import { OmanHsTariffService } from './oman-hs-tariff.service';
 import { AdminFreightController, FreightForwardingController } from './freight-forwarding.controller';
 import { FreightForwardingService } from './freight-forwarding.service';
 import {
@@ -43,6 +49,8 @@ import { LogisticsVehiclesService } from './logistics-vehicles.service';
     AdminLogisticsOpsController,
     CustomsClearanceController,
     AdminCustomsController,
+    AdminCustomsDeclarationController,
+    AdminOmanHsTariffController,
     FreightForwardingController,
     AdminFreightController,
     LogisticsDocumentsController,
@@ -60,6 +68,10 @@ import { LogisticsVehiclesService } from './logistics-vehicles.service';
     LogisticsAuditService,
     LogisticsOrdersService,
     CustomsClearanceService,
+    CustomsDeclarationPrepService,
+    CustomsDocumentExtractionService,
+    OmanHsTariffService,
+    OmanHsTariffImportService,
     FreightForwardingService,
     LogisticsDocumentsService,
     LogisticsQuotesService,
