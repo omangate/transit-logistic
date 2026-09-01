@@ -16,7 +16,9 @@ function tryRun(cmd) {
   try {
     run(cmd);
     return true;
-  } catch {
+  } catch (error) {
+    const status = error && typeof error === 'object' && 'status' in error ? error.status : 1;
+    console.warn(`[netlify-build] WARNING (exit ${status}): ${cmd}`);
     return false;
   }
 }
@@ -41,10 +43,12 @@ console.log('[netlify-build] Building shared package...');
 run('pnpm --filter @transit-logistic/shared build');
 
 console.log('[netlify-build] Generating Prisma client...');
-run('pnpm --filter @transit-logistic/api exec prisma generate --schema=prisma/schema.prisma');
+if (!tryRun('pnpm --filter @transit-logistic/api exec prisma generate --schema=prisma/schema.prisma')) {
+  console.warn('[netlify-build] prisma generate failed — continuing if client already exists');
+}
 
 console.log('[netlify-build] Building API...');
-run('pnpm --filter @transit-logistic/api build');
+run('pnpm --filter @transit-logistic/api exec tsc -p tsconfig.build.json');
 
 const dbUrl = resolveDatabaseUrl();
 if (dbUrl) {
@@ -56,9 +60,7 @@ if (dbUrl) {
   if (process.env.NETLIFY_TEST_SEED !== 'false') {
     console.log('[netlify-build] Seeding test database...');
     process.env.SEED_DEMO_ACCOUNTS = 'true';
-    if (!tryRun('pnpm --filter @transit-logistic/api exec ts-node prisma/seed.ts')) {
-      console.warn('[netlify-build] Seed skipped or failed (non-fatal)');
-    }
+    tryRun('pnpm --filter @transit-logistic/api exec ts-node --transpile-only prisma/seed.ts');
   }
 } else {
   console.log('[netlify-build] DATABASE_URL not set — skipping migrate/seed');

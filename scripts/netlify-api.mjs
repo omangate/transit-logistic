@@ -79,7 +79,7 @@ async function github(method, path, body) {
 
 const REPO = 'omangate/transit-logistic';
 const BRANCH = 'feature/premium-ui-ocean-carriers';
-const BUILD_CMD = 'bash scripts/netlify-build.sh';
+const BUILD_CMD = 'node scripts/netlify-build.mjs';
 
 async function main() {
   const action = process.argv[2] ?? 'status';
