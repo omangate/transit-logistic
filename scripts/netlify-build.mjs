@@ -69,6 +69,7 @@ if (dbUrl) {
 console.log('[netlify-build] Building web app...');
 process.env.NODE_ENV = 'production';
 process.env.NEXT_PUBLIC_USE_SAME_ORIGIN_API ??= 'true';
+process.env.CI = 'false';
 run('pnpm --filter @transit-logistic/web build');
 
 console.log('[netlify-build] Done.');
