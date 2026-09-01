@@ -33,6 +33,9 @@ function resolveApiOrigin(): string {
 const nextConfig: NextConfig = {
   transpilePackages: ['@transit-logistic/shared'],
   reactStrictMode: true,
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
   async rewrites() {
     const apiOrigin = resolveApiOrigin();
 

@@ -37,7 +37,7 @@ function resolveDatabaseUrl() {
 console.log('[netlify-build] Installing dependencies...');
 process.env.NODE_ENV = 'development';
 process.env.NPM_CONFIG_PRODUCTION = 'false';
-run('pnpm install --config.production=false');
+run('pnpm install --ignore-scripts --config.production=false');
 
 console.log('[netlify-build] Building shared package...');
 run('pnpm --filter @transit-logistic/shared build');
