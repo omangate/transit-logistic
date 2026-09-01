@@ -37,18 +37,20 @@ function resolveDatabaseUrl() {
 console.log('[netlify-build] Installing dependencies...');
 process.env.NODE_ENV = 'development';
 process.env.NPM_CONFIG_PRODUCTION = 'false';
-run('pnpm install --ignore-scripts --config.production=false');
+run('pnpm install --config.production=false');
 
 console.log('[netlify-build] Building shared package...');
 run('pnpm --filter @transit-logistic/shared build');
 
 console.log('[netlify-build] Generating Prisma client...');
-if (!tryRun('pnpm --filter @transit-logistic/api exec prisma generate --schema=prisma/schema.prisma')) {
-  console.warn('[netlify-build] prisma generate failed — continuing if client already exists');
+if (!tryRun('pnpm --filter @transit-logistic/api run db:generate')) {
+  tryRun('pnpm dlx prisma@6.19.3 generate --schema=apps/api/prisma/schema.prisma');
 }
 
 console.log('[netlify-build] Building API...');
-run('pnpm --filter @transit-logistic/api exec tsc -p tsconfig.build.json');
+if (!tryRun('pnpm --filter @transit-logistic/api exec tsc -p tsconfig.build.json')) {
+  run('pnpm --filter @transit-logistic/api build');
+}
 
 const dbUrl = resolveDatabaseUrl();
 if (dbUrl) {
